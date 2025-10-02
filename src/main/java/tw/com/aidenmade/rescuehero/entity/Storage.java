@@ -2,8 +2,8 @@ package tw.com.aidenmade.rescuehero.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import tw.com.aidenmade.rescuehero.entity.common.AuditInfo;
 
-import java.util.UUID;
 
 /**
  * 災害物資庫存站
@@ -27,8 +27,9 @@ public class Storage {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "audit_id", nullable = false)
-    private UUID auditId;
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "audit_id", nullable = false)
+    private AuditInfo auditInfo;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "type_id", nullable = false)

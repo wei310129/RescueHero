@@ -2,8 +2,8 @@ package tw.com.aidenmade.rescuehero.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import tw.com.aidenmade.rescuehero.entity.common.AuditInfo;
 
-import java.util.UUID;
 
 
 /**
@@ -28,8 +28,9 @@ public class RescueTeam {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "audit_id", nullable = false)
-    private UUID auditId;
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "audit_id", nullable = false)
+    private AuditInfo auditInfo;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "unit_id", nullable = false, unique = true)

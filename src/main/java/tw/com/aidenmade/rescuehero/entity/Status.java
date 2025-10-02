@@ -3,6 +3,7 @@ package tw.com.aidenmade.rescuehero.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Comment;
+import tw.com.aidenmade.rescuehero.entity.common.AuditInfo;
 
 @Entity
 @Table(name = "status", uniqueConstraints = {
@@ -19,6 +20,10 @@ public class Status {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Comment("主鍵 ID")
     private Long id;
+
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "audit_id", nullable = false)
+    private AuditInfo auditInfo;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "disaster_id", nullable = false)

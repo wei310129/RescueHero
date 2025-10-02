@@ -2,11 +2,11 @@ package tw.com.aidenmade.rescuehero.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import tw.com.aidenmade.rescuehero.entity.common.AuditInfo;
 import tw.com.aidenmade.rescuehero.entity.id.RescueGroupTaskItemMemberRole;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
 
 /**
  * 角色表
@@ -30,8 +30,9 @@ public class Role {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "audit_id", nullable = false)
-    private UUID auditId;
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "audit_id", nullable = false)
+    private AuditInfo auditInfo;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "disaster_id", nullable = false)

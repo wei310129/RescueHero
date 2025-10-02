@@ -3,6 +3,7 @@ package tw.com.aidenmade.rescuehero.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Comment;
+import tw.com.aidenmade.rescuehero.entity.common.AuditInfo;
 import tw.com.aidenmade.rescuehero.enums.DisasterStatus;
 
 import java.time.LocalDate;
@@ -21,10 +22,11 @@ public class Disaster {
     @Comment("主鍵 ID")
     private Long id;
 
-    @Column(name = "audit_id", nullable = false)
-    @Comment("審計資訊 ID (audit_info 外鍵)")
-    private String auditId;
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "audit_id", nullable = false)
+    private AuditInfo auditInfo;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 30)
     @Comment("災害狀態")
     private DisasterStatus status;

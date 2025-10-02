@@ -1,4 +1,4 @@
-package tw.com.aidenmade.rescuehero.entity;
+package tw.com.aidenmade.rescuehero.entity.common;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -12,12 +12,14 @@ import java.util.UUID;
  * 審計資訊基礎類別
  * 提供共用的審計欄位：id, created_at, updated_at, created_by
  */
+@Entity
+@Table(name = "audit_info")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@MappedSuperclass
-public abstract class AuditInfo {
+@Builder
+public class AuditInfo {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

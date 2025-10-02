@@ -37,6 +37,7 @@ CREATE INDEX idx_status_type_audit_id ON status_type(audit_id);
 -- 狀態表
 CREATE TABLE status (
     id BIGSERIAL PRIMARY KEY,
+    audit_id UUID NOT NULL REFERENCES audit_info(id), -- 審計資訊
     disaster_id BIGINT NOT NULL REFERENCES disaster(id) ON DELETE CASCADE, -- 所屬災害
     type_id BIGINT NOT NULL REFERENCES status_type(id) ON DELETE CASCADE,
     code VARCHAR(50) NOT NULL CHECK (code <> ''),        -- ex: pending, completed

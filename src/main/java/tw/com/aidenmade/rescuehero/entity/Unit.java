@@ -2,9 +2,9 @@ package tw.com.aidenmade.rescuehero.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import tw.com.aidenmade.rescuehero.entity.common.AuditInfo;
 
 import java.math.BigDecimal;
-import java.util.UUID;
 
 /**
  * 單位表（受災戶、救援隊等）
@@ -23,8 +23,9 @@ public class Unit {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "audit_id", nullable = false)
-    private UUID auditId;
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "audit_id", nullable = false)
+    private AuditInfo auditInfo;
 
     @Column(name = "name", nullable = false, length = 200)
     private String name;
