@@ -1,4 +1,4 @@
--- UUID 需啟用 uuid-ossp 擴充套件，只須執行一次
+-- UUID 擴充套件
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
 
@@ -14,7 +14,7 @@ CREATE TABLE audit_info (
 CREATE TABLE disaster (
     id BIGSERIAL PRIMARY KEY,
     audit_id UUID NOT NULL REFERENCES audit_info(id),
-    status_id BIGINT REFERENCES status(id),         -- 災害狀態 (active, resolved)
+    status VARCHAR(30),                             -- 災害狀態 (active, resolved)
     name VARCHAR(255) NOT NULL CHECK (name <> ''),                    -- 災害名稱
     occurred_at DATE NOT NULL,                      -- 發生時間，只存到日 (yyyy-MM-dd)
     location TEXT NOT NULL,                         -- 發生地點
@@ -22,7 +22,6 @@ CREATE TABLE disaster (
     UNIQUE (name, occurred_at)
 );
 CREATE INDEX idx_disaster_audit_id ON disaster(audit_id);
-CREATE INDEX idx_disaster_status_id ON disaster(status_id);
 CREATE INDEX idx_disaster_occurred_at ON disaster(occurred_at);
 
 
@@ -150,7 +149,8 @@ CREATE TABLE rescue_group (
     organization_id BIGINT NOT NULL REFERENCES rescue_organization(id) ON DELETE CASCADE,
     name VARCHAR(200) NOT NULL CHECK (name <> ''), -- 群組名稱 (例: 物資組, 醫療組、後勤組)
     description TEXT,                         -- 群組說明
-    UNIQUE (organization_id, disaster_id, name) -- 同一組織同一災害內名稱唯一
+    UNIQUE (organization_id, disaster_id, name), -- 同一組織同一災害內名稱唯一
+    UNIQUE (id, disaster_id) -- 確保 id + disaster_id 一致性 (方便外鍵參照
 );
 CREATE INDEX idx_rescue_group_audit_id ON rescue_group(audit_id);
 CREATE INDEX idx_rescue_group_disaster_id ON rescue_group(disaster_id);
