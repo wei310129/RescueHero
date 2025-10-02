@@ -1,3 +1,39 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+
 spring:
   application:
     name: RescueHero
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/rescuehero
+    username: ENC(342tI9Rcvc3OQ2VRumxA920ngWjAvC45rYJMknlkdH+bJOXRTMQqthEC34fhuszn)
+    password: ENC(jA3w1WcTNO91joFtYnJTC5X6966D16pqcH5YXX1nWZ5kE7ow6X4eaKUp8y/trfc3)
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: true
+    open-in-view: false  # 關閉 OSIV，避免 Entity 被意外修改
+
+  sql:
+    init:
+      mode: always
+
+  data:
+    mongodb:
+      uri: mongodb://${MONGO_USER}:${MONGO_PASSWORD}@localhost:27017/rescuehero
+    redis:
+      host: localhost
+      port: 6379
+      password: ENC(jA3w1WcTNO91joFtYnJTC5X6966D16pqcH5YXX1nWZ5kE7ow6X4eaKUp8y/trfc3)
+
+# mongodb
+MONGO_USER: ENC(342tI9Rcvc3OQ2VRumxA920ngWjAvC45rYJMknlkdH+bJOXRTMQqthEC34fhuszn)
+MONGO_PASSWORD: ENC(jA3w1WcTNO91joFtYnJTC5X6966D16pqcH5YXX1nWZ5kE7ow6X4eaKUp8y/trfc3)
