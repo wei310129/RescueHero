@@ -5,8 +5,8 @@ CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 -- 共用審計欄位
 CREATE TABLE audit_info (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    created_at TIMESTAMP NOT NULL DEFAULT now(),
-    updated_at TIMESTAMP NOT NULL DEFAULT now(),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     created_by VARCHAR(100) NOT NULL
 );
 
@@ -14,7 +14,7 @@ CREATE TABLE audit_info (
 CREATE TABLE disaster (
     id BIGSERIAL PRIMARY KEY,
     audit_id UUID NOT NULL REFERENCES audit_info(id),
-    status VARCHAR(30),                             -- 災害狀態 (active, resolved)
+    status VARCHAR(30) NOT NULL,                             -- 災害狀態 (active, resolved)
     name VARCHAR(255) NOT NULL CHECK (name <> ''),                    -- 災害名稱
     occurred_at DATE NOT NULL,                      -- 發生時間，只存到日 (yyyy-MM-dd)
     location TEXT NOT NULL,                         -- 發生地點
@@ -171,7 +171,7 @@ CREATE INDEX idx_rescue_team_group_id ON rescue_team(group_id);
 CREATE INDEX idx_rescue_team_status_id ON rescue_team(status_id);
 
 -- 救援團隊成員
-CREATE TABLE rescue_member (
+CREATE TABLE rescue_team_member (
     id BIGSERIAL PRIMARY KEY,
     audit_id UUID NOT NULL REFERENCES audit_info(id), -- 審計資訊
     person_id BIGINT NOT NULL REFERENCES person(id) ON DELETE CASCADE,
@@ -181,12 +181,12 @@ CREATE TABLE rescue_member (
     role_id BIGINT REFERENCES role(id),          -- 角色
     UNIQUE (person_id, team_id) -- 同一個人同一隊伍只能一筆
 );
-CREATE INDEX idx_rescue_member_audit_id ON rescue_member(audit_id);
-CREATE INDEX idx_rescue_member_person_id ON rescue_member(person_id);
-CREATE INDEX idx_rescue_member_team_id ON rescue_member(team_id);
-CREATE INDEX idx_rescue_member_org_id ON rescue_member(organization_id);
-CREATE INDEX idx_rescue_member_status_id ON rescue_member(status_id);
-CREATE INDEX idx_rescue_member_role_id ON rescue_member(role_id);
+CREATE INDEX idx_rescue_team_member_audit_id ON rescue_team_member(audit_id);
+CREATE INDEX idx_rescue_team_member_person_id ON rescue_team_member(person_id);
+CREATE INDEX idx_rescue_team_member_team_id ON rescue_team_member(team_id);
+CREATE INDEX idx_rescue_team_member_org_id ON rescue_team_member(organization_id);
+CREATE INDEX idx_rescue_team_member_status_id ON rescue_team_member(status_id);
+CREATE INDEX idx_rescue_team_member_role_id ON rescue_team_member(role_id);
 
 -- 群組救援任務
 CREATE TABLE rescue_group_task (
@@ -198,8 +198,8 @@ CREATE TABLE rescue_group_task (
     description TEXT,                                      -- 任務描述
     status_id BIGINT REFERENCES status(id),                -- 任務狀態
     priority INT NOT NULL CHECK (priority >= 1 AND priority <= 5),  -- 1=最高, 5=最低
-    assigned_at TIMESTAMP DEFAULT now(),                   -- 指派時間
-    completed_at TIMESTAMP,                                 -- 完成時間
+    assigned_at TIMESTAMPTZ DEFAULT now(),                   -- 指派時間
+    completed_at TIMESTAMPTZ,                                 -- 完成時間
     UNIQUE (group_id, name),                            -- 同一群組內名稱唯一
     -- 確保 group_id + disaster_id 一致性
     CONSTRAINT fk_group_task_disaster
@@ -222,8 +222,8 @@ CREATE TABLE rescue_group_task_item (
     name VARCHAR(200) NOT NULL CHECK (name <> ''), -- 工項名稱 (ex: 醫療檢查)
     description TEXT,                                     -- 工項描述
     status_id BIGINT REFERENCES status(id),                -- 工項狀態
-    started_at TIMESTAMP,                                 -- 開始時間
-    completed_at TIMESTAMP,                                -- 完成時間
+    started_at TIMESTAMPTZ,                                 -- 開始時間
+    completed_at TIMESTAMPTZ,                                -- 完成時間
     UNIQUE (task_id, name)
 );
 CREATE INDEX idx_task_item_audit_id ON rescue_group_task_item(audit_id);
@@ -234,7 +234,7 @@ CREATE INDEX idx_task_item_status_id ON rescue_group_task_item(status_id);
 CREATE TABLE rescue_group_task_item_member_role (
     audit_id UUID NOT NULL REFERENCES audit_info(id),  -- 審計資訊
     task_item_id BIGINT NOT NULL REFERENCES rescue_group_task_item(id) ON DELETE CASCADE,
-    member_id BIGINT NOT NULL REFERENCES rescue_member(id) ON DELETE CASCADE,
+    member_id BIGINT NOT NULL REFERENCES rescue_team_member(id) ON DELETE CASCADE,
     role_id BIGINT REFERENCES role(id),          -- 角色
     PRIMARY KEY (task_item_id, member_id, role_id)
 );
@@ -274,10 +274,10 @@ CREATE TABLE resource_request (
     disaster_id BIGINT NOT NULL REFERENCES disaster(id) ON DELETE CASCADE,
     resource_id BIGINT NOT NULL REFERENCES resource(id),
     quantity INT NOT NULL CHECK (quantity > 0),           -- 需求數量
-    requested_by BIGINT REFERENCES rescue_member(id),     -- 提出需求的人 (救援人員)
-    requested_at TIMESTAMP NOT NULL DEFAULT now(),        -- 需求時間
+    requested_by BIGINT REFERENCES rescue_team_member(id),     -- 提出需求的人 (救援人員)
+    requested_at TIMESTAMPTZ NOT NULL DEFAULT now(),        -- 需求時間
     fulfilled BOOLEAN NOT NULL DEFAULT FALSE,             -- 是否已滿足
-    fulfilled_at TIMESTAMP,                               -- 滿足時間
+    fulfilled_at TIMESTAMPTZ,                               -- 滿足時間
     note TEXT
 );
 CREATE INDEX idx_resource_request_audit_id ON resource_request(audit_id);
@@ -336,10 +336,10 @@ CREATE TABLE resource_distribution (
     disaster_id BIGINT NOT NULL REFERENCES disaster(id) ON DELETE CASCADE,
     resource_id BIGINT NOT NULL REFERENCES resource(id),
     quantity INT NOT NULL CHECK (quantity > 0),          -- 分配數量
-    delivered_by BIGINT NOT NULL REFERENCES rescue_member(id),     -- 執行分配的人 (救援人員)
+    delivered_by BIGINT NOT NULL REFERENCES rescue_team_member(id),     -- 執行分配的人 (救援人員)
     recipient_unit_id BIGINT REFERENCES unit(id),
     recipient_person_id BIGINT REFERENCES person(id),     -- 領取人 (可 NULL 表示非 person 成員，最好是直接建person紀錄 )
-    delivered_at TIMESTAMP NOT NULL DEFAULT now(),        -- 分配時間
+    delivered_at TIMESTAMPTZ NOT NULL DEFAULT now(),        -- 分配時間
     note TEXT,
     CHECK (recipient_unit_id IS NOT NULL OR recipient_person_id IS NOT NULL)
 );
