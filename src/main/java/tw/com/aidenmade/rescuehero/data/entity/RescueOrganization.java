@@ -1,22 +1,22 @@
-package tw.com.aidenmade.rescuehero.entity;
+package tw.com.aidenmade.rescuehero.data.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import tw.com.aidenmade.rescuehero.entity.common.AuditInfo;
+import tw.com.aidenmade.rescuehero.data.entity.common.AuditInfo;
 
 
 /**
- * 狀態類型表
+ * 救援組織
  */
 @Entity
-@Table(name = "status_type",
-        indexes = @Index(name = "idx_status_type_audit_id", columnList = "audit_id"))
+@Table(name = "rescue_organization",
+        indexes = @Index(name = "idx_rescue_org_audit_id", columnList = "audit_id"))
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class StatusType {
+public class RescueOrganization {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,7 +26,7 @@ public class StatusType {
     @JoinColumn(name = "audit_id", nullable = false)
     private AuditInfo auditInfo;
 
-    @Column(name = "name", nullable = false, unique = true, length = 50)
+    @Column(name = "name", nullable = false, unique = true, length = 200)
     private String name;
 
     @Column(name = "description", columnDefinition = "TEXT")

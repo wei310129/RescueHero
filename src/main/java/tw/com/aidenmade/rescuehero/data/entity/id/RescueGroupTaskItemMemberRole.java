@@ -1,10 +1,10 @@
-package tw.com.aidenmade.rescuehero.entity.id;
+package tw.com.aidenmade.rescuehero.data.entity.id;
 
 import jakarta.persistence.*;
 import lombok.*;
-import tw.com.aidenmade.rescuehero.entity.RescueGroupTaskItem;
-import tw.com.aidenmade.rescuehero.entity.RescueTeamMember;
-import tw.com.aidenmade.rescuehero.entity.Role;
+import tw.com.aidenmade.rescuehero.data.entity.RescueGroupTaskItem;
+import tw.com.aidenmade.rescuehero.data.entity.RescueTeamMember;
+import tw.com.aidenmade.rescuehero.data.entity.Role;
 
 import java.util.UUID;
 

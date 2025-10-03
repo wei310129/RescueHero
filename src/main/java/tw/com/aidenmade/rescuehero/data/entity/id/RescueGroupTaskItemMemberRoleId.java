@@ -1,4 +1,4 @@
-package tw.com.aidenmade.rescuehero.entity.id;
+package tw.com.aidenmade.rescuehero.data.entity.id;
 
 import lombok.*;
 

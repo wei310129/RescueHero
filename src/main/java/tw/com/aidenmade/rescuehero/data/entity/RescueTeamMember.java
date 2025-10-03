@@ -1,9 +1,9 @@
-package tw.com.aidenmade.rescuehero.entity;
+package tw.com.aidenmade.rescuehero.data.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import tw.com.aidenmade.rescuehero.entity.common.AuditInfo;
-import tw.com.aidenmade.rescuehero.entity.id.RescueGroupTaskItemMemberRole;
+import tw.com.aidenmade.rescuehero.data.entity.common.AuditInfo;
+import tw.com.aidenmade.rescuehero.data.entity.id.RescueGroupTaskItemMemberRole;
 
 import java.util.HashSet;
 import java.util.Set;

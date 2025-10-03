@@ -1,8 +1,8 @@
-package tw.com.aidenmade.rescuehero.entity;
+package tw.com.aidenmade.rescuehero.data.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import tw.com.aidenmade.rescuehero.entity.common.AuditInfo;
+import tw.com.aidenmade.rescuehero.data.entity.common.AuditInfo;
 
 import java.time.Instant;
 

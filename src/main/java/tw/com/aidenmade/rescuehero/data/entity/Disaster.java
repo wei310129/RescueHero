@@ -1,12 +1,12 @@
-package tw.com.aidenmade.rescuehero.entity;
+package tw.com.aidenmade.rescuehero.data.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Comment;
-import tw.com.aidenmade.rescuehero.entity.common.AuditInfo;
+import tw.com.aidenmade.rescuehero.data.entity.common.AuditInfo;
 import tw.com.aidenmade.rescuehero.enums.DisasterStatus;
 
-import java.time.LocalDate;
+import java.time.Instant;
 
 @Entity
 @Table(name = "disaster")
@@ -37,7 +37,7 @@ public class Disaster {
 
     @Column(name = "occurred_at", nullable = false)
     @Comment("發生日期 (只存到日 yyyy-MM-dd)")
-    private LocalDate occurredAt;
+    private Instant occurredAt;
 
     @Column(nullable = false, columnDefinition = "TEXT")
     @Comment("發生地點")

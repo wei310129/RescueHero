@@ -1,9 +1,9 @@
-package tw.com.aidenmade.rescuehero.entity;
+package tw.com.aidenmade.rescuehero.data.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Comment;
-import tw.com.aidenmade.rescuehero.entity.common.AuditInfo;
+import tw.com.aidenmade.rescuehero.data.entity.common.AuditInfo;
 
 @Entity
 @Table(name = "status", uniqueConstraints = {

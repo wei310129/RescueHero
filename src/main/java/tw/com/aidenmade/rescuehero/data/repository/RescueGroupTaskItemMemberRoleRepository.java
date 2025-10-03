@@ -1,8 +1,8 @@
-package tw.com.aidenmade.rescuehero.repository;
+package tw.com.aidenmade.rescuehero.data.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import tw.com.aidenmade.rescuehero.entity.id.RescueGroupTaskItemMemberRole;
-import tw.com.aidenmade.rescuehero.entity.id.RescueGroupTaskItemMemberRoleId;
+import tw.com.aidenmade.rescuehero.data.entity.id.RescueGroupTaskItemMemberRole;
+import tw.com.aidenmade.rescuehero.data.entity.id.RescueGroupTaskItemMemberRoleId;
 
 public interface RescueGroupTaskItemMemberRoleRepository
         extends JpaRepository<RescueGroupTaskItemMemberRole, RescueGroupTaskItemMemberRoleId> {
