@@ -1,36 +1,32 @@
 package tw.com.aidenmade.rescuehero.dto;
 
-import lombok.*;
-import java.time.Instant;
+import tw.com.aidenmade.rescuehero.dto.common.AuditInfoDto;
+
+import java.time.ZonedDateTime;
 
 /**
  * 物資分配紀錄
  */
-@Getter
-@Setter
-@ToString
-@NoArgsConstructor
-@AllArgsConstructor
-public class ResourceDistributionDto {
+public record ResourceDistributionDto(
     // 主鍵
-    private Long id;
+    Long id,
     // 稽核資訊ID
-    private Long auditInfoId;
+    AuditInfoDto auditInfo,
     // 災害ID
-    private Long disasterId;
+    DisasterDto disaster,
     // 物資ID
-    private Long resourceId;
+    ResourceDto resource,
     // 數量
-    private Integer quantity;
+    Integer quantity,
     // 配送人員ID
-    private Long deliveredById;
+    RescueTeamMemberDto deliveredBy,
     // 受領單位ID
-    private Long recipientUnitId;
+    UnitDto recipientUnit,
     // 受領人員ID
-    private Long recipientPersonId;
+    PersonDto recipientPerson,
     // 配送時間
-    private Instant deliveredAt;
+    ZonedDateTime deliveredAt,
     // 備註
-    private String note;
-}
+    String note
+) {}
 

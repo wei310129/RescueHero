@@ -39,16 +39,7 @@ public class HouseholdMember {
     @JoinColumn(name = "household_id", nullable = false)
     private Household household;
 
-    @Column(name = "age")
-    private Integer age;
-
-    @Column(name = "gender", length = 10)
-    private String gender;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "status_id")
     private Status status;
-
-    @Column(name = "note", columnDefinition = "TEXT")
-    private String note;
 }

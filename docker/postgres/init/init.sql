@@ -55,8 +55,11 @@ CREATE TABLE person (
     audit_id UUID NOT NULL REFERENCES audit_info(id), -- 審計資訊
     name VARCHAR(100) NOT NULL CHECK (name <> ''), -- 姓名
     identification VARCHAR(10) UNIQUE CHECK (name <> ''),          -- 身分證號 (可選)
+    age INT, -- 年齡
+    gender VARCHAR(10), -- 性別
     phone VARCHAR(50),
-    email VARCHAR(100)
+    email VARCHAR(100),
+    note TEXT            -- 備註(病史)
 );
 CREATE INDEX idx_person_audit_id ON person(audit_id);
 
@@ -121,10 +124,7 @@ CREATE TABLE household_member (
     audit_id UUID NOT NULL REFERENCES audit_info(id), -- 審計資訊
     person_id BIGINT NOT NULL REFERENCES person(id) ON DELETE CASCADE,
     household_id BIGINT NOT NULL REFERENCES household(id) ON DELETE CASCADE,
-    age INT, -- 年齡
-    gender VARCHAR(10), -- 性別
-    status_id BIGINT REFERENCES status(id),  -- 個人狀態 (ex: safe, injured, missing)
-    note TEXT            -- 備註(病史)
+    status_id BIGINT REFERENCES status(id)  -- 個人狀態 (ex: safe, injured, missing)
 );
 CREATE INDEX idx_household_member_audit_id ON household_member(audit_id);
 CREATE INDEX idx_household_member_person_id ON household_member(person_id);
@@ -163,8 +163,7 @@ CREATE TABLE rescue_team (
     audit_id UUID NOT NULL REFERENCES audit_info(id), -- 審計資訊
     unit_id BIGINT NOT NULL UNIQUE REFERENCES unit(id) ON DELETE CASCADE,
     group_id BIGINT REFERENCES rescue_group(id),          -- 所屬救援群組 (可 NULL 表示獨立團隊)
-    status_id BIGINT REFERENCES status(id),                -- 團隊狀態
-    contact_email VARCHAR(100)
+    status_id BIGINT REFERENCES status(id)                -- 團隊狀態
 );
 CREATE INDEX idx_rescue_team_audit_id ON rescue_team(audit_id);
 CREATE INDEX idx_rescue_team_unit_id ON rescue_team(unit_id);
@@ -261,7 +260,7 @@ CREATE TABLE resource (
     audit_id UUID NOT NULL REFERENCES audit_info(id), -- 審計資訊
     type_id BIGINT NOT NULL REFERENCES resource_type(id) ON DELETE RESTRICT, -- 所屬類型
     name VARCHAR(200) NOT NULL CHECK (name <> ''),  -- 物資名稱 (例：飲用水、帳篷)
-    unit VARCHAR(50) NOT NULL CHECK (unit <> ''),   -- 單位 (瓶、箱、包)
+    unit VARCHAR(50) NOT NULL CHECK (unit <> ''),   -- 計數單位 (瓶、箱、包)
     description TEXT,                         -- 說明
     UNIQUE (type_id, name)                           -- 同一類型內名稱唯一
 );
@@ -275,7 +274,7 @@ CREATE TABLE resource_request (
     disaster_id BIGINT NOT NULL REFERENCES disaster(id) ON DELETE CASCADE,
     resource_id BIGINT NOT NULL REFERENCES resource(id),
     quantity INT NOT NULL CHECK (quantity > 0),           -- 需求數量
-    requested_by BIGINT REFERENCES rescue_team_member(id),     -- 提出需求的人 (救援人員)
+    requested_by BIGINT REFERENCES person(id),     -- 提出需求的人 (救援人員)
     requested_at TIMESTAMPTZ NOT NULL DEFAULT now(),        -- 需求時間
     fulfilled BOOLEAN NOT NULL DEFAULT FALSE,             -- 是否已滿足
     fulfilled_at TIMESTAMPTZ,                               -- 滿足時間

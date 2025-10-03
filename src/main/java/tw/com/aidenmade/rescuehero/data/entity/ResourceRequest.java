@@ -46,7 +46,7 @@ public class ResourceRequest {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "requested_by")
-    private RescueTeamMember requestedBy;
+    private Person requestedBy;
 
     @Column(name = "requested_at", nullable = false)
     private Instant requestedAt;

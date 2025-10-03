@@ -1,28 +1,19 @@
 package tw.com.aidenmade.rescuehero.dto;
 
-import lombok.*;
+import tw.com.aidenmade.rescuehero.dto.common.AuditInfoDto;
 
 /**
  * 受災戶成員
  */
-@Getter
-@Setter
-@ToString
-@NoArgsConstructor
-@AllArgsConstructor
-public class HouseholdMemberDto {
+public record HouseholdMemberDto(
     // 主鍵
-    private Long id;
+    Long id,
     // 稽核資訊ID
-    private Long auditInfoId;
+    AuditInfoDto auditInfo,
     // 人員ID
-    private Long personId;
+    PersonDto person,
     // 受災戶ID
-    private Long householdId;
-    // 年齡
-    private Integer age;
-    // 性別
-    private String gender;
+    HouseholdDto household,
     // 狀態ID
-    private Long statusId;
-}
+    StatusDto status
+) {}

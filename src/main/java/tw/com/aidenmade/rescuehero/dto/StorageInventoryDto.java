@@ -1,26 +1,21 @@
 package tw.com.aidenmade.rescuehero.dto;
 
-import lombok.*;
+import tw.com.aidenmade.rescuehero.dto.common.AuditInfoDto;
 
 /**
  * 儲存站物資庫存
  */
-@Getter
-@Setter
-@ToString
-@NoArgsConstructor
-@AllArgsConstructor
-public class StorageInventoryDto {
+public record StorageInventoryDto(
     // 主鍵
-    private Long id;
+    Long id,
     // 稽核資訊ID
-    private Long auditInfoId;
+    AuditInfoDto auditInfo,
     // 災害ID
-    private Long disasterId;
+    DisasterDto disaster,
     // 儲存站ID
-    private Long storageId;
+    StorageDto storage,
     // 物資ID
-    private Long resourceId;
+    ResourceDto resource,
     // 數量
-    private Integer quantity;
-}
+    Integer quantity
+) {}

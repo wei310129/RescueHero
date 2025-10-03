@@ -32,9 +32,18 @@ public class Person {
     @Column(name = "identification", unique = true, length = 10)
     private String identification;
 
+    @Column(name = "age")
+    private Integer age;
+
+    @Column(name = "gender", length = 10)
+    private String gender;
+
     @Column(name = "phone", length = 50)
     private String phone;
 
     @Column(name = "email", length = 100)
     private String email;
+
+    @Column(name = "note", columnDefinition = "TEXT")
+    private String note;
 }

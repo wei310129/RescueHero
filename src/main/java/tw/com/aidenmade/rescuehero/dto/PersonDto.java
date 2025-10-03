@@ -1,26 +1,27 @@
 package tw.com.aidenmade.rescuehero.dto;
 
-import lombok.*;
+import tw.com.aidenmade.rescuehero.dto.common.AuditInfoDto;
 
 /**
  * 人員表
  */
-@Getter
-@Setter
-@ToString
-@NoArgsConstructor
-@AllArgsConstructor
-public class PersonDto {
+public record PersonDto(
     // 主鍵
-    private Long id;
+    Long id,
     // 稽核資訊ID
-    private Long auditInfoId;
+    AuditInfoDto auditInfo,
     // 姓名
-    private String name;
+    String name,
     // 身分證號
-    private String identification;
+    String identification,
+    // 年齡
+    Integer age,
+    // 性別
+    String gender,
     // 電話
-    private String phone;
+    String phone,
     // 電子郵件
-    private String email;
-}
+    String email,
+    // 備註
+    String note
+) {}

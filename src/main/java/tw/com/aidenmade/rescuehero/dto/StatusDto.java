@@ -1,28 +1,23 @@
 package tw.com.aidenmade.rescuehero.dto;
 
-import lombok.*;
+import tw.com.aidenmade.rescuehero.dto.common.AuditInfoDto;
 
 /**
  * 狀態
  */
-@Getter
-@Setter
-@ToString
-@NoArgsConstructor
-@AllArgsConstructor
-public class StatusDto {
+public record StatusDto(
     // 主鍵 ID
-    private Long id;
+    Long id,
     // 稽核資訊ID
-    private Long auditInfoId;
+    AuditInfoDto auditInfo,
     // 所屬災害ID
-    private Long disasterId;
+    DisasterDto disaster,
     // 狀態類型ID
-    private Long statusTypeId;
+    StatusTypeDto statusType,
     // 狀態代碼 (ex: pending, completed)
-    private String code;
+    String code,
     // 顯示名稱 (例: 待處理, 已完成)
-    private String name;
+    String name,
     // 狀態說明
-    private String description;
-}
+    String description
+) {}

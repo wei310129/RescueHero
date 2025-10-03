@@ -43,7 +43,4 @@ public class RescueTeam {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "status_id")
     private Status status;
-
-    @Column(name = "contact_email", length = 100)
-    private String contactEmail;
 }

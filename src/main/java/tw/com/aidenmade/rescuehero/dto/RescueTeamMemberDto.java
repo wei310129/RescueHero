@@ -1,25 +1,20 @@
 package tw.com.aidenmade.rescuehero.dto;
 
-import lombok.*;
+import tw.com.aidenmade.rescuehero.dto.common.AuditInfoDto;
 
 /**
  * 救援團隊成員
  */
-@Getter
-@Setter
-@ToString
-@NoArgsConstructor
-@AllArgsConstructor
-public class RescueTeamMemberDto {
+public record RescueTeamMemberDto(
     // 主鍵
-    private Long id;
+    Long id,
     // 稽核資訊ID
-    private Long auditInfoId;
+    AuditInfoDto auditInfo,
     // 人員ID
-    private Long personId;
+    PersonDto person,
     // 團隊ID
-    private Long teamId;
+    RescueTeamDto team,
     // 組織ID
-    private Long organizationId;
-}
+    RescueOrganizationDto organization
+) {}
 

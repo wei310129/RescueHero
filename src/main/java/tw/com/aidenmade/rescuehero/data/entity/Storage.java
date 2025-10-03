@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import tw.com.aidenmade.rescuehero.data.entity.common.AuditInfo;
 
+import java.math.BigDecimal;
+
 
 /**
  * 災害物資庫存站
@@ -46,10 +48,10 @@ public class Storage {
     private String address;
 
     @Column(name = "latitude", precision = 9, scale = 6)
-    private java.math.BigDecimal latitude;
+    private BigDecimal latitude;
 
     @Column(name = "longitude", precision = 9, scale = 6)
-    private java.math.BigDecimal longitude;
+    private BigDecimal longitude;
 
     @Column(name = "contact_name", length = 100)
     private String contactName;
