@@ -1,4 +1,5 @@
-docker/
+docker/mongo/
+docker/redis/
 target/
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
