@@ -7,10 +7,15 @@ spring:
   application:
     name: RescueHero
 
+  docker:
+    compose:
+      file: docker/compose.yaml
+      enabled: false
+
   datasource:
     url: jdbc:postgresql://localhost:5432/rescuehero
-    username: ENC(342tI9Rcvc3OQ2VRumxA920ngWjAvC45rYJMknlkdH+bJOXRTMQqthEC34fhuszn)
-    password: ENC(jA3w1WcTNO91joFtYnJTC5X6966D16pqcH5YXX1nWZ5kE7ow6X4eaKUp8y/trfc3)
+    username: ENC(xSJ2MhQnYNQroZAEIs2pRl/ADP14nKbZ2lHbjIXqSsOBWbimMr1oQRZaVIcCkueK)
+    password: ENC(yZSSxKDGyuPRKuR5XXO5fnDRg3clpQcDOGBd1YBYtTsUxCr9WSftlJpETgsi5gUf)
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -20,6 +25,7 @@ spring:
       hibernate:
         format_sql: true
         show_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
     open-in-view: false  # 關閉 OSIV，避免 Entity 被意外修改
 
   sql:
@@ -32,8 +38,8 @@ spring:
     redis:
       host: localhost
       port: 6379
-      password: ENC(jA3w1WcTNO91joFtYnJTC5X6966D16pqcH5YXX1nWZ5kE7ow6X4eaKUp8y/trfc3)
+      password: ENC(yZSSxKDGyuPRKuR5XXO5fnDRg3clpQcDOGBd1YBYtTsUxCr9WSftlJpETgsi5gUf)
 
 # mongodb
-MONGO_USER: ENC(342tI9Rcvc3OQ2VRumxA920ngWjAvC45rYJMknlkdH+bJOXRTMQqthEC34fhuszn)
-MONGO_PASSWORD: ENC(jA3w1WcTNO91joFtYnJTC5X6966D16pqcH5YXX1nWZ5kE7ow6X4eaKUp8y/trfc3)
+MONGO_USER: ENC(xSJ2MhQnYNQroZAEIs2pRl/ADP14nKbZ2lHbjIXqSsOBWbimMr1oQRZaVIcCkueK)
+MONGO_PASSWORD: ENC(yZSSxKDGyuPRKuR5XXO5fnDRg3clpQcDOGBd1YBYtTsUxCr9WSftlJpETgsi5gUf)
