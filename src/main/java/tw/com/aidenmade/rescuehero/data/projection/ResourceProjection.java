@@ -1,7 +1,7 @@
 package tw.com.aidenmade.rescuehero.data.projection;
 
-import tw.com.aidenmade.rescuehero.dto.common.AuditInfoDto;
-import tw.com.aidenmade.rescuehero.dto.ResourceTypeDto;
+import tw.com.aidenmade.rescuehero.data.dto.ResourceTypeDto;
+import tw.com.aidenmade.rescuehero.data.dto.common.AuditInfoDto;
 
 public interface ResourceProjection {
     Long getId();

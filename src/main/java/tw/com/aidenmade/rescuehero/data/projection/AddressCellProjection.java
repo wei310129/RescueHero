@@ -1,7 +1,7 @@
 package tw.com.aidenmade.rescuehero.data.projection;
 
-import tw.com.aidenmade.rescuehero.dto.AddressLevelDto;
-import tw.com.aidenmade.rescuehero.dto.common.AuditInfoDto;
+import tw.com.aidenmade.rescuehero.data.dto.AddressLevelDto;
+import tw.com.aidenmade.rescuehero.data.dto.common.AuditInfoDto;
 
 public interface AddressCellProjection {
     Long getId();

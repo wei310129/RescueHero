@@ -1,9 +1,10 @@
 package tw.com.aidenmade.rescuehero.data.projection;
 
+import tw.com.aidenmade.rescuehero.data.dto.RescueGroupTaskItemDto;
+import tw.com.aidenmade.rescuehero.data.dto.RescueTeamMemberDto;
+import tw.com.aidenmade.rescuehero.data.dto.RoleDto;
+
 import java.util.UUID;
-import tw.com.aidenmade.rescuehero.dto.RescueGroupTaskItemDto;
-import tw.com.aidenmade.rescuehero.dto.RescueTeamMemberDto;
-import tw.com.aidenmade.rescuehero.dto.RoleDto;
 
 public interface RescueGroupTaskItemMemberRoleProjection {
     UUID getAuditId();

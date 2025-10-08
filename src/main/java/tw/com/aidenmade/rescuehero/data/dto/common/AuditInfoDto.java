@@ -1,4 +1,4 @@
-package tw.com.aidenmade.rescuehero.dto.common;
+package tw.com.aidenmade.rescuehero.data.dto.common;
 
 import java.time.ZonedDateTime;
 import java.util.UUID;

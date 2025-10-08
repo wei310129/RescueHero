@@ -1,8 +1,8 @@
 package tw.com.aidenmade.rescuehero.data.projection;
 
-import tw.com.aidenmade.rescuehero.dto.common.AuditInfoDto;
-import tw.com.aidenmade.rescuehero.dto.DisasterDto;
-import tw.com.aidenmade.rescuehero.dto.StatusTypeDto;
+import tw.com.aidenmade.rescuehero.data.dto.DisasterDto;
+import tw.com.aidenmade.rescuehero.data.dto.StatusTypeDto;
+import tw.com.aidenmade.rescuehero.data.dto.common.AuditInfoDto;
 
 public interface StatusProjection {
     Long getId();

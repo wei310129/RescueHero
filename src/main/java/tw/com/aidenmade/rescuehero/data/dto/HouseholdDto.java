@@ -1,6 +1,6 @@
-package tw.com.aidenmade.rescuehero.dto;
+package tw.com.aidenmade.rescuehero.data.dto;
 
-import tw.com.aidenmade.rescuehero.dto.common.AuditInfoDto;
+import tw.com.aidenmade.rescuehero.data.dto.common.AuditInfoDto;
 
 /**
  * 受災戶

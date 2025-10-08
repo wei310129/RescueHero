@@ -1,11 +1,11 @@
-package tw.com.aidenmade.rescuehero.dto;
+package tw.com.aidenmade.rescuehero.data.dto;
 
-import tw.com.aidenmade.rescuehero.dto.common.AuditInfoDto;
+import tw.com.aidenmade.rescuehero.data.dto.common.AuditInfoDto;
 
 /**
- * 儲存站類型
+ * 物資類型
  */
-public record StorageTypeDto(
+public record ResourceTypeDto(
     // 主鍵
     Long id,
     // 稽核資訊ID

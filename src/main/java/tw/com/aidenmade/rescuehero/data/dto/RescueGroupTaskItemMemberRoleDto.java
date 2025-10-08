@@ -1,4 +1,4 @@
-package tw.com.aidenmade.rescuehero.dto;
+package tw.com.aidenmade.rescuehero.data.dto;
 
 import lombok.*;
 

@@ -1,10 +1,10 @@
 package tw.com.aidenmade.rescuehero.data.projection;
 
-import tw.com.aidenmade.rescuehero.dto.AddressDto;
-import tw.com.aidenmade.rescuehero.dto.CountryDto;
-import tw.com.aidenmade.rescuehero.dto.StatusDto;
-import tw.com.aidenmade.rescuehero.dto.StorageTypeDto;
-import tw.com.aidenmade.rescuehero.dto.common.AuditInfoDto;
+import tw.com.aidenmade.rescuehero.data.dto.AddressDto;
+import tw.com.aidenmade.rescuehero.data.dto.CountryDto;
+import tw.com.aidenmade.rescuehero.data.dto.StatusDto;
+import tw.com.aidenmade.rescuehero.data.dto.StorageTypeDto;
+import tw.com.aidenmade.rescuehero.data.dto.common.AuditInfoDto;
 
 public interface StorageProjection {
     Long getId();
