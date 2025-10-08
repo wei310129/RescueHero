@@ -1,23 +1,12 @@
--- UUID 擴充套件
-CREATE EXTENSION IF NOT EXISTS "pgcrypto";
-
-
--- 共用審計欄位
-CREATE TABLE audit_info (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    created_by VARCHAR(100) NOT NULL
-);
-
 -- 災害事件
 CREATE TABLE disaster (
     id BIGSERIAL PRIMARY KEY,
     audit_id UUID NOT NULL REFERENCES audit_info(id),
+    country_id BIGINT NOT NULL REFERENCES country(id) ON DELETE RESTRICT, -- 國籍
     status VARCHAR(30) NOT NULL,                             -- 災害狀態 (active, resolved)
     name VARCHAR(255) NOT NULL CHECK (name <> ''),                    -- 災害名稱
     occurred_at DATE NOT NULL,                      -- 發生時間，只存到日 (yyyy-MM-dd)
-    location TEXT NOT NULL,                         -- 發生地點
+    location BIGINT NOT NULL REFERENCES address(id) ON DELETE RESTRICT, -- 發生地點
     description TEXT,                               -- 描述
     UNIQUE (name, occurred_at)
 );
@@ -53,6 +42,7 @@ CREATE INDEX idx_status_type_id ON status(type_id);
 CREATE TABLE person (
     id BIGSERIAL PRIMARY KEY,
     audit_id UUID NOT NULL REFERENCES audit_info(id), -- 審計資訊
+    country_id BIGINT NOT NULL REFERENCES country(id) ON DELETE RESTRICT, -- 國籍
     name VARCHAR(100) NOT NULL CHECK (name <> ''), -- 姓名
     identification VARCHAR(10) UNIQUE CHECK (name <> ''),          -- 身分證號 (可選)
     age INT, -- 年齡
@@ -68,6 +58,7 @@ CREATE INDEX idx_person_audit_id ON person(audit_id);
 CREATE TABLE unit (
     id BIGSERIAL PRIMARY KEY,
     audit_id UUID NOT NULL REFERENCES audit_info(id), -- 審計資訊
+    country_id BIGINT NOT NULL REFERENCES country(id) ON DELETE RESTRICT, -- 國籍
     name VARCHAR(200) NOT NULL CHECK (name <> ''), -- 單位名稱 (受災戶戶名 or 救援隊名稱)
     address TEXT,                               -- 地址 (家庭住址 or 營地)
     latitude DECIMAL(9,6),
@@ -137,7 +128,8 @@ CREATE INDEX idx_household_member_status_id ON household_member(status_id);
 CREATE TABLE rescue_organization (
     id BIGSERIAL PRIMARY KEY,
     audit_id UUID NOT NULL REFERENCES audit_info(id), -- 審計資訊
-    name VARCHAR(200) NOT NULL UNIQUE CHECK (name <> ''), -- 組織名稱 (例: 某某消防局, 某某 NGO)
+    disaster_id BIGINT NOT NULL REFERENCES disaster(id),  -- 對應災害事件
+    unit_id BIGINT NOT NULL UNIQUE REFERENCES unit(id) ON DELETE CASCADE,
     description TEXT                         -- 組織說明
 );
 CREATE INDEX idx_rescue_org_audit_id ON rescue_organization(audit_id);
@@ -299,6 +291,7 @@ CREATE INDEX idx_storage_type_audit_id ON storage_type(audit_id);
 CREATE TABLE storage (
     id BIGSERIAL PRIMARY KEY,
     audit_id UUID NOT NULL REFERENCES audit_info(id), -- 審計資訊
+    country_id BIGINT NOT NULL REFERENCES country(id) ON DELETE RESTRICT, -- 所在國家
     type_id BIGINT NOT NULL REFERENCES storage_type(id), -- 倉庫型別
     status_id BIGINT REFERENCES status(id),                -- 儲存站狀態 (active, inactive)
     name VARCHAR(200) NOT NULL CHECK (name <> ''),
