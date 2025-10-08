@@ -3,13 +3,15 @@ package tw.com.aidenmade.rescuehero.dto;
 import tw.com.aidenmade.rescuehero.dto.common.AuditInfoDto;
 
 /**
- * 人員表
+ * 人員
  */
 public record PersonDto(
-    // 主鍵
+    // 主鍵ID
     Long id,
-    // 稽核資訊ID
+    // 審計資訊
     AuditInfoDto auditInfo,
+    // 國籍
+    CountryDto country,
     // 姓名
     String name,
     // 身分證號
@@ -22,6 +24,6 @@ public record PersonDto(
     String phone,
     // 電子郵件
     String email,
-    // 備註
+    // 備註(病史)
     String note
 ) {}

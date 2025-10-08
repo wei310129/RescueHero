@@ -3,21 +3,19 @@ package tw.com.aidenmade.rescuehero.dto;
 import tw.com.aidenmade.rescuehero.dto.common.AuditInfoDto;
 
 /**
- * 單位
+ * 地址單位層級
  */
-public record UnitDto(
+public record AddressLevelDto(
     // 主鍵ID
     Long id,
     // 審計資訊
     AuditInfoDto auditInfo,
-    // 國籍
+    // 所屬國家
     CountryDto country,
-    // 名稱
+    // 層級名稱 (ex: 縣市、區、鄉、路、街)
     String name,
-    // 地址
-    AddressDto address,
-    // 聯絡人姓名
-    String contactName,
-    // 聯絡人電話
-    String contactPhone
+    // 後綴字（如: 一段、二段）
+    String suffix,
+    // 層級順序
+    Integer sequence
 ) {}

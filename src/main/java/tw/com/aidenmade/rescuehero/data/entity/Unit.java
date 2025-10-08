@@ -2,9 +2,8 @@ package tw.com.aidenmade.rescuehero.data.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Comment;
 import tw.com.aidenmade.rescuehero.data.entity.common.AuditInfo;
-
-import java.math.BigDecimal;
 
 /**
  * 單位表（受災戶、救援隊等）
@@ -27,21 +26,24 @@ public class Unit {
     @JoinColumn(name = "audit_id", nullable = false)
     private AuditInfo auditInfo;
 
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "country_id", nullable = false)
+    @Comment("國籍")
+    private Country country;
+
     @Column(name = "name", nullable = false, length = 200)
     private String name;
 
-    @Column(name = "address", columnDefinition = "TEXT")
-    private String address;
-
-    @Column(name = "latitude", precision = 9, scale = 6)
-    private BigDecimal latitude;
-
-    @Column(name = "longitude", precision = 9, scale = 6)
-    private BigDecimal longitude;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "location", nullable = false)
+    @Comment("地址 (家庭住址或營地)")
+    private Address location;
 
     @Column(name = "contact_name", length = 100)
+    @Comment("聯絡人姓名")
     private String contactName;
 
     @Column(name = "contact_phone", length = 50)
+    @Comment("聯絡人電話")
     private String contactPhone;
 }

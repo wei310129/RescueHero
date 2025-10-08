@@ -26,6 +26,11 @@ public class Disaster {
     @JoinColumn(name = "audit_id", nullable = false)
     private AuditInfo auditInfo;
 
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "country_id", nullable = false)
+    @Comment("國籍")
+    private Country country;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 30)
     @Comment("災害狀態")
@@ -39,9 +44,10 @@ public class Disaster {
     @Comment("發生日期 (只存到日 yyyy-MM-dd)")
     private Instant occurredAt;
 
-    @Column(nullable = false, columnDefinition = "TEXT")
-    @Comment("發生地點")
-    private String location;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "location", nullable = false)
+    @Comment("發生地點（Address 關聯）")
+    private Address location;
 
     @Column(columnDefinition = "TEXT")
     @Comment("災害描述")

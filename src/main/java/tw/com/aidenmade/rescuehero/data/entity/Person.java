@@ -2,6 +2,7 @@ package tw.com.aidenmade.rescuehero.data.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Comment;
 import tw.com.aidenmade.rescuehero.data.entity.common.AuditInfo;
 
 
@@ -25,6 +26,11 @@ public class Person {
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "audit_id", nullable = false)
     private AuditInfo auditInfo;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "country_id", nullable = false)
+    @Comment("國籍")
+    private Country country;
 
     @Column(name = "name", nullable = false, length = 100)
     private String name;

@@ -26,8 +26,13 @@ public class RescueOrganization {
     @JoinColumn(name = "audit_id", nullable = false)
     private AuditInfo auditInfo;
 
-    @Column(name = "name", nullable = false, unique = true, length = 200)
-    private String name;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "disaster_id", nullable = false)
+    private Disaster disaster;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "unit_id", nullable = false, unique = true)
+    private Unit unit;
 
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;

@@ -3,17 +3,17 @@ package tw.com.aidenmade.rescuehero.dto;
 import tw.com.aidenmade.rescuehero.dto.common.AuditInfoDto;
 
 /**
- * 救援組織
+ * 國家
  */
-public record RescueOrganizationDto(
+public record CountryDto(
     // 主鍵ID
     Long id,
     // 審計資訊
     AuditInfoDto auditInfo,
-    // 所屬災害
-    DisasterDto disaster,
-    // 所屬單位
-    UnitDto unit,
-    // 組織描述
-    String description
+    // 國家名稱
+    String name,
+    // 本地語言名稱
+    String nativeName,
+    // 國家代碼 (如 TW, US)
+    String code
 ) {}

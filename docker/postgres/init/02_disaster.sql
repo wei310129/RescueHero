@@ -60,9 +60,7 @@ CREATE TABLE unit (
     audit_id UUID NOT NULL REFERENCES audit_info(id), -- 審計資訊
     country_id BIGINT NOT NULL REFERENCES country(id) ON DELETE RESTRICT, -- 國籍
     name VARCHAR(200) NOT NULL CHECK (name <> ''), -- 單位名稱 (受災戶戶名 or 救援隊名稱)
-    address TEXT,                               -- 地址 (家庭住址 or 營地)
-    latitude DECIMAL(9,6),
-    longitude DECIMAL(9,6),
+    location BIGINT NOT NULL REFERENCES address(id) ON DELETE RESTRICT, -- 地址 (家庭住址 or 營地)
     contact_name VARCHAR(100),
     contact_phone VARCHAR(50)
 );
@@ -295,9 +293,7 @@ CREATE TABLE storage (
     type_id BIGINT NOT NULL REFERENCES storage_type(id), -- 倉庫型別
     status_id BIGINT REFERENCES status(id),                -- 儲存站狀態 (active, inactive)
     name VARCHAR(200) NOT NULL CHECK (name <> ''),
-    address TEXT,
-    latitude DECIMAL(9,6),
-    longitude DECIMAL(9,6),
+    location BIGINT NOT NULL REFERENCES address(id) ON DELETE RESTRICT, -- 地址
     contact_name VARCHAR(100),
     contact_phone VARCHAR(50),
     capacity INT NOT NULL CHECK (capacity > 0),     -- 可存放總容量

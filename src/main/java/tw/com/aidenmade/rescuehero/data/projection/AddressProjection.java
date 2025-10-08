@@ -1,15 +1,17 @@
 package tw.com.aidenmade.rescuehero.data.projection;
 
-import tw.com.aidenmade.rescuehero.dto.AddressDto;
+import tw.com.aidenmade.rescuehero.dto.AddressCellDto;
 import tw.com.aidenmade.rescuehero.dto.CountryDto;
 import tw.com.aidenmade.rescuehero.dto.common.AuditInfoDto;
 
-public interface UnitProjection {
+public interface AddressProjection {
     Long getId();
     AuditInfoDto getAuditInfo();
     CountryDto getCountry();
-    String getName();
-    AddressDto getAddress();
-    String getContactName();
-    String getContactPhone();
+    AddressCellDto getAddressCell();
+    String getDetail();
+    String getFullAddress();
+    Double getLatitude();
+    Double getLongitude();
 }
+
