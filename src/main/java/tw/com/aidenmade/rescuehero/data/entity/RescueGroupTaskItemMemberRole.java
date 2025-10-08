@@ -1,12 +1,9 @@
-package tw.com.aidenmade.rescuehero.data.entity.id;
+package tw.com.aidenmade.rescuehero.data.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import tw.com.aidenmade.rescuehero.data.entity.RescueGroupTaskItem;
-import tw.com.aidenmade.rescuehero.data.entity.RescueTeamMember;
-import tw.com.aidenmade.rescuehero.data.entity.Role;
-
-import java.util.UUID;
+import tw.com.aidenmade.rescuehero.data.entity.common.AuditInfo;
+import tw.com.aidenmade.rescuehero.data.entity.id.RescueGroupTaskItemMemberRoleId;
 
 @Entity
 @Table(name = "rescue_group_task_item_member_role",
@@ -24,8 +21,9 @@ import java.util.UUID;
 @IdClass(RescueGroupTaskItemMemberRoleId.class)
 public class RescueGroupTaskItemMemberRole {
 
-    @Column(name = "audit_id", nullable = false)
-    private UUID auditId;
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "audit_id", nullable = false)
+    private AuditInfo auditInfo;
 
     @Id
     @ManyToOne(fetch = FetchType.LAZY)

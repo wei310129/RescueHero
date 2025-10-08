@@ -1,8 +1,7 @@
 package tw.com.aidenmade.rescuehero.data.dto;
 
 import lombok.*;
-
-import java.util.UUID;
+import tw.com.aidenmade.rescuehero.data.dto.common.AuditInfoDto;
 
 /**
  * 任務工項成員角色
@@ -15,7 +14,7 @@ import java.util.UUID;
 @ToString
 public class RescueGroupTaskItemMemberRoleDto {
     // 稽核資訊ID
-    private UUID auditId;
+    private AuditInfoDto auditInfo;
     // 工項
     private RescueGroupTaskItemDto taskItem;
     // 成員
