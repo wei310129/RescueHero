@@ -7,7 +7,6 @@ public interface AddressCellProjection {
     Long getId();
     AuditInfoDto getAuditInfo();
     AddressLevelDto getLevel();
-    AddressCellProjection getParent();
     String getName();
 }
 

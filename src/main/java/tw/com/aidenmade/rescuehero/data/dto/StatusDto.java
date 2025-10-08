@@ -13,7 +13,7 @@ public record StatusDto(
     // 所屬災害ID
     DisasterDto disaster,
     // 狀態類型ID
-    StatusTypeDto statusType,
+    StatusTypeDto type,
     // 狀態代碼 (ex: pending, completed)
     String code,
     // 顯示名稱 (例: 待處理, 已完成)

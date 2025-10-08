@@ -13,7 +13,7 @@ public record RescueTeamDto(
     // 單元ID
     UnitDto unit,
     // 群組ID
-    RescueGroupDto rescueGroup,
+    RescueGroupDto group,
     // 狀態ID
     StatusDto status
 ) {}

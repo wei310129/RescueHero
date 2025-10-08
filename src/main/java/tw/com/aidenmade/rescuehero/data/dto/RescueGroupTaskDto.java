@@ -11,7 +11,7 @@ public record RescueGroupTaskDto(
     // 稽核資訊ID
     AuditInfoDto auditInfo,
     // 群組ID
-    RescueGroupDto rescueGroup,
+    RescueGroupDto group,
     // 災害ID
     DisasterDto disaster,
     // 名稱

@@ -13,7 +13,7 @@ public record HouseholdDto(
     // 單元ID
     UnitDto unit,
     // 災害ID
-    DisasterDto disasterId,
+    DisasterDto disaster,
     // 狀態ID
     StatusDto status,
     // 備註

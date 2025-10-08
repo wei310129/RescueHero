@@ -11,11 +11,11 @@ public record RescueGroupTaskItemDto(
     // 稽核資訊ID
     AuditInfoDto auditInfo,
     // 任務ID
-    RescueGroupTaskDto rescueGroupTask,
+    RescueGroupTaskDto task,
     // 名稱
     String name,
     // 描述
     String description,
     // 狀態ID
-    Long statusId
+    StatusDto status
 ) {}

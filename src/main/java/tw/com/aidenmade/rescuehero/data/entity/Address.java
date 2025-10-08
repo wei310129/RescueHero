@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import tw.com.aidenmade.rescuehero.data.entity.common.AuditInfo;
 
+import java.math.BigDecimal;
+
 /**
  * 地址主表（具體地址實例）
  */
@@ -38,9 +40,9 @@ public class Address {
     private String fullAddress; // 完整地址
 
     @Column(name = "latitude", precision = 9, scale = 6)
-    private Double latitude;
+    private BigDecimal latitude;
 
     @Column(name = "longitude", precision = 9, scale = 6)
-    private Double longitude;
+    private BigDecimal longitude;
 }
 
