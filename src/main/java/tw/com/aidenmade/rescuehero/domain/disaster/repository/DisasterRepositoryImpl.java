@@ -7,7 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
-import tw.com.aidenmade.rescuehero.data.entity.QDisaster;
+import tw.com.aidenmade.rescuehero.domain.disaster.entity.QDisaster;
 import tw.com.aidenmade.rescuehero.domain.disaster.enums.DisasterStatus;
 import tw.com.aidenmade.rescuehero.domain.disaster.projection.DisasterProjection;
 
