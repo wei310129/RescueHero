@@ -1,6 +1,6 @@
 package tw.com.aidenmade.rescuehero.data.mapstruct.common;
 
-import tw.com.aidenmade.rescuehero.context.TimezoneContext;
+import tw.com.aidenmade.rescuehero.common.context.TimezoneContext;
 
 import java.time.Instant;
 import java.time.ZoneId;

@@ -3,10 +3,10 @@ package tw.com.aidenmade.rescuehero.data.repository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import tw.com.aidenmade.rescuehero.common.enums.DisasterStatus;
 import tw.com.aidenmade.rescuehero.data.entity.Disaster;
 import tw.com.aidenmade.rescuehero.data.projection.DisasterProjection;
 import tw.com.aidenmade.rescuehero.data.repository.custom.DisasterRepositoryCustom;
-import tw.com.aidenmade.rescuehero.enums.DisasterStatus;
 
 import java.time.Instant;
 import java.util.Optional;

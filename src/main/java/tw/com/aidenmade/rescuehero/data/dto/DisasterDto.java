@@ -1,7 +1,7 @@
 package tw.com.aidenmade.rescuehero.data.dto;
 
+import tw.com.aidenmade.rescuehero.common.enums.DisasterStatus;
 import tw.com.aidenmade.rescuehero.data.dto.common.AuditInfoDto;
-import tw.com.aidenmade.rescuehero.enums.DisasterStatus;
 
 import java.time.Instant;
 

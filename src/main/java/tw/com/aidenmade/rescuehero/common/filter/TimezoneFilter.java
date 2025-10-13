@@ -1,4 +1,4 @@
-package tw.com.aidenmade.rescuehero.filter;
+package tw.com.aidenmade.rescuehero.common.filter;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -6,12 +6,12 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import tw.com.aidenmade.rescuehero.context.TimezoneContext;
+import tw.com.aidenmade.rescuehero.common.context.TimezoneContext;
 
 import java.io.IOException;
 import java.time.ZoneId;
 
-import static tw.com.aidenmade.rescuehero.context.TimezoneContext.DEFAULT_ZONE;
+import static tw.com.aidenmade.rescuehero.common.context.TimezoneContext.DEFAULT_ZONE;
 
 @Component
 public class TimezoneFilter extends OncePerRequestFilter {

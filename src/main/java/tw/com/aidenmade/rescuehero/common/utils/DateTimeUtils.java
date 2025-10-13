@@ -1,6 +1,6 @@
-package tw.com.aidenmade.rescuehero.utils;
+package tw.com.aidenmade.rescuehero.common.utils;
 
-import tw.com.aidenmade.rescuehero.context.TimezoneContext;
+import tw.com.aidenmade.rescuehero.common.context.TimezoneContext;
 
 import java.time.Instant;
 import java.time.ZonedDateTime;

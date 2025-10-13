@@ -3,8 +3,8 @@ package tw.com.aidenmade.rescuehero.data.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Comment;
+import tw.com.aidenmade.rescuehero.common.enums.DisasterStatus;
 import tw.com.aidenmade.rescuehero.data.entity.common.AuditInfo;
-import tw.com.aidenmade.rescuehero.enums.DisasterStatus;
 
 import java.time.Instant;
 

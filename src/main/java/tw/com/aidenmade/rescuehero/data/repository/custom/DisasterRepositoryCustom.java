@@ -2,8 +2,8 @@ package tw.com.aidenmade.rescuehero.data.repository.custom;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import tw.com.aidenmade.rescuehero.common.enums.DisasterStatus;
 import tw.com.aidenmade.rescuehero.data.projection.DisasterProjection;
-import tw.com.aidenmade.rescuehero.enums.DisasterStatus;
 
 import java.time.Instant;
 

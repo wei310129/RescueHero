@@ -1,4 +1,4 @@
-package tw.com.aidenmade.rescuehero.enums;
+package tw.com.aidenmade.rescuehero.common.enums;
 
 import lombok.Getter;
 import lombok.ToString;
