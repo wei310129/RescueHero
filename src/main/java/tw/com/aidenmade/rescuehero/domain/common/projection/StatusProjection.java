@@ -1,8 +1,8 @@
 package tw.com.aidenmade.rescuehero.domain.common.projection;
 
-import tw.com.aidenmade.rescuehero.domain.disaster.dto.DisasterDto;
-import tw.com.aidenmade.rescuehero.domain.common.dto.StatusTypeDto;
-import tw.com.aidenmade.rescuehero.domain.common.dto.AuditInfoDto;
+import tw.com.aidenmade.rescuehero.domain.disaster.application.dto.DisasterDto;
+import tw.com.aidenmade.rescuehero.domain.common.application.dto.StatusTypeDto;
+import tw.com.aidenmade.rescuehero.domain.common.application.dto.AuditInfoDto;
 
 public interface StatusProjection {
     Long getId();

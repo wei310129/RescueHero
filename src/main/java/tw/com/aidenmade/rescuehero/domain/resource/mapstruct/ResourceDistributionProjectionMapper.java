@@ -7,7 +7,7 @@ import tw.com.aidenmade.rescuehero.domain.common.mapstruct.PersonProjectionMappe
 import tw.com.aidenmade.rescuehero.domain.common.mapstruct.UnitProjectionMapper;
 import tw.com.aidenmade.rescuehero.domain.disaster.mapstruct.DisasterProjectionMapper;
 import tw.com.aidenmade.rescuehero.domain.rescue.mapstruct.RescueTeamMemberProjectionMapper;
-import tw.com.aidenmade.rescuehero.domain.resource.dto.ResourceDistributionDto;
+import tw.com.aidenmade.rescuehero.domain.resource.application.dto.ResourceDistributionDto;
 import tw.com.aidenmade.rescuehero.domain.common.mapstruct.BaseProjectionMapper;
 import tw.com.aidenmade.rescuehero.domain.resource.projection.ResourceDistributionProjection;
 

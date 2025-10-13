@@ -2,7 +2,7 @@ package tw.com.aidenmade.rescuehero.domain.common.mapstruct;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
-import tw.com.aidenmade.rescuehero.domain.common.dto.StatusTypeDto;
+import tw.com.aidenmade.rescuehero.domain.common.application.dto.StatusTypeDto;
 import tw.com.aidenmade.rescuehero.domain.common.projection.StatusTypeProjection;
 
 @Mapper(componentModel = "spring", uses = {AuditInfoProjectionMapper.class})

@@ -1,8 +1,8 @@
 package tw.com.aidenmade.rescuehero.domain.rescue.projection;
 
-import tw.com.aidenmade.rescuehero.domain.disaster.dto.DisasterDto;
-import tw.com.aidenmade.rescuehero.domain.rescue.dto.RescueOrganizationDto;
-import tw.com.aidenmade.rescuehero.domain.common.dto.AuditInfoDto;
+import tw.com.aidenmade.rescuehero.domain.disaster.application.dto.DisasterDto;
+import tw.com.aidenmade.rescuehero.domain.rescue.application.dto.RescueOrganizationDto;
+import tw.com.aidenmade.rescuehero.domain.common.application.dto.AuditInfoDto;
 
 public interface RescueGroupProjection {
     Long getId();

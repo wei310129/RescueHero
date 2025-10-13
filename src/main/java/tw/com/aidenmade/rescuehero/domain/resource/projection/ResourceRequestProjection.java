@@ -1,9 +1,9 @@
 package tw.com.aidenmade.rescuehero.domain.resource.projection;
 
-import tw.com.aidenmade.rescuehero.domain.disaster.dto.DisasterDto;
-import tw.com.aidenmade.rescuehero.domain.common.dto.PersonDto;
-import tw.com.aidenmade.rescuehero.domain.resource.dto.ResourceDto;
-import tw.com.aidenmade.rescuehero.domain.common.dto.AuditInfoDto;
+import tw.com.aidenmade.rescuehero.domain.disaster.application.dto.DisasterDto;
+import tw.com.aidenmade.rescuehero.domain.common.application.dto.PersonDto;
+import tw.com.aidenmade.rescuehero.domain.resource.application.dto.ResourceDto;
+import tw.com.aidenmade.rescuehero.domain.common.application.dto.AuditInfoDto;
 
 import java.time.ZonedDateTime;
 

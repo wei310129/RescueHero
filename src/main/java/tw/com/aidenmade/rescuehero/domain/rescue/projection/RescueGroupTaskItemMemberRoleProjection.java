@@ -1,9 +1,9 @@
 package tw.com.aidenmade.rescuehero.domain.rescue.projection;
 
-import tw.com.aidenmade.rescuehero.domain.common.dto.AuditInfoDto;
-import tw.com.aidenmade.rescuehero.domain.common.dto.RoleDto;
-import tw.com.aidenmade.rescuehero.domain.rescue.dto.RescueGroupTaskItemDto;
-import tw.com.aidenmade.rescuehero.domain.rescue.dto.RescueTeamMemberDto;
+import tw.com.aidenmade.rescuehero.domain.common.application.dto.AuditInfoDto;
+import tw.com.aidenmade.rescuehero.domain.common.application.dto.RoleDto;
+import tw.com.aidenmade.rescuehero.domain.rescue.application.dto.RescueGroupTaskItemDto;
+import tw.com.aidenmade.rescuehero.domain.rescue.application.dto.RescueTeamMemberDto;
 
 public interface RescueGroupTaskItemMemberRoleProjection {
     AuditInfoDto getAuditInfo();

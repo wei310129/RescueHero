@@ -1,9 +1,9 @@
 package tw.com.aidenmade.rescuehero.domain.storage.projection;
 
-import tw.com.aidenmade.rescuehero.domain.disaster.dto.DisasterDto;
-import tw.com.aidenmade.rescuehero.domain.resource.dto.ResourceDto;
-import tw.com.aidenmade.rescuehero.domain.storage.dto.StorageDto;
-import tw.com.aidenmade.rescuehero.domain.common.dto.AuditInfoDto;
+import tw.com.aidenmade.rescuehero.domain.disaster.application.dto.DisasterDto;
+import tw.com.aidenmade.rescuehero.domain.resource.application.dto.ResourceDto;
+import tw.com.aidenmade.rescuehero.domain.storage.application.dto.StorageDto;
+import tw.com.aidenmade.rescuehero.domain.common.application.dto.AuditInfoDto;
 
 public interface StorageInventoryProjection {
     Long getId();

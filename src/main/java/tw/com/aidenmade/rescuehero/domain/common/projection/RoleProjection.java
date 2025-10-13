@@ -1,8 +1,8 @@
 package tw.com.aidenmade.rescuehero.domain.common.projection;
 
-import tw.com.aidenmade.rescuehero.domain.common.dto.AuditInfoDto;
-import tw.com.aidenmade.rescuehero.domain.common.dto.RoleTypeDto;
-import tw.com.aidenmade.rescuehero.domain.disaster.dto.DisasterDto;
+import tw.com.aidenmade.rescuehero.domain.common.application.dto.AuditInfoDto;
+import tw.com.aidenmade.rescuehero.domain.common.application.dto.RoleTypeDto;
+import tw.com.aidenmade.rescuehero.domain.disaster.application.dto.DisasterDto;
 
 public interface RoleProjection {
     Long getId();

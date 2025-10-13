@@ -5,7 +5,7 @@ import org.mapstruct.factory.Mappers;
 import tw.com.aidenmade.rescuehero.domain.address.mapstruct.AddressProjectionMapper;
 import tw.com.aidenmade.rescuehero.domain.common.mapstruct.AuditInfoProjectionMapper;
 import tw.com.aidenmade.rescuehero.domain.common.mapstruct.CountryProjectionMapper;
-import tw.com.aidenmade.rescuehero.domain.disaster.dto.DisasterDto;
+import tw.com.aidenmade.rescuehero.domain.disaster.application.dto.DisasterDto;
 import tw.com.aidenmade.rescuehero.domain.common.mapstruct.BaseProjectionMapper;
 import tw.com.aidenmade.rescuehero.domain.disaster.projection.DisasterProjection;
 

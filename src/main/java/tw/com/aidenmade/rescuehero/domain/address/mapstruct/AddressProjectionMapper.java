@@ -2,7 +2,7 @@ package tw.com.aidenmade.rescuehero.domain.address.mapstruct;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
-import tw.com.aidenmade.rescuehero.domain.address.dto.AddressDto;
+import tw.com.aidenmade.rescuehero.domain.address.application.dto.AddressDto;
 import tw.com.aidenmade.rescuehero.domain.common.mapstruct.BaseProjectionMapper;
 import tw.com.aidenmade.rescuehero.domain.common.mapstruct.AuditInfoProjectionMapper;
 import tw.com.aidenmade.rescuehero.domain.common.mapstruct.CountryProjectionMapper;

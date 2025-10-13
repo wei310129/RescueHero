@@ -5,7 +5,7 @@ import org.mapstruct.factory.Mappers;
 import tw.com.aidenmade.rescuehero.domain.common.mapstruct.AuditInfoProjectionMapper;
 import tw.com.aidenmade.rescuehero.domain.disaster.mapstruct.DisasterProjectionMapper;
 import tw.com.aidenmade.rescuehero.domain.resource.mapstruct.ResourceProjectionMapper;
-import tw.com.aidenmade.rescuehero.domain.storage.dto.StorageInventoryDto;
+import tw.com.aidenmade.rescuehero.domain.storage.application.dto.StorageInventoryDto;
 import tw.com.aidenmade.rescuehero.domain.common.mapstruct.BaseProjectionMapper;
 import tw.com.aidenmade.rescuehero.domain.storage.projection.StorageInventoryProjection;
 
