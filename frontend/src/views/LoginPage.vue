@@ -2,8 +2,8 @@
   <div class="login-container">
     <h2>登入</h2>
     <form @submit.prevent="handleLogin">
-      <input v-model="username" placeholder="帳號" />
-      <input v-model="password" type="password" placeholder="密碼" />
+      <input v-model="username" placeholder="Account" />
+      <input v-model="password" type="password" placeholder="Password" />
       <button type="submit">登入</button>
     </form>
   </div>
@@ -15,8 +15,18 @@ import {ref} from 'vue'
 const username = ref('')
 const password = ref('')
 
-function handleLogin() {
-  alert(`帳號：${username.value}\n密碼：${password.value}`)
+async function handleLogin() {
+  const res = await fetch('/api/login', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({
+      username: username.value,
+      password: password.value
+    })
+  })
+  const data = await res.json()
+  // 根據 data 處理登入結果
+  alert(JSON.stringify(data))
 }
 </script>
 
