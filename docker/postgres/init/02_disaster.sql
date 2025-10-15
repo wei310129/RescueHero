@@ -67,30 +67,6 @@ CREATE TABLE unit (
 CREATE INDEX idx_unit_audit_id ON unit(audit_id);
 
 
--- 角色類型表
-CREATE TABLE role_type (
-    id BIGSERIAL PRIMARY KEY,
-    audit_id UUID NOT NULL REFERENCES audit_info(id), -- 審計資訊
-    name VARCHAR(50) NOT NULL UNIQUE CHECK (name <> ''), -- ex: team_role, task_role, system_role
-    description VARCHAR(200)
-);
-CREATE INDEX idx_role_type_audit_id ON role_type(audit_id);
-
--- 角色表 (救援隊成員角色)
-CREATE TABLE role (
-    id BIGSERIAL PRIMARY KEY,
-    audit_id UUID NOT NULL REFERENCES audit_info(id), -- 審計資訊
-    disaster_id BIGINT NOT NULL REFERENCES disaster(id) ON DELETE CASCADE, -- 所屬災害
-    type_id BIGINT NOT NULL REFERENCES role_type(id),   -- 類型
-    name VARCHAR(50) NOT NULL CHECK (name <> ''),     -- 角色代碼 (ex: leader, medic, support)
-    description TEXT,                     -- 角色說明
-    UNIQUE(disaster_id, type_id, name) -- 在同一災害內唯一，但不同災害可重複
-);
-CREATE INDEX idx_role_audit_id ON role(audit_id);
-CREATE INDEX idx_role_disaster_id ON role(disaster_id);
-CREATE INDEX idx_role_type_id ON role(type_id);
-
-
 -- 受災戶
 CREATE TABLE household (
     id BIGSERIAL PRIMARY KEY,
