@@ -1,7 +1,5 @@
 package tw.com.aidenmade.rescuehero.domain.common.application.dto;
 
-import tw.com.aidenmade.rescuehero.domain.disaster.application.dto.DisasterDto;
-
 /**
  * 角色
  */
@@ -10,8 +8,6 @@ public record RoleDto(
     Long id,
     // 稽核資訊ID
     AuditInfoDto auditInfo,
-    // 災害ID
-    DisasterDto disaster,
     // 角色類型ID
     RoleTypeDto roleType,
     // 名稱

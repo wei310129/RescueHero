@@ -2,7 +2,6 @@ package tw.com.aidenmade.rescuehero.domain.common.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import tw.com.aidenmade.rescuehero.domain.disaster.entity.Disaster;
 import tw.com.aidenmade.rescuehero.domain.rescue.entity.RescueGroupTaskItemMemberRole;
 
 import java.util.HashSet;
@@ -33,10 +32,6 @@ public class Role {
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "audit_id", nullable = false)
     private AuditInfo auditInfo;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "disaster_id", nullable = false)
-    private Disaster disaster;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "type_id", nullable = false)
