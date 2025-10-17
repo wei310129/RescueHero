@@ -7,7 +7,8 @@ CREATE TABLE audit_info (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    created_by VARCHAR(100) NOT NULL
+    created_by BIGINT,
+    updated_by BIGINT
 );
 
 
@@ -91,3 +92,8 @@ CREATE TABLE IF NOT EXISTS account (
     is_active BOOLEAN NOT NULL DEFAULT TRUE,
     is_admin BOOLEAN NOT NULL DEFAULT FALSE
 );
+
+-- 建立完成後再補上 FK（此時 account 已存在）
+ALTER TABLE audit_info
+    ADD CONSTRAINT fk_audit_created_by FOREIGN KEY (created_by) REFERENCES account(id),
+    ADD CONSTRAINT fk_audit_updated_by FOREIGN KEY (updated_by) REFERENCES account(id);
