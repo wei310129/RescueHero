@@ -1,17 +1,27 @@
 <template>
   <div class="login-container">
-    <h2>登入</h2>
-    <form @submit.prevent="handleLogin">
+    <h2>註冊</h2>
+    <form @submit.prevent="handleRegister">
       <input v-model="username" placeholder="Account" />
       <input v-model="password" type="password" placeholder="Password" />
+      <input v-model="confirmPassword" type="password" placeholder="Confirm Password" />
+      -
+      <input v-model="email" placeholder="Email" />
+      -
+      <input v-model="nickname" placeholder="Nickname" />
+      <input v-model="phone" placeholder="Phone" />
+      <select v-model="roleId">
+        <option value="" disabled>請選擇角色</option>
+        <option v-for="role in roles" :key="role.id" :value="role.id">{{ role.name }}</option>
+      </select>
       <div class="captcha-row">
         <input v-model="captcha" placeholder="輸入驗證碼" />
         <img :src="captchaUrl" @click="reloadCaptcha" alt="captcha" class="captcha-img" />
       </div>
-      <button type="submit">登入</button>
+      <button type="submit">註冊</button>
     </form>
     <div class="switch-link">
-      還沒有帳號？<router-link to="/register">註冊</router-link>
+      已有帳號？<router-link to="/login">登入</router-link>
     </div>
   </div>
 </template>
@@ -20,27 +30,53 @@
 import {onMounted, ref} from 'vue'
 
 const username = ref('')
+const nickname = ref('')
+const email = ref('')
+const phone = ref('')
 const password = ref('')
+const confirmPassword = ref('')
+const roleId = ref('')
+const roles = ref([])
 const captcha = ref('')
 const captchaUrl = ref('')
+
 function reloadCaptcha() {
   captchaUrl.value = `/api/auth/captcha?ts=${Date.now()}`
 }
-onMounted(() => {
+
+onMounted(async () => {
   reloadCaptcha()
+  try {
+    const res = await fetch('/api/role/account')
+    roles.value = await res.json()
+  } catch (e) {
+    roles.value = []
+  }
 })
-async function handleLogin() {
-  const res = await fetch('/api/auth/login', {
+
+async function handleRegister() {
+  if (password.value !== confirmPassword.value) {
+    alert('密碼不一致')
+    return
+  }
+  if (!roleId.value) {
+    alert('請選擇角色')
+    return
+  }
+  const res = await fetch('/api/auth/register', {
     method: 'POST',
-    headers: {'Content-Type': 'application/json'},
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       username: username.value,
+      nickname: nickname.value,
+      email: email.value,
+      phone: phone.value,
       password: password.value,
+      roleId: roleId.value,
       captcha: captcha.value
     })
   })
   const data = await res.json()
-  // 根據 data 處理登入結果
   if (!res.ok) {
     alert(data.error || JSON.stringify(data))
     reloadCaptcha()
@@ -77,7 +113,7 @@ form {
   gap: 16px;
 }
 
-input {
+input, select {
   padding: 10px 14px;
   border: 1px solid #bdbdbd;
   border-radius: 8px;
@@ -85,7 +121,7 @@ input {
   transition: border-color 0.2s;
 }
 
-input:focus {
+input:focus, select:focus {
   border-color: #1976d2;
   outline: none;
 }
