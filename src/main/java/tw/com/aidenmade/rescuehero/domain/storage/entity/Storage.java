@@ -4,9 +4,9 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Comment;
 import tw.com.aidenmade.rescuehero.domain.address.entity.Address;
-import tw.com.aidenmade.rescuehero.domain.common.entity.AuditInfo;
-import tw.com.aidenmade.rescuehero.domain.common.entity.Country;
-import tw.com.aidenmade.rescuehero.domain.common.entity.Status;
+import tw.com.aidenmade.rescuehero.domain.base.entity.AuditInfo;
+import tw.com.aidenmade.rescuehero.domain.base.entity.Country;
+import tw.com.aidenmade.rescuehero.domain.base.entity.Status;
 
 
 /**

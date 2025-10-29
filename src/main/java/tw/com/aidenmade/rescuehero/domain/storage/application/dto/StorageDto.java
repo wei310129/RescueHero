@@ -1,9 +1,9 @@
 package tw.com.aidenmade.rescuehero.domain.storage.application.dto;
 
 import tw.com.aidenmade.rescuehero.domain.address.application.dto.AddressDto;
-import tw.com.aidenmade.rescuehero.domain.common.application.dto.AuditInfoDto;
-import tw.com.aidenmade.rescuehero.domain.common.application.dto.CountryDto;
-import tw.com.aidenmade.rescuehero.domain.common.application.dto.StatusDto;
+import tw.com.aidenmade.rescuehero.domain.base.application.dto.AuditInfoDto;
+import tw.com.aidenmade.rescuehero.domain.base.application.dto.CountryDto;
+import tw.com.aidenmade.rescuehero.domain.base.application.dto.StatusDto;
 
 /**
  * 災害物資庫存站

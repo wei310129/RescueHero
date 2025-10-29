@@ -1,6 +1,6 @@
 package tw.com.aidenmade.rescuehero.domain.storage.application.dto;
 
-import tw.com.aidenmade.rescuehero.domain.common.application.dto.AuditInfoDto;
+import tw.com.aidenmade.rescuehero.domain.base.application.dto.AuditInfoDto;
 import tw.com.aidenmade.rescuehero.domain.disaster.application.dto.DisasterDto;
 import tw.com.aidenmade.rescuehero.domain.resource.application.dto.ResourceDto;
 
