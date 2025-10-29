@@ -96,7 +96,7 @@ function removeSpaces(field) {
 onMounted(async () => {
   reloadCaptcha()
   try {
-    const res = await fetch('/api/role')
+    const res = await fetch('/api/role/account')
     roles.value = await res.json()
   } catch (e) {
     roles.value = []
