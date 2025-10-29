@@ -138,7 +138,40 @@
             <classifier>jakarta</classifier>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+        <!-- JWT工具-->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+            <version>0.11.5</version>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <version>0.11.5</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-jackson</artifactId>
+            <version>0.11.5</version>
+            <scope>runtime</scope>
+        </dependency>
 
+
+        <!-- Redis 快取 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
+        <!-- Spring Cache 抽象層 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-cache</artifactId>
+        </dependency>
     </dependencies>
 
     <dependencyManagement>
@@ -169,9 +202,10 @@
                     <target>21</target>
                     <release>21</release>
 
-                    <!-- 啟用 ScopedValue 等 preview API -->
+                    <!-- 啟用 ScopedValue 等 preview API 以及 @Cacheable 命名參數編譯-->
                     <compilerArgs>
                         <arg>--enable-preview</arg>
+                        <arg>-parameters</arg>
                     </compilerArgs>
 
                     <!-- 產生 Q 類別 -->
