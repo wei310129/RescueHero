@@ -1,4 +1,4 @@
-package tw.com.aidenmade.rescuehero.domain.common.application.dto;
+package tw.com.aidenmade.rescuehero.domain.base.application.dto;
 
 /**
  * 狀態類型
