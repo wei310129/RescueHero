@@ -10,6 +10,8 @@ CREATE TABLE audit_info (
     created_by BIGINT,
     updated_by BIGINT
 );
+CREATE INDEX IF NOT EXISTS idx_audit_created_by ON audit_info(created_by);
+CREATE INDEX IF NOT EXISTS idx_audit_updated_by ON audit_info(updated_by);
 
 
 -- 國家表
@@ -85,7 +87,7 @@ CREATE TABLE IF NOT EXISTS account (
     username VARCHAR(64) NOT NULL UNIQUE,
     password_hash VARCHAR(255), -- OAuth2 可為 NULL
     email VARCHAR(128) NOT NULL UNIQUE,
-    phone VARCHAR(32) NOT NULL UNIQUE,
+    phone VARCHAR(32),
     google_id VARCHAR(64) UNIQUE, -- Google OAuth2 ID
     nickname VARCHAR(64),
     role_id BIGINT NOT NULL REFERENCES role(id), -- 角色外鍵，必填
@@ -95,5 +97,39 @@ CREATE TABLE IF NOT EXISTS account (
 
 -- 建立完成後再補上 FK（此時 account 已存在）
 ALTER TABLE audit_info
-    ADD CONSTRAINT fk_audit_created_by FOREIGN KEY (created_by) REFERENCES account(id),
-    ADD CONSTRAINT fk_audit_updated_by FOREIGN KEY (updated_by) REFERENCES account(id);
+    ADD CONSTRAINT fk_audit_created_by FOREIGN KEY (created_by) REFERENCES account(id) ON DELETE SET NULL,
+    ADD CONSTRAINT fk_audit_updated_by FOREIGN KEY (updated_by) REFERENCES account(id) ON DELETE SET NULL;
+
+
+WITH new_audit_type AS (
+    INSERT INTO audit_info (id, created_at, updated_at)
+        VALUES (gen_random_uuid(), now(), now())
+        RETURNING id
+),
+new_role_type AS (
+    INSERT INTO role_type (audit_id, name, description)
+        SELECT id, 'account', '帳號角色'
+        FROM new_audit_type
+        RETURNING id
+),
+new_audit_roles AS (
+    INSERT INTO audit_info (id, created_at, updated_at)
+        SELECT gen_random_uuid(), now(), now()
+        FROM generate_series(1, 2)  -- 👈 想插入幾筆角色就改這裡
+        RETURNING id
+)
+INSERT INTO role (audit_id, type_id, name, description)
+SELECT r.id,
+       t.id,
+       v.name,
+       v.description
+FROM new_audit_roles r
+         JOIN new_role_type t ON true
+         JOIN (VALUES
+                   ('organization', '組織'),
+                   ('individual', '個人')
+) AS v(name, description)
+              ON true
+LIMIT 2;  -- 👈 要與上面的 generate_series(1,3) 相同
+
+
