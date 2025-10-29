@@ -41,7 +41,7 @@ audit_rows AS (
 INSERT INTO country (audit_id, name, native_name, code)
 SELECT a.id, c.name, c.native_name, c.code
 FROM audit_rows a
-         JOIN country_data c ON a.id IS NOT NULL
+         JOIN country_data c ON TRUE
 LIMIT (SELECT count(*) FROM country_data);
 
 
