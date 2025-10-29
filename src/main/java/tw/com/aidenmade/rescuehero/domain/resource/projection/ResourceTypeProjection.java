@@ -1,6 +1,6 @@
 package tw.com.aidenmade.rescuehero.domain.resource.projection;
 
-import tw.com.aidenmade.rescuehero.domain.common.application.dto.AuditInfoDto;
+import tw.com.aidenmade.rescuehero.domain.base.application.dto.AuditInfoDto;
 
 public interface ResourceTypeProjection {
     Long getId();

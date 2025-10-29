@@ -1,7 +1,7 @@
 package tw.com.aidenmade.rescuehero.domain.resource.application.dto;
 
-import tw.com.aidenmade.rescuehero.domain.common.application.dto.AuditInfoDto;
-import tw.com.aidenmade.rescuehero.domain.common.application.dto.PersonDto;
+import tw.com.aidenmade.rescuehero.domain.base.application.dto.AuditInfoDto;
+import tw.com.aidenmade.rescuehero.domain.base.application.dto.PersonDto;
 import tw.com.aidenmade.rescuehero.domain.disaster.application.dto.DisasterDto;
 
 import java.time.ZonedDateTime;
