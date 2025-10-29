@@ -2,10 +2,21 @@
   <div class="login-container">
     <h2>登入</h2>
     <form @submit.prevent="handleLogin">
-      <input v-model="username" placeholder="Account" />
-      <input v-model="password" type="password" placeholder="Password" />
+      <input v-model="username" placeholder="Account" @input="username = username.toLowerCase(); removeSpaces('username')" />
+<!--      <input v-model="password" type="password" placeholder="Password" />-->
+      <div class="password-row">
+        <input v-model="password" :type="showPassword ? 'text' : 'password'" placeholder="Password" class="password-input" @input="removeSpaces('password')" />
+        <span class="toggle-icon" @click="showPassword = !showPassword">
+          <svg v-if="showPassword" width="24" height="24" viewBox="0 0 24 24">
+            <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12zm11 5a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0-2a3 3 0 1 1 0-6 3 3 0 0 1 0 6z" fill="#888"/>
+          </svg>
+          <svg v-else width="24" height="24" viewBox="0 0 24 24">
+            <path d="M17.94 17.94A10.97 10.97 0 0 1 12 19c-7 0-11-7-11-7a21.77 21.77 0 0 1 5.06-6.06M1 1l22 22M9.53 9.53A3 3 0 0 0 12 15a3 3 0 0 0 2.47-5.47" stroke="#888" stroke-width="2" fill="none"/>
+          </svg>
+        </span>
+      </div>
       <div class="captcha-row">
-        <input v-model="captcha" placeholder="輸入驗證碼" />
+        <input v-model="captcha" placeholder="輸入驗證碼" @input="removeSpaces('captcha')" />
         <img :src="captchaUrl" @click="reloadCaptcha" alt="captcha" class="captcha-img" />
       </div>
       <button type="submit">登入</button>
@@ -23,9 +34,18 @@ const username = ref('')
 const password = ref('')
 const captcha = ref('')
 const captchaUrl = ref('')
+const showPassword = ref(false)
+
 function reloadCaptcha() {
   captchaUrl.value = `/api/auth/captcha?ts=${Date.now()}`
 }
+
+function removeSpaces(field) {
+  if (field === 'username') username.value = username.value.replace(/\s/g, '')
+  if (field === 'password') password.value = password.value.replace(/\s/g, '')
+  if (field === 'captcha') captcha.value = captcha.value.replace(/\s/g, '')
+}
+
 onMounted(() => {
   reloadCaptcha()
 })
@@ -42,8 +62,14 @@ async function handleLogin() {
   const data = await res.json()
   // 根據 data 處理登入結果
   if (!res.ok) {
-    alert(data.error || JSON.stringify(data))
-    reloadCaptcha()
+    let msg = data.error
+    if (Array.isArray(msg)) {
+      msg = msg.join('\n')
+    }
+    alert(msg)
+    if (msg.includes('逾期')) {
+      reloadCaptcha()
+    }
     return
   }
   alert(JSON.stringify(data))
@@ -51,6 +77,25 @@ async function handleLogin() {
 </script>
 
 <style scoped>
+.password-row {
+  position: relative;
+  width: 100%;
+}
+.password-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding-right: 40px;
+}
+.toggle-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  user-select: none;
+  display: flex;
+  align-items: center;
+}
 .login-container {
   max-width: 350px;
   margin: 100px auto;
