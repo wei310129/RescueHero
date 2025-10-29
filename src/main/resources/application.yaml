@@ -24,8 +24,8 @@ spring:
 
   datasource:
     url: jdbc:postgresql://localhost:5432/rescuehero
-    username: ENC(xSJ2MhQnYNQroZAEIs2pRl/ADP14nKbZ2lHbjIXqSsOBWbimMr1oQRZaVIcCkueK)
-    password: ENC(yZSSxKDGyuPRKuR5XXO5fnDRg3clpQcDOGBd1YBYtTsUxCr9WSftlJpETgsi5gUf)
+    username: ENC(0IFRlsLDJzO5qD7O6Hp46mIrbGfEPe5qwH0pFK8Ph+eDA7F6wRwIVDLlOfHfFEZt)
+    password: ENC(+A9Sit3tyOGTusnUMYjYjQbU1Ixb5oSe8rJTG700eD7SXkyGR7nNYNdQl4NhJpIf)
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -43,13 +43,13 @@ spring:
       mode: always
 
   data:
-    mongodb:
-      uri: mongodb://${MONGO_USER}:${MONGO_PASSWORD}@localhost:27017/rescuehero
+#    mongodb:
+#      uri: mongodb://${MONGO_USER}:${MONGO_PASSWORD}@localhost:27017/rescuehero
     redis:
       host: localhost
       port: 6379
-      password: ENC(yZSSxKDGyuPRKuR5XXO5fnDRg3clpQcDOGBd1YBYtTsUxCr9WSftlJpETgsi5gUf)
+      password: ENC(+A9Sit3tyOGTusnUMYjYjQbU1Ixb5oSe8rJTG700eD7SXkyGR7nNYNdQl4NhJpIf)
 
 # mongodb
-MONGO_USER: ENC(xSJ2MhQnYNQroZAEIs2pRl/ADP14nKbZ2lHbjIXqSsOBWbimMr1oQRZaVIcCkueK)
-MONGO_PASSWORD: ENC(yZSSxKDGyuPRKuR5XXO5fnDRg3clpQcDOGBd1YBYtTsUxCr9WSftlJpETgsi5gUf)
+#MONGO_USER: ENC(0IFRlsLDJzO5qD7O6Hp46mIrbGfEPe5qwH0pFK8Ph+eDA7F6wRwIVDLlOfHfFEZt)
+#MONGO_PASSWORD: ENC(+A9Sit3tyOGTusnUMYjYjQbU1Ixb5oSe8rJTG700eD7SXkyGR7nNYNdQl4NhJpIf)
