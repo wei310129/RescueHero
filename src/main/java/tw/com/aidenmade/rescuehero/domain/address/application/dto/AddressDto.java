@@ -1,7 +1,7 @@
 package tw.com.aidenmade.rescuehero.domain.address.application.dto;
 
-import tw.com.aidenmade.rescuehero.domain.common.application.dto.AuditInfoDto;
-import tw.com.aidenmade.rescuehero.domain.common.application.dto.CountryDto;
+import tw.com.aidenmade.rescuehero.domain.base.application.dto.AuditInfoDto;
+import tw.com.aidenmade.rescuehero.domain.base.application.dto.CountryDto;
 
 /**
  * 地址

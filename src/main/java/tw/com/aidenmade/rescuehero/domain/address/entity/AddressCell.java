@@ -2,7 +2,7 @@ package tw.com.aidenmade.rescuehero.domain.address.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import tw.com.aidenmade.rescuehero.domain.common.entity.AuditInfo;
+import tw.com.aidenmade.rescuehero.domain.base.entity.AuditInfo;
 
 /**
  * 地址細胞（地點節點）

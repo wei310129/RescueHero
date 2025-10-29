@@ -2,8 +2,8 @@ package tw.com.aidenmade.rescuehero.domain.address.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import tw.com.aidenmade.rescuehero.domain.common.entity.AuditInfo;
-import tw.com.aidenmade.rescuehero.domain.common.entity.Country;
+import tw.com.aidenmade.rescuehero.domain.base.entity.AuditInfo;
+import tw.com.aidenmade.rescuehero.domain.base.entity.Country;
 
 /**
  * 地址單位層級（如縣市、區、鄉、路、街）
