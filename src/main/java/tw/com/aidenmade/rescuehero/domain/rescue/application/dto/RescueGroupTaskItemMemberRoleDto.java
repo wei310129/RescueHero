@@ -1,8 +1,8 @@
 package tw.com.aidenmade.rescuehero.domain.rescue.application.dto;
 
 import lombok.*;
-import tw.com.aidenmade.rescuehero.domain.common.application.dto.AuditInfoDto;
-import tw.com.aidenmade.rescuehero.domain.common.application.dto.RoleDto;
+import tw.com.aidenmade.rescuehero.domain.base.application.dto.AuditInfoDto;
+import tw.com.aidenmade.rescuehero.domain.base.application.dto.RoleDto;
 
 /**
  * 任務工項成員角色
