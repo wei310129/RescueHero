@@ -1,4 +1,4 @@
-package tw.com.aidenmade.rescuehero.domain.common.entity;
+package tw.com.aidenmade.rescuehero.domain.base.entity;
 
 import jakarta.persistence.*;
 import lombok.*;

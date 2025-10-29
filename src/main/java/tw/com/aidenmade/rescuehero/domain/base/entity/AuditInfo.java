@@ -1,9 +1,13 @@
-package tw.com.aidenmade.rescuehero.domain.common.entity;
+package tw.com.aidenmade.rescuehero.domain.base.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import tw.com.aidenmade.rescuehero.domain.account.entity.Account;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -14,6 +18,7 @@ import java.util.UUID;
  */
 @Entity
 @Table(name = "audit_info")
+@EntityListeners(AuditingEntityListener.class)
 @Getter
 @Setter
 @NoArgsConstructor
@@ -34,6 +39,14 @@ public class AuditInfo {
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
-    @Column(name = "created_by", nullable = false, length = 100)
-    private String createdBy;
+    @CreatedBy
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "created_by", nullable = true)
+    private Account createdBy;
+
+    @LastModifiedBy
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "updated_by", nullable = true)
+    private Account updatedBy;
+
 }

@@ -1,4 +1,4 @@
-package tw.com.aidenmade.rescuehero.domain.common.application.dto;
+package tw.com.aidenmade.rescuehero.domain.base.application.dto;
 
 import java.time.ZonedDateTime;
 import java.util.UUID;
@@ -15,6 +15,8 @@ public record AuditInfoDto(
     // 更新時間
     ZonedDateTime updatedAt,
     // 建立者
-    String createdBy
+    Long createdBy,
+    // 修改者
+    Long updatedBy
 ) {}
 

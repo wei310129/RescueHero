@@ -1,12 +1,12 @@
-package tw.com.aidenmade.rescuehero.domain.common.mapstruct;
+package tw.com.aidenmade.rescuehero.domain.base.mapstruct.projection;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
-import tw.com.aidenmade.rescuehero.domain.common.application.dto.RoleTypeDto;
-import tw.com.aidenmade.rescuehero.domain.common.projection.RoleTypeProjection;
+import tw.com.aidenmade.rescuehero.domain.base.application.dto.RoleTypeDto;
+import tw.com.aidenmade.rescuehero.domain.base.projection.RoleTypeProjection;
 
 @Mapper(componentModel = "spring", uses = {AuditInfoProjectionMapper.class})
-public interface RoleTypeProjectionMapper extends BaseProjectionMapper {
+public interface RoleTypeProjectionMapper {
     RoleTypeProjectionMapper INSTANCE = Mappers.getMapper(RoleTypeProjectionMapper.class);
     RoleTypeDto toDto(RoleTypeProjection projection);
 }

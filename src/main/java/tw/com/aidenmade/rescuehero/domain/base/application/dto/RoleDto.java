@@ -1,4 +1,4 @@
-package tw.com.aidenmade.rescuehero.domain.common.application.dto;
+package tw.com.aidenmade.rescuehero.domain.base.application.dto;
 
 /**
  * 角色
@@ -14,4 +14,8 @@ public record RoleDto(
     String name,
     // 描述
     String description
-) {}
+) {
+    public String getUniquePattern() {
+        return roleType.name() + "_" + name;
+    }
+}
