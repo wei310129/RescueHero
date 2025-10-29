@@ -2,10 +2,10 @@ package tw.com.aidenmade.rescuehero.domain.household.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import tw.com.aidenmade.rescuehero.domain.common.entity.AuditInfo;
+import tw.com.aidenmade.rescuehero.domain.base.entity.AuditInfo;
 import tw.com.aidenmade.rescuehero.domain.disaster.entity.Disaster;
-import tw.com.aidenmade.rescuehero.domain.common.entity.Status;
-import tw.com.aidenmade.rescuehero.domain.common.entity.Unit;
+import tw.com.aidenmade.rescuehero.domain.base.entity.Status;
+import tw.com.aidenmade.rescuehero.domain.base.entity.Unit;
 
 
 /**
