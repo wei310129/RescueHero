@@ -23,6 +23,27 @@ CREATE TABLE IF NOT EXISTS country (
     code VARCHAR(8) NOT NULL UNIQUE,  -- 國家代碼 (如 TW, US)
     CHECK (code ~ '^[A-Z]{2,3}$')
 );
+WITH country_data AS (
+    SELECT *
+    FROM jsonb_to_recordset(
+                 '[{"name":"台灣","native_name":"臺灣","code":"TW"},
+                   {"name":"美國","native_name":"United States","code":"US"},
+                   {"name":"日本","native_name":"日本","code":"JP"},
+                   {"name":"韓國","native_name":"대한민국","code":"KR"}]'
+         ) AS (name text, native_name text, code text)
+),
+audit_rows AS (
+    INSERT INTO audit_info (id, created_at, updated_at)
+        SELECT gen_random_uuid(), now(), now()
+        FROM country_data
+        RETURNING id
+)
+INSERT INTO country (audit_id, name, native_name, code)
+SELECT a.id, c.name, c.native_name, c.code
+FROM audit_rows a
+         JOIN country_data c ON a.id IS NOT NULL
+LIMIT (SELECT count(*) FROM country_data);
+
 
 -- 地址單位表
 CREATE TABLE IF NOT EXISTS address_level (
