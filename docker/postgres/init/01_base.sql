@@ -136,7 +136,7 @@ new_role_type AS (
 new_audit_roles AS (
     INSERT INTO audit_info (id, created_at, updated_at)
         SELECT gen_random_uuid(), now(), now()
-        FROM generate_series(1, 2)  -- 👈 想插入幾筆角色就改這裡
+        FROM generate_series(1, 3)  -- 👈 想插入幾筆角色就改這裡
         RETURNING id
 )
 INSERT INTO role (audit_id, type_id, name, description)
@@ -147,10 +147,11 @@ SELECT r.id,
 FROM new_audit_roles r
          JOIN new_role_type t ON true
          JOIN (VALUES
-                   ('organization', '組織'),
-                   ('individual', '個人')
+                   ('ROLE_ADMIN', '管理者'),   -- 第1筆
+                   ('ROLE_ORGAN', '組織'),     -- 第2筆
+                   ('ROLE_USER', '個人')       -- 第3筆
 ) AS v(name, description)
               ON true
-LIMIT 2;  -- 👈 要與上面的 generate_series(1,3) 相同
+LIMIT 3;  -- 👈 要與上面的 generate_series(1,3) 相同
 
 

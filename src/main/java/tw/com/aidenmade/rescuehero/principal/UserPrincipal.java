@@ -17,7 +17,7 @@ public class UserPrincipal implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
+        return List.of(() -> role); // role 內容必須是 "ROLE_ADMIN" 這種格式
     }
 
     @Override
