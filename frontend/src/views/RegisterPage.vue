@@ -72,7 +72,7 @@ import {useRouter} from 'vue-router'
 const username = ref('')
 // const nickname = ref('')
 const email = ref('')
-const phone = ref('')
+// const phone = ref('')
 const password = ref('')
 const confirmPassword = ref('')
 const roleId = ref('')
