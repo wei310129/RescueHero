@@ -67,6 +67,7 @@
 
 <script setup>
 import {onMounted, ref} from 'vue'
+import {useRouter} from 'vue-router'
 
 const username = ref('')
 // const nickname = ref('')
@@ -80,6 +81,7 @@ const captcha = ref('')
 const captchaUrl = ref('')
 const showPassword = ref(false)
 const showConfirmPassword = ref(false)
+const router = useRouter()
 
 function reloadCaptcha() {
   captchaUrl.value = `/api/auth/captcha?ts=${Date.now()}`
@@ -138,6 +140,8 @@ async function handleRegister() {
   }
 
   alert('註冊成功')
+  // After successful registration, navigate to login page
+  router.push('/login')
 }
 </script>
 
