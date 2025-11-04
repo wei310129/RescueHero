@@ -29,12 +29,14 @@
 
 <script setup>
 import {onMounted, ref} from 'vue'
+import {useRouter} from 'vue-router'
 
 const username = ref('')
 const password = ref('')
 const captcha = ref('')
 const captchaUrl = ref('')
 const showPassword = ref(false)
+const router = useRouter()
 
 function reloadCaptcha() {
   captchaUrl.value = `/api/auth/captcha?ts=${Date.now()}`
@@ -73,6 +75,9 @@ async function handleLogin() {
     return
   }
   alert(JSON.stringify(data))
+
+  // navigate to tasks overview
+  router.push('/tasks')
 }
 </script>
 
