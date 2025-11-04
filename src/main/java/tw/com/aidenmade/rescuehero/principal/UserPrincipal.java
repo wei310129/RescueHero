@@ -13,6 +13,7 @@ import java.util.List;
 public class UserPrincipal implements UserDetails {
     private final Long id;
     private final String username;
+    private final String role;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
