@@ -61,10 +61,18 @@ async function handleLogin() {
       captcha: captcha.value
     })
   })
-  const data = await res.json()
-  // 根據 data 處理登入結果
+  let data = {}
+  const text = await res.text()
+  if (text) {
+    try {
+      data = JSON.parse(text)
+    } catch (e) {
+      alert('伺服器回傳格式錯誤')
+      return
+    }
+  }
   if (!res.ok) {
-    let msg = data.error
+    let msg = data.error || '登入失敗'
     if (Array.isArray(msg)) {
       msg = msg.join('\n')
     }
@@ -74,10 +82,11 @@ async function handleLogin() {
     }
     return
   }
+  console.log("登入成功")
   alert(JSON.stringify(data))
-
-  // navigate to tasks overview
-  router.push('/tasks')
+  try { localStorage.setItem('currentUser', username.value) } catch (e) { /* ignore */ }
+  try { window.dispatchEvent(new Event('user-login')) } catch (e) { /* ignore */ }
+  await router.push('/tasks')
 }
 </script>
 
