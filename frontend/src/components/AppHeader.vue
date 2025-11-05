@@ -18,7 +18,7 @@
             <div class="dropdown-header">Notifications</div>
             <ul>
               <li v-for="item in notifications" :key="item.id" :class="{ unread: !item.read }" @click="openNotification(item)">
-                <div class="notif-title">{{ item.title || item.message || '（無標題）' }}</div>
+                <div class="notif-title">{{ item.title || item.message || item || '（無標題）' }}</div>
                 <div class="notif-time">{{ formatTime(item.createdAt) }}</div>
               </li>
               <li v-if="notifications.length === 0" class="empty">沒有通知</li>
@@ -331,6 +331,7 @@ function handleUserLogout() {
 }
 .notif-title {
   font-weight: 500;
+  text-align: left;
 }
 .notif-time {
   font-size: 0.875rem;
