@@ -136,17 +136,21 @@ public class AccountService extends AbstractAccountBaseService {
     }
 
     @Transactional
-    public boolean updateIsActive(AccountUpdateActiveRequest request) {
+    public boolean updateIsActive(AccountUpdateActiveRequest request, boolean isActive) {
         try {
             Account account = accountRepository.findById(request.getId())
                     .orElseThrow(() -> ExceptionUtils.cannotFindId(request.getId()));
-            account.setIsActive(request.getIsActive());
+            account.setIsActive(isActive);
             updateAuditInfo(account);
             accountRepository.save(account);
             return true;
         } catch (Exception e) {
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-            log.error("停用 Account 失敗", e);
+            if (isActive) {
+                log.error("啟用 Account 失敗", e);
+            } else {
+                log.error("停用 Account 失敗", e);
+            }
             return false;
         }
     }

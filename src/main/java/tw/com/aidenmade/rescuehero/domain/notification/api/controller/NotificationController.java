@@ -20,8 +20,8 @@ import java.util.List;
 public class NotificationController extends AbstractBaseController {
 
     @PreAuthorize("isAuthenticated()")
-    @GetMapping
-    public ResponseEntity<Object> getAllNotifications() {
+    @GetMapping("/user")
+    public ResponseEntity<Object> getUserNotifications() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.getPrincipal() instanceof UserDetails) {
             //TODO 用 username 取回真正要回傳的通知訊息，在這裡限制要回傳幾筆

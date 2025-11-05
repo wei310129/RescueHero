@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import tw.com.aidenmade.rescuehero.cache.JwtService;
 import tw.com.aidenmade.rescuehero.definition.cache.CacheDefinition;
@@ -64,6 +65,7 @@ public class AuthController extends AbstractBaseController {
     }
 
     // refresh: 從 HttpOnly cookie 讀 refresh token，驗證後回傳新的 access（可選輪換 refresh）
+    @PermitAll
     @PostMapping("/refresh")
     public ResponseEntity<Object> refreshToken(HttpServletRequest servletRequest, HttpServletResponse response) {
         Cookie[] cookies = servletRequest.getCookies();
@@ -103,6 +105,7 @@ public class AuthController extends AbstractBaseController {
         response.addCookie(refreshCookie);
     }
 
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/logout")
     public ResponseEntity<Object> logout(HttpServletRequest servletRequest) {
         jwtService.invalidateAccessToken(JwtUtils.getJWTTokenByServletRequest(servletRequest));
@@ -110,6 +113,7 @@ public class AuthController extends AbstractBaseController {
         return successResponseMsg("登出");
     }
 
+    @PermitAll
     @GetMapping("/captcha")
     public ResponseEntity<Object> getCaptcha(HttpSession session, HttpServletResponse response) {
         return booleanToCommonResponse(captchaService.getCaptcha(session, response), "驗證碼取得");

@@ -1,6 +1,7 @@
 package tw.com.aidenmade.rescuehero.domain.account.api.controller;
 
 import io.micrometer.common.util.StringUtils;
+import jakarta.annotation.security.PermitAll;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -35,6 +36,7 @@ public class AccountController extends AbstractBaseController {
     /**
      * 取得帳號資訊
      */
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/{username}")
     public ResponseEntity<Object> getByUsername(@PathVariable String username) {
         return accountService.getByUsername(username)
@@ -45,6 +47,7 @@ public class AccountController extends AbstractBaseController {
     /**
      * 建立帳號
      */
+    @PermitAll
     @PostMapping("/register")
     public ResponseEntity<Object> register(@RequestBody AccountCreateRequest request, HttpSession session) {
         Boolean verifyResult = captchaService.verifyCaptcha(request.getCaptcha(), session);
@@ -113,6 +116,7 @@ public class AccountController extends AbstractBaseController {
     /**
      * 更新非敏感資訊
      */
+    @PreAuthorize("isAuthenticated()")
     @PutMapping("/update/insensitive")
     public ResponseEntity<Object> updateInsensitive(@RequestBody AccountUpdateInsensitiveRequest request) {
         return booleanToCommonResponse(accountService.updateInsensitive(request), "變更使用者資訊");
@@ -121,6 +125,7 @@ public class AccountController extends AbstractBaseController {
     /**
      * 更新密碼
      */
+    @PreAuthorize("isAuthenticated()")
     @PutMapping("/update/password")
     public ResponseEntity<Object> updatePassword(@RequestBody AccountUpdatePasswordRequest request) {
         return booleanToCommonResponse(accountService.updatePassword(request), "變更密碼");
@@ -129,6 +134,7 @@ public class AccountController extends AbstractBaseController {
     /**
      * 更新管理帳號
      */
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/update/is-admin")
     public ResponseEntity<Object> updateIsAdmin(@RequestBody AccountUpdateAdminRequest request) {
         return booleanToCommonResponse(accountService.updateIsAdmin(request), "變更管理帳號");
@@ -137,9 +143,19 @@ public class AccountController extends AbstractBaseController {
     /**
      * 停用帳號
      */
-    @PutMapping("/update/is-active")
-    public ResponseEntity<Object> updateIsActive(@RequestBody AccountUpdateActiveRequest request) {
-        return booleanToCommonResponse(accountService.updateIsActive(request), "變更帳號狀態");
+    @PreAuthorize("isAuthenticated()")
+    @PutMapping("/update/is-active/inactive")
+    public ResponseEntity<Object> inactive(@RequestBody AccountUpdateActiveRequest request) {
+        return booleanToCommonResponse(accountService.updateIsActive(request, false), "停用帳號");
+    }
+
+    /**
+     * 啟用帳號
+     */
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/update/is-active/active")
+    public ResponseEntity<Object> active(@RequestBody AccountUpdateActiveRequest request) {
+        return booleanToCommonResponse(accountService.updateIsActive(request, true), "啟用帳號");
     }
 
     /**

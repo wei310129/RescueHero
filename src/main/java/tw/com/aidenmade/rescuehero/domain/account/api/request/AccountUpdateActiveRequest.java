@@ -11,6 +11,4 @@ import lombok.Setter;
 public class AccountUpdateActiveRequest {
     // ID
     private Long id;
-    // 啟用狀態
-    private Boolean isActive;
 }

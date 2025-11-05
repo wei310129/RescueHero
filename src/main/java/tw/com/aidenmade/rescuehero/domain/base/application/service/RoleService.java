@@ -23,11 +23,16 @@ public class RoleService {
     private final RoleRepository roleRepository;
     private final RoleProjectionMapper roleProjectionMapper;
 
+    // 連動 init SQL 中的 ADMIN 角色名稱
+    public static final String ROLE_ADMIN = "ROLE_ADMIN";
+
     @Transactional
     public List<RoleDto> getAccountRoleTypes() {
         RoleTypeDto accountRoleType = roleTypeProjectionMapper
                 .toDto(roleTypeRepository.findByName("account"));
-        return roleRepository.findByRoleTypeId(accountRoleType.id())
-                .stream().map(roleProjectionMapper::toDto).toList();
+        return roleRepository.findByRoleTypeId(accountRoleType.id()).stream()
+                .map(roleProjectionMapper::toDto)
+                .filter(r -> !ROLE_ADMIN.equals(r.name()))
+                .toList();
     }
 }
