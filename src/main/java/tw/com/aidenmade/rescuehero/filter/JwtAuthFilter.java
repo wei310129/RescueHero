@@ -17,7 +17,6 @@ import tw.com.aidenmade.rescuehero.principal.UserPrincipal;
 import tw.com.aidenmade.rescuehero.utils.JwtUtils;
 
 import java.io.IOException;
-import java.util.Collections;
 
 @Slf4j
 @Component
@@ -46,18 +45,19 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
 
         // 建立 Authentication
+        UserPrincipal principal = new UserPrincipal(
+                jwtService.getUserIdFromToken(token),
+                jwtService.getUsernameFromToken(token),
+                jwtService.getRoleUniquePatternFromToken(token)
+        );
         if (SecurityContextHolder.getContext().getAuthentication() == null) {
             // 建立 principal 物件，並設定到 SecurityContext
             SecurityContextHolder
                     .getContext()
                     .setAuthentication(new UsernamePasswordAuthenticationToken(
-                            new UserPrincipal(
-                                    jwtService.getUserIdFromToken(token),
-                                    jwtService.getUsernameFromToken(token),
-                                    jwtService.getRoleUniquePatternFromToken(token)
-                            ),
+                            principal,
                             null,
-                            Collections.emptyList())
+                            principal.getAuthorities())
             );
         }
 
