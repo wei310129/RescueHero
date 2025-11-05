@@ -30,6 +30,7 @@
 <script setup>
 import {onMounted, ref} from 'vue'
 import {useRouter} from 'vue-router'
+import {apiFetch} from '@/utils/apiFetch'
 
 const username = ref('')
 const password = ref('')
@@ -52,7 +53,7 @@ onMounted(() => {
   reloadCaptcha()
 })
 async function handleLogin() {
-  const res = await fetch('/api/auth/login', {
+  const res = await apiFetch('/api/auth/login', {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
     body: JSON.stringify({
@@ -82,8 +83,10 @@ async function handleLogin() {
     }
     return
   }
-  console.log("登入成功")
-  alert(JSON.stringify(data))
+  const authHeader = res.headers.get('Authorization')
+  if (authHeader) {
+    localStorage.setItem('accessToken', authHeader)
+  }
   try { localStorage.setItem('currentUser', username.value) } catch (e) { /* ignore */ }
   try { window.dispatchEvent(new Event('user-login')) } catch (e) { /* ignore */ }
   await router.push('/tasks')

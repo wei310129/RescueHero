@@ -47,6 +47,7 @@
 <script setup>
 import {computed, onMounted, onUnmounted, ref} from 'vue'
 import {useRouter} from 'vue-router'
+import {apiFetch} from '@/utils/apiFetch'
 
 const router = useRouter()
 const menuOpen = ref(false)
@@ -66,10 +67,9 @@ function toggleMenu() {
 
 async function fetchNotifications() {
   try {
-    const res = await fetch('/api/notification')
+    const res = await apiFetch('/api/notification/user')
     if (!res.ok) return
     const data = await res.json()
-    // assume data is an array of { id, title, message, read, createdAt, url }
     notifications.value = Array.isArray(data) ? data : []
   } catch (e) {
     notifications.value = []
@@ -88,8 +88,7 @@ async function toggleBell() {
 async function markAsRead(ids) {
   if (!ids || ids.length === 0) return
   try {
-    // assume backend accepts POST /api/notifications/mark-read with { ids: [...] }
-    await fetch('/api/notification/mark-read', {
+    await apiFetch('/api/notification/mark-read', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ids })
