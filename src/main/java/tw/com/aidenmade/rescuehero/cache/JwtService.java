@@ -45,7 +45,9 @@ public class JwtService {
                 return false; // 快取不存在，視為無效
             }
             // 若有快取，要求 token 必須存在快取中（表示已登入/未被撤銷）
-            return cache.get(token) != null;
+            String key = String.format("%s:%s:%s",
+                    claims.get("id"), claims.getSubject(), claims.get("role"));
+            return cache.get(key) != null;
         } catch (Exception e) {
             return false;
         }
