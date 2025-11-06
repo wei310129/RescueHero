@@ -30,7 +30,7 @@ const router = useRouter()
 async function fetchTasks() {
   loading.value = true
   try {
-    const res = await apiFetch('/api/rescue/tasks/available')
+    const res = await apiFetch('/group-task/available')
     if (res.ok) {
       tasks.value = await res.json()
     } else {

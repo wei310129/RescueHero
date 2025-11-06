@@ -69,6 +69,7 @@
 import {onMounted, ref} from 'vue'
 import {useRouter} from 'vue-router'
 import {apiFetch} from '@/utils/apiFetch'
+import {getCaptchaUrl} from '@/utils/getCaptchaUrl'
 
 const username = ref('')
 // const nickname = ref('')
@@ -84,8 +85,8 @@ const showPassword = ref(false)
 const showConfirmPassword = ref(false)
 const router = useRouter()
 
-function reloadCaptcha() {
-  captchaUrl.value = `/api/auth/captcha?ts=${Date.now()}`
+async function reloadCaptcha() {
+  captchaUrl.value = await getCaptchaUrl()
 }
 
 function removeSpaces(field) {
@@ -99,7 +100,7 @@ function removeSpaces(field) {
 onMounted(async () => {
   reloadCaptcha()
   try {
-    const res = await apiFetch('/api/role/account')
+    const res = await apiFetch('/role/account')
     roles.value = await res.json()
   } catch (e) {
     roles.value = []
@@ -114,7 +115,7 @@ async function handleRegister() {
   if (!roleId.value) {alert('請選擇角色');return;}
   if (!captcha.value) {alert('請輸入驗證碼');return;}
 
-  const res = await apiFetch('/api/account/register', {
+  const res = await apiFetch('/account/register', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({

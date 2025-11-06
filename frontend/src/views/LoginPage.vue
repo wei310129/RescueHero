@@ -31,6 +31,7 @@
 import {onMounted, ref} from 'vue'
 import {useRouter} from 'vue-router'
 import {apiFetch} from '@/utils/apiFetch'
+import {getCaptchaUrl} from '@/utils/getCaptchaUrl'
 
 const username = ref('')
 const password = ref('')
@@ -39,8 +40,8 @@ const captchaUrl = ref('')
 const showPassword = ref(false)
 const router = useRouter()
 
-function reloadCaptcha() {
-  captchaUrl.value = `/api/auth/captcha?ts=${Date.now()}`
+async function reloadCaptcha() {
+  captchaUrl.value = await getCaptchaUrl()
 }
 
 function removeSpaces(field) {
@@ -53,7 +54,7 @@ onMounted(() => {
   reloadCaptcha()
 })
 async function handleLogin() {
-  const res = await apiFetch('/api/auth/login', {
+  const res = await apiFetch('/auth/login', {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
     body: JSON.stringify({

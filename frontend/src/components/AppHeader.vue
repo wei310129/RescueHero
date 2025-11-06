@@ -67,7 +67,7 @@ function toggleMenu() {
 
 async function fetchNotifications() {
   try {
-    const res = await apiFetch('/api/notification/user')
+    const res = await apiFetch('/notification/user')
     if (!res.ok) return
     const data = await res.json()
     notifications.value = Array.isArray(data) ? data : []
@@ -88,7 +88,7 @@ async function toggleBell() {
 async function markAsRead(ids) {
   if (!ids || ids.length === 0) return
   try {
-    await apiFetch('/api/notification/mark-read', {
+    await apiFetch('/notification/mark-read', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ids })
