@@ -7,7 +7,7 @@
     <div class="right">
       <div class="user-area">
         <span v-if="currentUser" class="greeting">Hi, {{ currentUser }}</span>
-        <div class="bell-container" ref="bellBtn">
+        <div v-if="currentUser" class="bell-container" ref="bellBtn">
           <button class="bell-btn" @click="toggleBell" aria-label="notifications">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5">
               <path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0 1 18 14.158V11a6 6 0 1 0-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h11z"/>
