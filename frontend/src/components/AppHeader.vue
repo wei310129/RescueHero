@@ -163,20 +163,9 @@ function handleUserLogin() {
 }
 
 function handleLogout() {
-  try {
-    localStorage.removeItem('currentUser')
-  } catch (e) {
-    alert("無法登出，請檢查瀏覽器設定");
+  if (typeof window.logout === 'function') {
+    window.logout();
   }
-  currentUser.value = ''
-  // 通知 header 立即更新
-  try {
-    window.dispatchEvent(new Event('user-logout'))
-  } catch (e) {
-    alert("登出失敗，請檢查瀏覽器設定");
-  }
-  // 導回登入頁
-  router.push('/login')
 }
 
 function handleUserLogout() {
