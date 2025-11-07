@@ -60,6 +60,6 @@ public class RescueTeamMember {
     private Role role;
 
     @Builder.Default
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<RescueGroupTaskItemMemberRole> taskItemRoles = new HashSet<>();
+    @ManyToMany(mappedBy = "members")
+    private Set<RescueGroupTaskItem> taskItems = new HashSet<>();
 }

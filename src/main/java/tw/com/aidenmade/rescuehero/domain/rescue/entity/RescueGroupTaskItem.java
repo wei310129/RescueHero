@@ -56,7 +56,12 @@ public class RescueGroupTaskItem {
     private Instant completedAt;
 
     @Builder.Default
-    @OneToMany(mappedBy = "taskItem", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<RescueGroupTaskItemMemberRole> memberRoles = new HashSet<>();
+    @ManyToMany
+    @JoinTable(
+            name = "rescue_group_task_item_member",
+            joinColumns = @JoinColumn(name = "task_item_id"),
+            inverseJoinColumns = @JoinColumn(name = "team_member_id")
+    )
+    private Set<RescueTeamMember> members = new HashSet<>();
 }
 
