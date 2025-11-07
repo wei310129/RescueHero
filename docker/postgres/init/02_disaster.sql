@@ -202,20 +202,6 @@ CREATE INDEX idx_task_item_audit_id ON rescue_group_task_item(audit_id);
 CREATE INDEX idx_task_item_task_id ON rescue_group_task_item(task_id);
 CREATE INDEX idx_task_item_status_id ON rescue_group_task_item(status_id);
 
--- 工項、隊員、角色多對多關聯
-CREATE TABLE rescue_group_task_item_member_role (
-    audit_id UUID NOT NULL REFERENCES audit_info(id),  -- 審計資訊
-    task_item_id BIGINT NOT NULL REFERENCES rescue_group_task_item(id) ON DELETE CASCADE,
-    member_id BIGINT NOT NULL REFERENCES rescue_team_member(id) ON DELETE CASCADE,
-    role_id BIGINT REFERENCES role(id),          -- 角色
-    PRIMARY KEY (task_item_id, member_id, role_id)
-);
-CREATE INDEX idx_task_item_member_role_audit_id ON rescue_group_task_item_member_role(audit_id);
-CREATE INDEX idx_task_item_member_role_task_item_id ON rescue_group_task_item_member_role(task_item_id);
-CREATE INDEX idx_task_item_member_role_member_id ON rescue_group_task_item_member_role(member_id);
-CREATE INDEX idx_task_item_member_role_role_id ON rescue_group_task_item_member_role(role_id);
-
-
 
 -- 物資類型表
 CREATE TABLE resource_type (

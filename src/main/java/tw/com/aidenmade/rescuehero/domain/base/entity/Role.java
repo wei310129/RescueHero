@@ -2,10 +2,6 @@ package tw.com.aidenmade.rescuehero.domain.base.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import tw.com.aidenmade.rescuehero.domain.rescue.entity.RescueGroupTaskItemMemberRole;
-
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * 角色表
@@ -42,8 +38,4 @@ public class Role {
 
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
-
-    @Builder.Default
-    @OneToMany(mappedBy = "role", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<RescueGroupTaskItemMemberRole> taskItemMembers = new HashSet<>();
 }
