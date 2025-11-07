@@ -49,6 +49,7 @@ CREATE TABLE person (
     gender VARCHAR(10), -- 性別
     phone VARCHAR(50),
     email VARCHAR(100),
+--     skill TEXT,          -- 專長 TODO 待新增
     note TEXT            -- 備註(病史)
 );
 CREATE INDEX idx_person_audit_id ON person(audit_id);
@@ -189,6 +190,7 @@ CREATE TABLE rescue_group_task_item (
     task_id BIGINT NOT NULL REFERENCES rescue_group_task(id) ON DELETE CASCADE, -- 所屬群組任務
     name VARCHAR(200) NOT NULL CHECK (name <> ''), -- 工項名稱 (ex: 醫療檢查)
     description TEXT,                                     -- 工項描述
+--     skills TEXT,                                          -- 所需專長  TODO 待新增
     status_id BIGINT REFERENCES status(id),                -- 工項狀態
     started_at TIMESTAMPTZ,                                 -- 開始時間
     completed_at TIMESTAMPTZ,                                -- 完成時間
