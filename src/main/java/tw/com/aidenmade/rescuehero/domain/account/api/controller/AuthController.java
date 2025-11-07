@@ -1,5 +1,6 @@
 package tw.com.aidenmade.rescuehero.domain.account.api.controller;
 
+import io.jsonwebtoken.Claims;
 import io.micrometer.common.util.StringUtils;
 import jakarta.annotation.security.PermitAll;
 import jakarta.servlet.http.Cookie;
@@ -54,10 +55,11 @@ public class AuthController extends AbstractBaseController {
         if (!accountDto.isActive()) return unauthorizedResponse("帳號已停用");
         if (!PasswordUtils.matches(request.getPassword(), accountDto.passwordHash())) return unauthorizedResponse("帳號不存在或密碼有誤");
 
-        setRefreshTokenIntoResponseCookie(response,
-                jwtService.generateRefreshToken(accountDto.id(), accountDto.username(), accountDto.role().getUniquePattern()));
+        setRefreshTokenIntoResponseCookie(response, jwtService.generateRefreshToken(
+                accountDto.id(), accountDto.username(), accountDto.role().roleType().name(), accountDto.role().name()));
 
-        ResponseEntity<Object> result = authorizedResponse(jwtService.generateAccessToken(accountDto.id(), accountDto.username(), accountDto.role().getUniquePattern()));
+        ResponseEntity<Object> result = authorizedResponse(jwtService.generateAccessToken(
+                accountDto.id(), accountDto.username(), accountDto.role().roleType().name(), accountDto.role().name()));
         if (result.getStatusCode().is2xxSuccessful()) {
             captchaService.removeCaptcha(session);
         }
@@ -68,39 +70,37 @@ public class AuthController extends AbstractBaseController {
     @PermitAll
     @PostMapping("/refresh")
     public ResponseEntity<Object> refreshToken(HttpServletRequest servletRequest, HttpServletResponse response) {
-        Cookie[] cookies = servletRequest.getCookies();
-        if (cookies == null) {
-            return unauthorizedResponse("no refresh token");
-        }
-        String refreshToken = null;
-        for (Cookie c : cookies) {
-            if (CacheName.JWT_REFRESH_TOKEN.equals(c.getName())) {
-                refreshToken = c.getValue();
-                break;
+        String refreshToken;
+        try {
+            refreshToken = JwtUtils.getRefreshTokenByRequestCookies(servletRequest);
+            if (!jwtService.validateToken(refreshToken, CacheName.JWT_REFRESH_TOKEN)) {
+                throw new RuntimeException("invalid refresh token");
             }
-        }
-        if (refreshToken == null || !jwtService.validateToken(refreshToken, CacheName.JWT_REFRESH_TOKEN)) {
-            return unauthorizedResponse("invalid refresh token");
+        } catch (Exception e) {
+            return unauthorizedResponse("validate fail: " + e.getMessage());
         }
 
-        Long userId = jwtService.getUserIdFromToken(refreshToken);
-        String username = jwtService.getUsernameFromToken(refreshToken);
-        String roleUniquePattern = jwtService.getRoleUniquePatternFromToken(refreshToken);
+
+        Claims claims = jwtService.extractClaimsFromToken(refreshToken);
+        Long userId = jwtService.getUserIdByClaims(claims);
+        String username = jwtService.getUsernameByClaims(claims);
+        String roleType = jwtService.getRoleTypeByClaims(claims);
+        String role = jwtService.getRoleByClaims(claims);
         // 停用RefreshToken
-        jwtService.invalidateAccessToken(JwtUtils.getJWTTokenByServletRequest(servletRequest));
-        jwtService.invalidateRefreshToken(JwtUtils.getJWTTokenByServletRequest(servletRequest));
+//        jwtService.invalidateAccessToken(JwtUtils.getJWTTokenByServletRequest(servletRequest));
+        jwtService.invalidateRefreshToken(refreshToken);
 
         // 輪換 refresh token（提高安全性）
-        setRefreshTokenIntoResponseCookie(response, jwtService.generateRefreshToken(userId, username, roleUniquePattern));
+        setRefreshTokenIntoResponseCookie(response, jwtService.generateRefreshToken(userId, username, roleType, role));
 
-        return authorizedResponse(jwtService.generateAccessToken(userId, username, roleUniquePattern));
+        return authorizedResponse(jwtService.generateAccessToken(userId, username, roleType, role));
     }
 
     private void setRefreshTokenIntoResponseCookie(HttpServletResponse response, String refreshToken) {
         Cookie refreshCookie = new Cookie(CacheName.JWT_REFRESH_TOKEN, refreshToken);
         refreshCookie.setHttpOnly(true);
         refreshCookie.setSecure(true); // production: true（https）
-        refreshCookie.setPath("/auth/refresh"); // 只有 refresh endpoint 可讀
+        refreshCookie.setPath("/api/auth/refresh"); // 只有 refresh endpoint 可讀
         refreshCookie.setMaxAge(Math.toIntExact(CacheDefinition.JWT_REFRESH_TOKEN.getTtlType().getSeconds()));
         response.addCookie(refreshCookie);
     }
@@ -108,8 +108,8 @@ public class AuthController extends AbstractBaseController {
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/logout")
     public ResponseEntity<Object> logout(HttpServletRequest servletRequest) {
-        jwtService.invalidateAccessToken(JwtUtils.getJWTTokenByServletRequest(servletRequest));
-        jwtService.invalidateRefreshToken(JwtUtils.getJWTTokenByServletRequest(servletRequest));
+        jwtService.invalidateAccessToken(JwtUtils.getAccessTokenByRequestHeader(servletRequest));
+        jwtService.invalidateRefreshToken(JwtUtils.getRefreshTokenByRequestCookies(servletRequest));
         return successResponseMsg("登出");
     }
 

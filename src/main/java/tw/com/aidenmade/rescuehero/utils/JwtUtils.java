@@ -1,7 +1,9 @@
 package tw.com.aidenmade.rescuehero.utils;
 
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpHeaders;
+import tw.com.aidenmade.rescuehero.definition.cache.CacheName;
 
 public class JwtUtils {
 
@@ -18,8 +20,27 @@ public class JwtUtils {
      * 取得 Header 中 Authorization 值
      * @return "Bearer TokenTokenToken"
      */
-    public static String getAuthorizationValue(HttpServletRequest request) {
+    public static String getAuthorizationValueFromHeader(HttpServletRequest request) {
         return request.getHeader(HttpHeaders.AUTHORIZATION);
+    }
+
+    /**
+     * 取得 cookies 中 Authorization 值
+     * @return "Bearer TokenTokenToken"
+     */
+    public static String getAuthorizationValueFromCookies(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies == null) {
+            throw new RuntimeException("cookies is null");
+        }
+        String refreshToken = null;
+        for (Cookie c : cookies) {
+            if (CacheName.JWT_REFRESH_TOKEN.equals(c.getName())) {
+                refreshToken = c.getValue();
+                break;
+            }
+        }
+        return refreshToken;
     }
 
     /**
@@ -31,7 +52,17 @@ public class JwtUtils {
         return authHeader.substring(7);
     }
 
-    public static String getJWTTokenByServletRequest(HttpServletRequest request) {
-        return extractJWTToken(getAuthorizationValue(request));
+    /**
+     * 從 request header 取 access token
+     */
+    public static String getAccessTokenByRequestHeader(HttpServletRequest request) {
+        return extractJWTToken(getAuthorizationValueFromHeader(request));
+    }
+
+    /**
+     * 從 request cookies 取 refresh token
+     */
+    public static String getRefreshTokenByRequestCookies(HttpServletRequest request) {
+        return getAuthorizationValueFromCookies(request);
     }
 }

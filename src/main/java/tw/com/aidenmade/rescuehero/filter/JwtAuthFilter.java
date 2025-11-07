@@ -1,5 +1,6 @@
 package tw.com.aidenmade.rescuehero.filter;
 
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -30,7 +31,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         log.info("有打到{}", request.getRequestURI());
 
         // 若沒帶 Authorization header，直接放行
-        String authHeader = JwtUtils.getAuthorizationValue(request);
+        String authHeader = JwtUtils.getAuthorizationValueFromHeader(request);
         if (authHeader == null || !authHeader.startsWith(JwtUtils.JWT_TOKEN_PREFIX)) {
             filterChain.doFilter(request, response);
             return;
@@ -39,16 +40,18 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         // 驗證失敗立即返回 401，不繼續往下
         String token = JwtUtils.extractJWTToken(authHeader);
         if (!jwtService.validateToken(token, CacheName.JWT_ACCESS_TOKEN)) {
-            log.warn("無效或過期的 JWT：{}", token);
+            log.warn("[ 401 UNAUTHORIZED ] 無效或過期的 JWT：{}", token);
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
 
         // 建立 Authentication
+        Claims claims = jwtService.extractClaimsFromToken(token);
         UserPrincipal principal = new UserPrincipal(
-                jwtService.getUserIdFromToken(token),
-                jwtService.getUsernameFromToken(token),
-                jwtService.getRoleUniquePatternFromToken(token)
+                jwtService.getUserIdByClaims(claims),
+                jwtService.getUsernameByClaims(claims),
+                jwtService.getRoleTypeByClaims(claims),
+                jwtService.getRoleByClaims(claims)
         );
         if (SecurityContextHolder.getContext().getAuthentication() == null) {
             // 建立 principal 物件，並設定到 SecurityContext

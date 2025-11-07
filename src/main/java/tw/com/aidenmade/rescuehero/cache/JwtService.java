@@ -45,23 +45,25 @@ public class JwtService {
                 return false; // 快取不存在，視為無效
             }
             // 若有快取，要求 token 必須存在快取中（表示已登入/未被撤銷）
-            String key = String.format("%s:%s:%s",
-                    claims.get("id"), claims.getSubject(), claims.get("role"));
+            String key = String.format("%s:%s:%s:%s",
+                    claims.get("id"), claims.getSubject(), claims.get("roleType"), claims.get("role"));
             return cache.get(key) != null;
         } catch (Exception e) {
+            log.error("validate token failed: {}", token, e);
             return false;
         }
     }
 
     @Cacheable(
             value = CacheName.JWT_ACCESS_TOKEN,
-            key = "T(String).format('%s:%s:%s', #userId, #username, #roleUniquePattern)",
+            key = "T(String).format('%s:%s:%s:%s', #userId, #username, #roleType, #role)",
             unless = "#result == null"
     )
-    public String generateAccessToken(@NonNull Long userId, @NonNull String username, @NonNull String roleUniquePattern) {
+    public String generateAccessToken(@NonNull Long userId, @NonNull String username, @NonNull String roleType, @NonNull String role) {
         return Jwts.builder()
                 .claim("id", userId)
-                .claim("role", roleUniquePattern)
+                .claim("roleType", roleType)
+                .claim("role", role)
                 .setSubject(username)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + CacheDefinition.JWT_ACCESS_TOKEN.getTtlType().getMilliseconds()))
@@ -71,14 +73,15 @@ public class JwtService {
 
     @Cacheable(
             value = CacheName.JWT_REFRESH_TOKEN,
-            key = "T(String).format('%s:%s:%s', #userId, #username, #roleUniquePattern)",
+            key = "T(String).format('%s:%s:%s:%s', #userId, #username, #roleType, #role)",
             unless = "#result == null"
     )
-    public String generateRefreshToken(@NonNull Long userId, @NonNull String username, @NonNull String roleUniquePattern) {
+    public String generateRefreshToken(@NonNull Long userId, @NonNull String username, @NonNull String roleType, @NonNull String role) {
         log.info("SECRET_KEY: {}",SECRET_KEY);
         return Jwts.builder()
                 .claim("id", userId)
-                .claim("role", roleUniquePattern)
+                .claim("roleType", roleType)
+                .claim("role", role)
                 .setSubject(username)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + CacheDefinition.JWT_REFRESH_TOKEN.getTtlType().getMilliseconds()))
@@ -102,30 +105,27 @@ public class JwtService {
         // 透過 @CacheEvict 移除快取中的 token
     }
 
-    public String getUsernameFromToken(String token) {
-        Claims claims = Jwts.parserBuilder()
+    public Claims extractClaimsFromToken(String token) {
+        return Jwts.parserBuilder()
                 .setSigningKey(SECRET_KEY)
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
+    }
+
+    public String getUsernameByClaims(Claims claims) {
         return claims.getSubject();
     }
 
-    public Long getUserIdFromToken(String token) {
-        Claims claims = Jwts.parserBuilder()
-                .setSigningKey(SECRET_KEY)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+    public Long getUserIdByClaims(Claims claims) {
         return claims.get("id", Long.class);
     }
 
-    public String getRoleUniquePatternFromToken(String token) {
-        Claims claims = Jwts.parserBuilder()
-                .setSigningKey(SECRET_KEY)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+    public String getRoleTypeByClaims(Claims claims) {
+        return claims.get("roleType", String.class);
+    }
+
+    public String getRoleByClaims(Claims claims) {
         return claims.get("role", String.class);
     }
 }
