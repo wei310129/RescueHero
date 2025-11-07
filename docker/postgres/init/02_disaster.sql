@@ -129,14 +129,14 @@ CREATE TABLE rescue_team (
     id BIGSERIAL PRIMARY KEY,
     audit_id UUID NOT NULL REFERENCES audit_info(id), -- 審計資訊
     unit_id BIGINT NOT NULL UNIQUE REFERENCES unit(id) ON DELETE CASCADE,
-    group_id BIGINT REFERENCES rescue_group(id),          -- 所屬救援群組 (可 NULL 表示獨立團隊)
+    task_id BIGINT NOT NULL REFERENCES rescue_group_task(id) ON DELETE CASCADE, -- 所屬任務，必須登記在某個群組任務下
     status_id BIGINT REFERENCES status(id),                -- 團隊狀態
-    min_member BIGINT NOT NULL CHECK (min_member > 0), -- 最少成員數
-    max_member BIGINT NOT NULL CHECK (max_member >= min_member) -- 最多成
+    min_member BIGINT NOT NULL CHECK (min_member >= 0), -- 最少成員數
+    max_member BIGINT NOT NULL CHECK (max_member >= min_member) -- 最多成員數
 );
 CREATE INDEX idx_rescue_team_audit_id ON rescue_team(audit_id);
 CREATE INDEX idx_rescue_team_unit_id ON rescue_team(unit_id);
-CREATE INDEX idx_rescue_team_group_id ON rescue_team(group_id);
+CREATE INDEX idx_rescue_team_task_id ON rescue_team(task_id);
 CREATE INDEX idx_rescue_team_status_id ON rescue_team(status_id);
 
 -- 救援團隊成員

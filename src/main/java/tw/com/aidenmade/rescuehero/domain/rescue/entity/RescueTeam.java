@@ -6,6 +6,8 @@ import tw.com.aidenmade.rescuehero.domain.base.entity.AuditInfo;
 import tw.com.aidenmade.rescuehero.domain.base.entity.Status;
 import tw.com.aidenmade.rescuehero.domain.base.entity.Unit;
 
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 救援團隊
@@ -38,8 +40,8 @@ public class RescueTeam {
     private Unit unit;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "group_id")
-    private RescueGroup group;
+    @JoinColumn(name = "task_id")
+    private RescueGroupTask task;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "status_id")
@@ -50,4 +52,8 @@ public class RescueTeam {
 
     @Column(name = "max_member", nullable = false)
     private Integer maxMember;
+
+    @Builder.Default
+    @OneToMany(mappedBy = "team", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<RescueTeamMember> members = new ArrayList<>();
 }

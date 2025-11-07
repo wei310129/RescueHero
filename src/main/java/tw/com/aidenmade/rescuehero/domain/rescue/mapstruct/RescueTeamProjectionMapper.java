@@ -6,9 +6,10 @@ import tw.com.aidenmade.rescuehero.domain.base.mapstruct.projection.AuditInfoPro
 import tw.com.aidenmade.rescuehero.domain.base.mapstruct.projection.StatusProjectionMapper;
 import tw.com.aidenmade.rescuehero.domain.base.mapstruct.projection.UnitProjectionMapper;
 import tw.com.aidenmade.rescuehero.domain.rescue.application.dto.RescueTeamDto;
+import tw.com.aidenmade.rescuehero.domain.rescue.projection.RescueTeamMemberProjection;
 import tw.com.aidenmade.rescuehero.domain.rescue.projection.RescueTeamProjection;
 
-@Mapper(componentModel = "spring", uses = {AuditInfoProjectionMapper.class, UnitProjectionMapper.class, RescueGroupProjectionMapper.class, StatusProjectionMapper.class})
+@Mapper(componentModel = "spring", uses = {AuditInfoProjectionMapper.class, UnitProjectionMapper.class, RescueGroupTaskProjectionMapper.class, StatusProjectionMapper.class, RescueTeamMemberProjection.class})
 public interface RescueTeamProjectionMapper {
     RescueTeamProjectionMapper INSTANCE = Mappers.getMapper(RescueTeamProjectionMapper.class);
     RescueTeamDto toDto(RescueTeamProjection projection);
