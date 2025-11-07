@@ -44,4 +44,10 @@ public class RescueTeam {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "status_id")
     private Status status;
+
+    @Column(name = "min_member", nullable = false)
+    private Integer minMember;
+
+    @Column(name = "max_member", nullable = false)
+    private Integer maxMember;
 }
