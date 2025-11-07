@@ -124,39 +124,6 @@ CREATE INDEX idx_rescue_group_audit_id ON rescue_group(audit_id);
 CREATE INDEX idx_rescue_group_disaster_id ON rescue_group(disaster_id);
 CREATE INDEX idx_rescue_group_org_id ON rescue_group(organization_id);
 
--- 救援團隊
-CREATE TABLE rescue_team (
-    id BIGSERIAL PRIMARY KEY,
-    audit_id UUID NOT NULL REFERENCES audit_info(id), -- 審計資訊
-    unit_id BIGINT NOT NULL UNIQUE REFERENCES unit(id) ON DELETE CASCADE,
-    task_id BIGINT NOT NULL REFERENCES rescue_group_task(id) ON DELETE CASCADE, -- 所屬任務，必須登記在某個群組任務下
-    status_id BIGINT REFERENCES status(id),                -- 團隊狀態
-    min_member BIGINT NOT NULL CHECK (min_member >= 0), -- 最少成員數
-    max_member BIGINT NOT NULL CHECK (max_member >= min_member) -- 最多成員數
-);
-CREATE INDEX idx_rescue_team_audit_id ON rescue_team(audit_id);
-CREATE INDEX idx_rescue_team_unit_id ON rescue_team(unit_id);
-CREATE INDEX idx_rescue_team_task_id ON rescue_team(task_id);
-CREATE INDEX idx_rescue_team_status_id ON rescue_team(status_id);
-
--- 救援團隊成員
-CREATE TABLE rescue_team_member (
-    id BIGSERIAL PRIMARY KEY,
-    audit_id UUID NOT NULL REFERENCES audit_info(id), -- 審計資訊
-    person_id BIGINT NOT NULL REFERENCES person(id) ON DELETE CASCADE,
-    team_id BIGINT NOT NULL REFERENCES rescue_team(id) ON DELETE CASCADE,
-    organization_id BIGINT REFERENCES rescue_organization(id), -- 所屬組織 (可 NULL 表示志工)
-    status_id BIGINT REFERENCES status(id),                -- 成員狀態 (active, inactive)
-    role_id BIGINT REFERENCES role(id),          -- 角色
-    UNIQUE (person_id, team_id) -- 同一個人同一隊伍只能一筆
-);
-CREATE INDEX idx_rescue_team_member_audit_id ON rescue_team_member(audit_id);
-CREATE INDEX idx_rescue_team_member_person_id ON rescue_team_member(person_id);
-CREATE INDEX idx_rescue_team_member_team_id ON rescue_team_member(team_id);
-CREATE INDEX idx_rescue_team_member_org_id ON rescue_team_member(organization_id);
-CREATE INDEX idx_rescue_team_member_status_id ON rescue_team_member(status_id);
-CREATE INDEX idx_rescue_team_member_role_id ON rescue_team_member(role_id);
-
 -- 群組救援任務
 CREATE TABLE rescue_group_task (
     id BIGSERIAL PRIMARY KEY,
@@ -192,7 +159,7 @@ CREATE TABLE rescue_group_task_item (
     task_id BIGINT NOT NULL REFERENCES rescue_group_task(id) ON DELETE CASCADE, -- 所屬群組任務
     name VARCHAR(200) NOT NULL CHECK (name <> ''), -- 工項名稱 (ex: 醫療檢查)
     description TEXT,                                     -- 工項描述
---     skills TEXT,                                          -- 所需專長  TODO 待新增
+    --     skills TEXT,                                          -- 所需專長  TODO 待新增
     status_id BIGINT REFERENCES status(id),                -- 工項狀態
     started_at TIMESTAMPTZ,                                 -- 開始時間
     completed_at TIMESTAMPTZ,                                -- 完成時間
@@ -201,6 +168,39 @@ CREATE TABLE rescue_group_task_item (
 CREATE INDEX idx_task_item_audit_id ON rescue_group_task_item(audit_id);
 CREATE INDEX idx_task_item_task_id ON rescue_group_task_item(task_id);
 CREATE INDEX idx_task_item_status_id ON rescue_group_task_item(status_id);
+
+-- 救援團隊
+CREATE TABLE rescue_team (
+    id BIGSERIAL PRIMARY KEY,
+    audit_id UUID NOT NULL REFERENCES audit_info(id), -- 審計資訊
+    unit_id BIGINT NOT NULL UNIQUE REFERENCES unit(id) ON DELETE CASCADE,
+    task_id BIGINT NOT NULL REFERENCES rescue_group_task(id) ON DELETE CASCADE, -- 所屬任務，必須登記在某個群組任務下
+    status_id BIGINT REFERENCES status(id),                -- 團隊狀態
+    min_member BIGINT NOT NULL CHECK (min_member >= 0), -- 最少成員數
+    max_member BIGINT NOT NULL CHECK (max_member >= min_member) -- 最多成員數
+);
+CREATE INDEX idx_rescue_team_audit_id ON rescue_team(audit_id);
+CREATE INDEX idx_rescue_team_unit_id ON rescue_team(unit_id);
+CREATE INDEX idx_rescue_team_task_id ON rescue_team(task_id);
+CREATE INDEX idx_rescue_team_status_id ON rescue_team(status_id);
+
+-- 救援團隊成員
+CREATE TABLE rescue_team_member (
+    id BIGSERIAL PRIMARY KEY,
+    audit_id UUID NOT NULL REFERENCES audit_info(id), -- 審計資訊
+    person_id BIGINT NOT NULL REFERENCES person(id) ON DELETE CASCADE,
+    team_id BIGINT NOT NULL REFERENCES rescue_team(id) ON DELETE CASCADE,
+    organization_id BIGINT REFERENCES rescue_organization(id), -- 所屬組織 (可 NULL 表示志工)
+    status_id BIGINT REFERENCES status(id),                -- 成員狀態 (active, inactive)
+    role_id BIGINT REFERENCES role(id),          -- 角色
+    UNIQUE (person_id, team_id) -- 同一個人同一隊伍只能一筆
+);
+CREATE INDEX idx_rescue_team_member_audit_id ON rescue_team_member(audit_id);
+CREATE INDEX idx_rescue_team_member_person_id ON rescue_team_member(person_id);
+CREATE INDEX idx_rescue_team_member_team_id ON rescue_team_member(team_id);
+CREATE INDEX idx_rescue_team_member_org_id ON rescue_team_member(organization_id);
+CREATE INDEX idx_rescue_team_member_status_id ON rescue_team_member(status_id);
+CREATE INDEX idx_rescue_team_member_role_id ON rescue_team_member(role_id);
 
 
 -- 物資類型表
