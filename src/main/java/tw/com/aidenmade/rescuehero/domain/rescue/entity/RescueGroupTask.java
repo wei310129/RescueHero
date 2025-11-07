@@ -3,10 +3,12 @@ package tw.com.aidenmade.rescuehero.domain.rescue.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import tw.com.aidenmade.rescuehero.domain.base.entity.AuditInfo;
-import tw.com.aidenmade.rescuehero.domain.disaster.entity.Disaster;
 import tw.com.aidenmade.rescuehero.domain.base.entity.Status;
+import tw.com.aidenmade.rescuehero.domain.disaster.entity.Disaster;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 群組救援任務
@@ -57,9 +59,19 @@ public class RescueGroupTask {
     @Column(name = "priority", nullable = false)
     private Integer priority; // 1=最高, 5=最低
 
+    @Column(name = "min_member", nullable = false)
+    private Integer minMember;
+
+    @Column(name = "max_member", nullable = false)
+    private Integer maxMember;
+
     @Column(name = "assigned_at")
     private Instant assignedAt;
 
     @Column(name = "completed_at")
     private Instant completedAt;
+
+    @Builder.Default
+    @OneToMany(mappedBy = "task", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<RescueGroupTaskItem> items = new ArrayList<>();
 }

@@ -7,7 +7,7 @@ import tw.com.aidenmade.rescuehero.domain.disaster.mapstruct.DisasterProjectionM
 import tw.com.aidenmade.rescuehero.domain.rescue.application.dto.RescueGroupTaskDto;
 import tw.com.aidenmade.rescuehero.domain.rescue.projection.RescueGroupTaskProjection;
 
-@Mapper(componentModel = "spring", uses = {AuditInfoProjectionMapper.class, RescueGroupProjectionMapper.class, DisasterProjectionMapper.class})
+@Mapper(componentModel = "spring", uses = {AuditInfoProjectionMapper.class, RescueGroupProjectionMapper.class, DisasterProjectionMapper.class, RescueGroupTaskItemProjectionMapper.class})
 public interface RescueGroupTaskProjectionMapper {
     RescueGroupTaskProjectionMapper INSTANCE = Mappers.getMapper(RescueGroupTaskProjectionMapper.class);
     RescueGroupTaskDto toDto(RescueGroupTaskProjection projection);

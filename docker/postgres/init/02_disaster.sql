@@ -167,6 +167,8 @@ CREATE TABLE rescue_group_task (
     description TEXT,                                      -- 任務描述
     status_id BIGINT REFERENCES status(id),                -- 任務狀態
     priority INT NOT NULL CHECK (priority >= 1 AND priority <= 5),  -- 1=最高, 5=最低
+    min_member BIGINT NOT NULL CHECK (min_member > 0), -- 最少成員數
+    max_member BIGINT NOT NULL CHECK (max_member >= min_member), -- 最多成員數
     assigned_at TIMESTAMPTZ DEFAULT now(),                   -- 指派時間
     completed_at TIMESTAMPTZ,                                 -- 完成時間
     UNIQUE (group_id, name),                            -- 同一群組內名稱唯一
