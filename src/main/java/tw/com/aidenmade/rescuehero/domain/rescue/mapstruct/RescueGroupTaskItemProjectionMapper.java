@@ -8,7 +8,7 @@ import tw.com.aidenmade.rescuehero.domain.rescue.application.dto.RescueGroupTask
 import tw.com.aidenmade.rescuehero.domain.rescue.projection.RescueGroupTaskItemProjection;
 
 @Mapper(componentModel = "spring", uses = {AuditInfoProjectionMapper.class, RescueGroupTaskProjectionMapper.class, StatusProjectionMapper.class})
-public interface RescueGroupTaskItemMapper {
-    RescueGroupTaskItemMapper INSTANCE = Mappers.getMapper(RescueGroupTaskItemMapper.class);
+public interface RescueGroupTaskItemProjectionMapper {
+    RescueGroupTaskItemProjectionMapper INSTANCE = Mappers.getMapper(RescueGroupTaskItemProjectionMapper.class);
     RescueGroupTaskItemDto toDto(RescueGroupTaskItemProjection projection);
 }

@@ -1,14 +1,12 @@
 package tw.com.aidenmade.rescuehero.domain.rescue.projection;
 
-import tw.com.aidenmade.rescuehero.domain.base.application.dto.PersonDto;
-import tw.com.aidenmade.rescuehero.domain.rescue.application.dto.RescueOrganizationDto;
-import tw.com.aidenmade.rescuehero.domain.rescue.application.dto.RescueTeamDto;
-import tw.com.aidenmade.rescuehero.domain.base.application.dto.AuditInfoDto;
+import tw.com.aidenmade.rescuehero.domain.base.projection.AuditInfoProjection;
+import tw.com.aidenmade.rescuehero.domain.base.projection.PersonProjection;
 
 public interface RescueTeamMemberProjection {
     Long getId();
-    AuditInfoDto getAuditInfo();
-    PersonDto getPerson();
-    RescueTeamDto getTeam();
-    RescueOrganizationDto getOrganization();
+    AuditInfoProjection getAuditInfo();
+    PersonProjection getPerson();
+    RescueTeamProjection getTeam();
+    RescueOrganizationProjection getOrganization();
 }
