@@ -9,8 +9,6 @@ import tw.com.aidenmade.rescuehero.domain.rescue.application.dto.RescueGroupTask
 import tw.com.aidenmade.rescuehero.domain.rescue.mapstruct.RescueGroupTaskProjectionMapper;
 import tw.com.aidenmade.rescuehero.domain.rescue.repository.RescueGroupTaskRepository;
 
-import java.util.List;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -23,9 +21,5 @@ public class RescueGroupTaskService {
         return rescueGroupTaskRepository
                 .findPageByConditions(groupId, disasterId, nameLike, statusId, priority, pageable)
                 .map(rescueGroupTaskProjectionMapper::toDto);
-    }
-
-    public List<RescueGroupTaskDto> getUserTasks() {
-
     }
 }
