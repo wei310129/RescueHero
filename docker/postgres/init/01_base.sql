@@ -129,7 +129,7 @@ WITH new_audit_type AS (
 ),
 new_role_type AS (
     INSERT INTO role_type (audit_id, name, description)
-        SELECT id, 'account', '帳號角色'
+        SELECT id, 'ACCOUNT', '帳號角色'
         FROM new_audit_type
         RETURNING id
 ),
