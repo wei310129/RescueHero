@@ -7,6 +7,11 @@ export async function apiFetch(url, options = {}) {
     const accessToken = localStorage.getItem('accessToken');
     // Clone and set headers
     const headers = new Headers(options.headers || {});
+    headers.set('Accept', 'application/json');
+    // 強制 Content-Type: application/json
+    if (options.body) {
+        headers.set('Content-Type', 'application/json');
+    }
     if (accessToken) {
         headers.set('Authorization', `${accessToken}`);
     }
@@ -23,6 +28,7 @@ export async function apiFetch(url, options = {}) {
         const refreshResponse = await fetch(apiContextPath + '/auth/refresh', {
             method: 'POST',
             credentials: 'include',
+            headers: new Headers({ 'Accept': 'application/json' })
         });
 
         let authHeader = refreshResponse.headers.get('Authorization')
@@ -46,4 +52,3 @@ export async function apiFetch(url, options = {}) {
     }
     return response;
 }
-
