@@ -53,8 +53,55 @@ CREATE TABLE IF NOT EXISTS address_level (
     name VARCHAR(32) NOT NULL,                       -- 層級名稱 (ex: 縣市、區、鄉、路、街)
     suffix VARCHAR(32),                              -- 後綴字（如: 一段、二段）
     sequence INTEGER NOT NULL CHECK (sequence > 0),  -- 層級順序
-    UNIQUE (country_id, name, sequence)
+    UNIQUE (country_id, name, suffix, sequence)
 );
+
+-- 台灣 address_level 初始資料
+INSERT INTO audit_info (id, created_at, updated_at)
+SELECT gen_random_uuid(), now(), now() FROM generate_series(1, 27);
+
+INSERT INTO address_level (audit_id, country_id, name, suffix, sequence)
+SELECT a.id, c.id, l.name, l.suffix, l.sequence
+FROM (
+    SELECT id, row_number() OVER (ORDER BY created_at DESC) AS rn FROM audit_info ORDER BY created_at DESC LIMIT 27
+) a
+CROSS JOIN (
+    SELECT id FROM country WHERE code = 'TW'
+) c
+JOIN (
+    SELECT * FROM (
+        VALUES
+            ('縣', NULL, 1),
+            ('市', NULL, 1),
+            ('鄉', NULL, 2),
+            ('鎮', NULL, 2),
+            ('市', NULL, 2),
+            ('區', NULL, 2),
+            ('村', NULL, 3),
+            ('里', NULL, 3),
+            ('鄰', NULL, 4),
+            ('路', NULL, 5),
+            ('路', '一段', 5),
+            ('路', '二段', 5),
+            ('路', '三段', 5),
+            ('路', '四段', 5),
+            ('路', '五段', 5),
+            ('路', '六段', 5),
+            ('街', NULL, 5),
+            ('街', '一段', 5),
+            ('街', '二段', 5),
+            ('街', '三段', 5),
+            ('街', '四段', 5),
+            ('街', '五段', 5),
+            ('街', '六段', 5),
+            ('巷', NULL, 6),
+            ('弄', NULL, 7),
+            ('號', NULL, 8),
+            ('樓', NULL, 9),
+            ('樓', NULL, 10)
+    ) AS t(name, suffix, sequence)
+) l ON l.sequence = a.rn;
+
 
 -- 地址欄位表
 CREATE TABLE IF NOT EXISTS address_cell (
