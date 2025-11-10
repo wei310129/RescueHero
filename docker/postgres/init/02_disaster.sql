@@ -3,7 +3,7 @@ CREATE TABLE disaster (
     id BIGSERIAL PRIMARY KEY,
     audit_id UUID NOT NULL REFERENCES audit_info(id),
     country_id BIGINT NOT NULL REFERENCES country(id) ON DELETE RESTRICT, -- 國籍
-    status VARCHAR(30) NOT NULL,                             -- 災害狀態 (active, resolved)
+    status VARCHAR(30) NOT NULL,                             -- 災害狀態 (ACTIVE, RESOLVED)
     name VARCHAR(255) NOT NULL CHECK (name <> ''),                    -- 災害名稱
     occurred_at DATE NOT NULL,                      -- 發生時間，只存到日 (yyyy-MM-dd)
     location BIGINT NOT NULL REFERENCES address(id) ON DELETE RESTRICT, -- 發生地點
