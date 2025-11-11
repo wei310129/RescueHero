@@ -374,6 +374,11 @@ WITH
             NULL, 2, 2, 8, now(), NULL
         ) RETURNING id
     ),
+    group_cleanup_task1_items AS (
+        INSERT INTO rescue_group_task_item (audit_id, task_id, name, description, status_id, started_at, completed_at)
+        VALUES
+          ((SELECT audit_id FROM group_cleanup_task1), (SELECT id FROM group_cleanup_task1), '挖土機清淤', '需具備挖土機或小山貓操作證照', NULL, NULL, NULL)
+    ),
     group_cleanup_task2_audit AS (
         INSERT INTO audit_info (id, created_at, updated_at)
         VALUES (gen_random_uuid(), now(), now())
@@ -390,5 +395,11 @@ WITH
             '負責人力清淤住宅及水溝',
             NULL, 2, 2, 10, now(), NULL
         ) RETURNING id
+    ),
+    group_cleanup_task2_items AS (
+        INSERT INTO rescue_group_task_item (audit_id, task_id, name, description, status_id, started_at, completed_at)
+        VALUES
+          ((SELECT audit_id FROM group_cleanup_task2), (SELECT id FROM group_cleanup_task2), '住宅清淤', '需具備體力及現場清理經驗', NULL, NULL, NULL),
+          ((SELECT audit_id FROM group_cleanup_task2), (SELECT id FROM group_cleanup_task2), '水溝清淤', '需具備水溝清理經驗，能配合團隊作業', NULL, NULL, NULL)
     )
 SELECT 1;
