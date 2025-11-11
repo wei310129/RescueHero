@@ -113,6 +113,57 @@ CREATE TABLE IF NOT EXISTS address_cell (
     UNIQUE (level_id, parent_id, name)
 );
 
+-- 建立 audit_info
+WITH
+    audit_rows AS (
+        INSERT INTO audit_info (id, created_at, updated_at)
+            SELECT gen_random_uuid(), now(), now() FROM generate_series(1, 22)
+            RETURNING id
+    ),
+    tw_country AS (
+        SELECT id FROM country WHERE code = 'TW'
+    ),
+    level_county AS (
+        SELECT id FROM address_level
+        WHERE country_id = (SELECT id FROM tw_country)
+          AND name = '縣'
+          AND sequence = 1
+        LIMIT 1
+    ),
+    level_city AS (
+        SELECT id FROM address_level
+        WHERE country_id = (SELECT id FROM tw_country)
+          AND name = '市'
+          AND sequence = 1
+        LIMIT 1
+    ),
+    cities AS (
+        SELECT ROW_NUMBER() OVER () AS rn, name
+        FROM (VALUES
+                  ('台北'), ('新北'), ('桃園'), ('台中'), ('台南'), ('高雄'),
+                  ('基隆'), ('新竹'), ('嘉義'), ('新竹'), ('苗栗'), ('彰化'),
+                  ('南投'), ('雲林'), ('嘉義'), ('屏東'), ('宜蘭'), ('花蓮'),
+                  ('台東'), ('澎湖'), ('金門'), ('連江')
+             ) AS t(name)
+    ),
+    audits AS (
+        SELECT ROW_NUMBER() OVER () AS rn, id
+        FROM audit_rows
+    )
+INSERT INTO address_cell (audit_id, level_id, parent_id, name)
+SELECT
+    audits.id,
+    CASE
+        WHEN cities.name IN ('台北', '新北', '桃園', '台中', '台南', '高雄') THEN level_city.id
+        ELSE level_county.id
+        END,
+    NULL,
+    cities.name
+FROM audits
+         JOIN cities ON audits.rn = cities.rn,
+     level_city,
+     level_county;
+
 -- 地址主表：具體地址實例（包含災害、座標）
 CREATE TABLE IF NOT EXISTS address (
     id BIGSERIAL PRIMARY KEY,
