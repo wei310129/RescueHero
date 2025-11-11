@@ -158,9 +158,9 @@ WITH
     group_resource_task1_items AS (
         INSERT INTO rescue_group_task_item (audit_id, task_id, name, description, status_id, started_at, completed_at)
         VALUES
-          ((SELECT audit_id FROM group_resource_task1), (SELECT id FROM group_resource_task1), '捐贈物資管理', '需具備 Excel 基礎操作能力，負責登記、盤點、管理捐贈物資', NULL, NULL, NULL),
-          ((SELECT audit_id FROM group_resource_task1), (SELECT id FROM group_resource_task1), '物資採購', '需具備採購經驗，能夠比價、聯絡供應商，具備機車駕照者佳', NULL, NULL, NULL),
-          ((SELECT audit_id FROM group_resource_task1), (SELECT id FROM group_resource_task1), '物資分發', '需具備良好溝通能力，部分角色須公開聯絡資訊以方便外界聯絡', NULL, NULL, NULL)
+          ((SELECT audit_id FROM group_resource_task1), (SELECT id FROM group_resource_task1), '捐贈物資管理', '適合熟悉 Excel 或文書處理，協助登記、盤點、管理捐贈物資', NULL, NULL, NULL),
+          ((SELECT audit_id FROM group_resource_task1), (SELECT id FROM group_resource_task1), '物資採購', '適合有採購經驗或願意外出比價、聯絡供應商者，具備機車駕照者佳', NULL, NULL, NULL),
+          ((SELECT audit_id FROM group_resource_task1), (SELECT id FROM group_resource_task1), '物資分發', '適合具備溝通協調能力，部分角色可公開聯絡資訊以方便外界聯絡', NULL, NULL, NULL)
     ),
     group_resource_task2_audit AS (
         INSERT INTO audit_info (id, created_at, updated_at)
@@ -182,9 +182,9 @@ WITH
     group_resource_task2_items AS (
         INSERT INTO rescue_group_task_item (audit_id, task_id, name, description, status_id, started_at, completed_at)
         VALUES
-          ((SELECT audit_id FROM group_resource_task2), (SELECT id FROM group_resource_task2), '食材準備', '需具備食材採購與備料經驗', NULL, NULL, NULL),
-          ((SELECT audit_id FROM group_resource_task2), (SELECT id FROM group_resource_task2), '烹飪', '需具備團體烹飪經驗，能協助大量餐食製作', NULL, NULL, NULL),
-          ((SELECT audit_id FROM group_resource_task2), (SELECT id FROM group_resource_task2), '餐食分配', '需具備分配與溝通能力，協助現場分配餐食', NULL, NULL, NULL)
+          ((SELECT audit_id FROM group_resource_task2), (SELECT id FROM group_resource_task2), '食材準備', '適合有食材採購或備料經驗者參與', NULL, NULL, NULL),
+          ((SELECT audit_id FROM group_resource_task2), (SELECT id FROM group_resource_task2), '烹飪', '適合有團體烹飪經驗或願意協助大量餐食製作者', NULL, NULL, NULL),
+          ((SELECT audit_id FROM group_resource_task2), (SELECT id FROM group_resource_task2), '餐食分配', '適合具備分配與溝通能力，協助現場分配餐食', NULL, NULL, NULL)
     ),
     group_resource_task3_audit AS (
         INSERT INTO audit_info (id, created_at, updated_at)
@@ -206,8 +206,8 @@ WITH
     group_resource_task3_items AS (
         INSERT INTO rescue_group_task_item (audit_id, task_id, name, description, status_id, started_at, completed_at)
         VALUES
-          ((SELECT audit_id FROM group_resource_task3), (SELECT id FROM group_resource_task3), '物資運送', '需具備機車駕照，負責物資運送至各救災點', NULL, NULL, NULL),
-          ((SELECT audit_id FROM group_resource_task3), (SELECT id FROM group_resource_task3), '現場分發', '需具備現場分發與溝通能力', NULL, NULL, NULL)
+          ((SELECT audit_id FROM group_resource_task3), (SELECT id FROM group_resource_task3), '物資運送', '適合有機車駕照或願意協助物資運送者', NULL, NULL, NULL),
+          ((SELECT audit_id FROM group_resource_task3), (SELECT id FROM group_resource_task3), '現場分發', '適合具備現場分發與溝通能力者', NULL, NULL, NULL)
     ),
     group_resource_task4_audit AS (
         INSERT INTO audit_info (id, created_at, updated_at)
@@ -229,8 +229,8 @@ WITH
     group_resource_task4_items AS (
         INSERT INTO rescue_group_task_item (audit_id, task_id, name, description, status_id, started_at, completed_at)
         VALUES
-          ((SELECT audit_id FROM group_resource_task4), (SELECT id FROM group_resource_task4), '垃圾收集', '需具備現場收集垃圾能力', NULL, NULL, NULL),
-          ((SELECT audit_id FROM group_resource_task4), (SELECT id FROM group_resource_task4), '垃圾運送', '需具備機車駕照，負責垃圾運送至指定地點', NULL, NULL, NULL)
+          ((SELECT audit_id FROM group_resource_task4), (SELECT id FROM group_resource_task4), '垃圾收集', '適合願意協助現場收集垃圾者', NULL, NULL, NULL),
+          ((SELECT audit_id FROM group_resource_task4), (SELECT id FROM group_resource_task4), '垃圾運送', '適合有機車駕照或願意協助垃圾運送者', NULL, NULL, NULL)
     ),
     group_resource_task5_audit AS (
         INSERT INTO audit_info (id, created_at, updated_at)
@@ -252,7 +252,7 @@ WITH
     group_resource_task5_items AS (
         INSERT INTO rescue_group_task_item (audit_id, task_id, name, description, status_id, started_at, completed_at)
         VALUES
-          ((SELECT audit_id FROM group_resource_task5), (SELECT id FROM group_resource_task5), '廁所清掃', '需具備現場清掃能力，細心負責', NULL, NULL, NULL)
+          ((SELECT audit_id FROM group_resource_task5), (SELECT id FROM group_resource_task5), '廁所清掃', '適合細心負責、願意協助現場清掃者', NULL, NULL, NULL)
     ),
 
 
@@ -294,7 +294,7 @@ WITH
         INSERT INTO rescue_group_task_item (audit_id, task_id, name, description, status_id, started_at, completed_at)
         VALUES
           ((SELECT audit_id FROM group_medical_task), (SELECT id FROM group_medical_task), '緊急救護', '需具備急救技能與醫療證照，負責現場醫療救護', NULL, NULL, NULL),
-          ((SELECT audit_id FROM group_medical_task), (SELECT id FROM group_medical_task), '健康狀況管理', '需具備健康管理或護理相關知識，負責現場人員健康管理', NULL, NULL, NULL)
+          ((SELECT audit_id FROM group_medical_task), (SELECT id FROM group_medical_task), '健康狀況管理', '適合具備健康管理或護理相關知識者，協助現場人員健康管理', NULL, NULL, NULL)
     ),
 
 
@@ -335,8 +335,8 @@ WITH
     group_traffic_task1_items AS (
         INSERT INTO rescue_group_task_item (audit_id, task_id, name, description, status_id, started_at, completed_at)
         VALUES
-          ((SELECT audit_id FROM group_traffic_task1), (SELECT id FROM group_traffic_task1), '交通指揮', '需具備現場交通指揮經驗，能協助人車分流', NULL, NULL, NULL),
-          ((SELECT audit_id FROM group_traffic_task1), (SELECT id FROM group_traffic_task1), '路線規劃', '需具備路線規劃能力，能協助救災車輛順利通行', NULL, NULL, NULL)
+          ((SELECT audit_id FROM group_traffic_task1), (SELECT id FROM group_traffic_task1), '交通指揮', '適合具備現場交通指揮經驗或願意協助人車分流者', NULL, NULL, NULL),
+          ((SELECT audit_id FROM group_traffic_task1), (SELECT id FROM group_traffic_task1), '路線規劃', '適合有路線規劃能力或願意協助救災車輛順利通行者', NULL, NULL, NULL)
     ),
 
 
@@ -399,7 +399,7 @@ WITH
     group_cleanup_task2_items AS (
         INSERT INTO rescue_group_task_item (audit_id, task_id, name, description, status_id, started_at, completed_at)
         VALUES
-          ((SELECT audit_id FROM group_cleanup_task2), (SELECT id FROM group_cleanup_task2), '住宅清淤', '需具備體力及現場清理經驗', NULL, NULL, NULL),
-          ((SELECT audit_id FROM group_cleanup_task2), (SELECT id FROM group_cleanup_task2), '水溝清淤', '需具備水溝清理經驗，能配合團隊作業', NULL, NULL, NULL)
+          ((SELECT audit_id FROM group_cleanup_task2), (SELECT id FROM group_cleanup_task2), '住宅清淤', '適合具備體力或現場清理經驗者', NULL, NULL, NULL),
+          ((SELECT audit_id FROM group_cleanup_task2), (SELECT id FROM group_cleanup_task2), '水溝清淤', '適合有水溝清理經驗或願意配合團隊作業者', NULL, NULL, NULL)
     )
 SELECT 1;
