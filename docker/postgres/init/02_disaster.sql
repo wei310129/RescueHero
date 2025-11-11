@@ -18,7 +18,7 @@ CREATE INDEX idx_disaster_occurred_at ON disaster(occurred_at);
 CREATE TABLE status_type (
     id BIGSERIAL PRIMARY KEY,
     audit_id UUID NOT NULL REFERENCES audit_info(id), -- 審計資訊
-    name VARCHAR(50) NOT NULL UNIQUE CHECK (name <> ''), -- ex: household, rescue_task
+    name VARCHAR(50) NOT NULL UNIQUE CHECK (name ~ '^[A-Z0-9_]+$'), -- ex: HOUSEHOLD, TASK，必須全大寫且不得有空格
     description TEXT
 );
 CREATE INDEX idx_status_type_audit_id ON status_type(audit_id);
@@ -29,13 +29,61 @@ CREATE TABLE status (
     audit_id UUID NOT NULL REFERENCES audit_info(id), -- 審計資訊
     disaster_id BIGINT NOT NULL REFERENCES disaster(id) ON DELETE CASCADE, -- 所屬災害
     type_id BIGINT NOT NULL REFERENCES status_type(id) ON DELETE CASCADE,
-    code VARCHAR(50) NOT NULL CHECK (code <> ''),        -- ex: pending, completed
+    code VARCHAR(50) NOT NULL CHECK (code ~ '^[A-Z0-9_]+$'),        -- ex: PENDING, COMPLETED，必須全大寫且不得有空格
     name VARCHAR(100) NOT NULL CHECK (name <> ''),       -- 顯示名稱 (ex: 待處理, 已完成)
     description TEXT,                                    -- 說明
     UNIQUE(disaster_id, type_id, code)                                -- 在同一類型內唯一
 );
 CREATE INDEX idx_status_disaster_id ON status(disaster_id);
 CREATE INDEX idx_status_type_id ON status(type_id);
+
+-- 初始化 status_type 與對應的 status，status_type 用自增id，status 直接取 ins_type.id
+WITH
+    ins_type_audit AS (
+        INSERT INTO audit_info (id, created_at, updated_at)
+            VALUES (gen_random_uuid(), now(), now())
+            RETURNING id
+    ),
+    ins_type AS (
+        INSERT INTO status_type (audit_id, name, description)
+            SELECT a.id, UPPER(REPLACE('TASK', ' ', '')), 'Rescue Task 狀態類型'
+            FROM ins_type_audit a
+            RETURNING id
+    ),
+    ins_status_audits AS (
+        INSERT INTO audit_info (id, created_at, updated_at)
+            SELECT gen_random_uuid(), now(), now()
+            FROM generate_series(1, 4)
+            RETURNING id
+    ),
+    ins_status_list AS (
+        SELECT * FROM (
+            VALUES
+                  ('PENDING',   '待處理',   '任務尚未開始'),
+                  ('IN_PROGRESS','進行中',  '任務正在進行'),
+                  ('COMPLETED', '已完成',   '任務已完成'),
+                  ('CANCELLED', '已取消',   '任務已取消')
+            ) AS t(code, name, description)
+    ),
+    ins_status AS (
+        INSERT INTO status (audit_id, disaster_id, type_id, code, name, description)
+            SELECT audits.id,
+                   1,
+                   t.id,
+                   UPPER(REPLACE(item.code, ' ', '')),
+                   item.name,
+                   item.description
+            FROM (
+                     SELECT id, row_number() OVER () AS rn FROM ins_status_audits
+                 ) audits
+                     CROSS JOIN ins_type t
+                     JOIN (
+                SELECT code, name, description, row_number() OVER () AS rn FROM ins_status_list
+            ) item ON audits.rn = item.rn
+            RETURNING id
+    )
+SELECT 1;
+
 
 
 -- 抽象化的人員表
@@ -160,7 +208,7 @@ CREATE TABLE rescue_group_task_item (
     name VARCHAR(200) NOT NULL CHECK (name <> ''), -- 工項名稱 (ex: 醫療檢查)
     description TEXT,                                     -- 工項描述
     --     skills TEXT,                                          -- 所需專長  TODO 待新增
-    status_id BIGINT REFERENCES status(id),                -- 工項狀態
+    status_id BIGINT NOT NULL REFERENCES status(id),                -- 工項狀態
     started_at TIMESTAMPTZ,                                 -- 開始時間
     completed_at TIMESTAMPTZ,                                -- 完成時間
     UNIQUE (task_id, name)
