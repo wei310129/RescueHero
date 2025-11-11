@@ -332,6 +332,12 @@ WITH
             NULL, 2, 2, 6, now(), NULL
         ) RETURNING id
     ),
+    group_traffic_task1_items AS (
+        INSERT INTO rescue_group_task_item (audit_id, task_id, name, description, status_id, started_at, completed_at)
+        VALUES
+          ((SELECT audit_id FROM group_traffic_task1), (SELECT id FROM group_traffic_task1), '交通指揮', '需具備現場交通指揮經驗，能協助人車分流', NULL, NULL, NULL),
+          ((SELECT audit_id FROM group_traffic_task1), (SELECT id FROM group_traffic_task1), '路線規劃', '需具備路線規劃能力，能協助救災車輛順利通行', NULL, NULL, NULL)
+    ),
 
 
 
