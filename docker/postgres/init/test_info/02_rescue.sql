@@ -1,5 +1,5 @@
--- 建立「台北市中正區忠孝東路一段1號」address，補建 address_cell（中正區、忠孝東路、一段、1號）
 WITH
+    -- 建立「台北市中正區忠孝東路一段1號」address，補建 address_cell（中正區、忠孝東路、一段、1號）
     audit_dist AS (
         INSERT INTO audit_info (id, created_at, updated_at)
         VALUES (gen_random_uuid(), now(), now())
@@ -90,6 +90,9 @@ WITH
         )
         RETURNING id
     ),
+
+
+    -- 建立基本 unit 及 organization
     unit_insert AS (
         INSERT INTO unit (
             audit_id, country_id, name, location, contact_name, contact_phone
@@ -111,12 +114,15 @@ WITH
             audit_id, disaster_id, unit_id, description
         ) VALUES (
             (SELECT id FROM audit_rescue_org),
-            disaster_id,
+            (SELECT id FROM disaster),
             (SELECT id FROM unit_insert),
             '中央災害應變中心(花蓮馬太鞍堰塞湖)'
         )
         RETURNING id
     ),
+
+
+    -- 建立基本 group 及 所屬 task + taskItems
     group_resource_audit AS (
         INSERT INTO audit_info (id, created_at, updated_at)
         VALUES (gen_random_uuid(), now(), now())
@@ -132,6 +138,8 @@ WITH
             '負責物資分配與管理'
         ) RETURNING id
     ),
+
+
     group_medical_audit AS (
         INSERT INTO audit_info (id, created_at, updated_at)
         VALUES (gen_random_uuid(), now(), now())
@@ -147,6 +155,8 @@ WITH
             '負責醫療救護與健康管理'
         ) RETURNING id
     ),
+
+
     group_support_audit AS (
         INSERT INTO audit_info (id, created_at, updated_at)
         VALUES (gen_random_uuid(), now(), now())
@@ -162,6 +172,8 @@ WITH
             '負責後勤支援與協調'
         ) RETURNING id
     ),
+
+
     group_cleanup_audit AS (
         INSERT INTO audit_info (id, created_at, updated_at)
         VALUES (gen_random_uuid(), now(), now())
