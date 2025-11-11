@@ -138,8 +138,95 @@ WITH
             '負責物資分配與管理'
         ) RETURNING id
     ),
+    group_resource_task1_audit AS (
+        INSERT INTO audit_info (id, created_at, updated_at)
+        VALUES (gen_random_uuid(), now(), now())
+        RETURNING id
+    ),
+    group_resource_task1 AS (
+        INSERT INTO rescue_group_task (
+            audit_id, group_id, disaster_id, name, description, status_id, priority, min_member, max_member, assigned_at, completed_at
+        ) VALUES (
+            (SELECT id FROM group_resource_task1_audit),
+            (SELECT id FROM group_resource),
+            (SELECT id FROM disaster),
+            '物資採購分發',
+            '負責物資採購與分發',
+            NULL, 2, 2, 10, now(), NULL
+        ) RETURNING id
+    ),
+    group_resource_task2_audit AS (
+        INSERT INTO audit_info (id, created_at, updated_at)
+        VALUES (gen_random_uuid(), now(), now())
+        RETURNING id
+    ),
+    group_resource_task2 AS (
+        INSERT INTO rescue_group_task (
+            audit_id, group_id, disaster_id, name, description, status_id, priority, min_member, max_member, assigned_at, completed_at
+        ) VALUES (
+            (SELECT id FROM group_resource_task2_audit),
+            (SELECT id FROM group_resource),
+            (SELECT id FROM disaster),
+            '團膳',
+            '負責現場團體膳食供應',
+            NULL, 2, 2, 8, now(), NULL
+        ) RETURNING id
+    ),
+    group_resource_task3_audit AS (
+        INSERT INTO audit_info (id, created_at, updated_at)
+        VALUES (gen_random_uuid(), now(), now())
+        RETURNING id
+    ),
+    group_resource_task3 AS (
+        INSERT INTO rescue_group_task (
+            audit_id, group_id, disaster_id, name, description, status_id, priority, min_member, max_member, assigned_at, completed_at
+        ) VALUES (
+            (SELECT id FROM group_resource_task3_audit),
+            (SELECT id FROM group_resource),
+            (SELECT id FROM disaster),
+            '送餐送水',
+            '負責現場送餐與送水',
+            NULL, 2, 2, 8, now(), NULL
+        ) RETURNING id
+    ),
+    group_resource_task4_audit AS (
+        INSERT INTO audit_info (id, created_at, updated_at)
+        VALUES (gen_random_uuid(), now(), now())
+        RETURNING id
+    ),
+    group_resource_task4 AS (
+        INSERT INTO rescue_group_task (
+            audit_id, group_id, disaster_id, name, description, status_id, priority, min_member, max_member, assigned_at, completed_at
+        ) VALUES (
+            (SELECT id FROM group_resource_task4_audit),
+            (SELECT id FROM group_resource),
+            (SELECT id FROM disaster),
+            '垃圾收集',
+            '負責現場垃圾收集',
+            NULL, 2, 2, 6, now(), NULL
+        ) RETURNING id
+    ),
+    group_resource_task5_audit AS (
+        INSERT INTO audit_info (id, created_at, updated_at)
+        VALUES (gen_random_uuid(), now(), now())
+        RETURNING id
+    ),
+    group_resource_task5 AS (
+        INSERT INTO rescue_group_task (
+            audit_id, group_id, disaster_id, name, description, status_id, priority, min_member, max_member, assigned_at, completed_at
+        ) VALUES (
+            (SELECT id FROM group_resource_task5_audit),
+            (SELECT id FROM group_resource),
+            (SELECT id FROM disaster),
+            '流動廁所清掃',
+            '負責流動廁所清掃',
+            NULL, 2, 2, 4, now(), NULL
+        ) RETURNING id
+    ),
 
 
+
+    -- 醫療組
     group_medical_audit AS (
         INSERT INTO audit_info (id, created_at, updated_at)
         VALUES (gen_random_uuid(), now(), now())
@@ -155,25 +242,80 @@ WITH
             '負責醫療救護與健康管理'
         ) RETURNING id
     ),
-
-
-    group_support_audit AS (
+    group_medical_task1_audit AS (
         INSERT INTO audit_info (id, created_at, updated_at)
         VALUES (gen_random_uuid(), now(), now())
         RETURNING id
     ),
-    group_support AS (
-        INSERT INTO rescue_group (audit_id, disaster_id, organization_id, name, description)
-        VALUES (
-            (SELECT id FROM group_support_audit),
+    group_medical_task1 AS (
+        INSERT INTO rescue_group_task (
+            audit_id, group_id, disaster_id, name, description, status_id, priority, min_member, max_member, assigned_at, completed_at
+        ) VALUES (
+            (SELECT id FROM group_medical_task1_audit),
+            (SELECT id FROM group_medical),
             (SELECT id FROM disaster),
-            (SELECT id FROM rescue_org_insert),
-            '後勤組',
-            '負責後勤支援與協調'
+            '緊急救護',
+            '負責現場醫療救護',
+            NULL, 1, 2, 8, now(), NULL
+        ) RETURNING id
+    ),
+    group_medical_task2_audit AS (
+        INSERT INTO audit_info (id, created_at, updated_at)
+        VALUES (gen_random_uuid(), now(), now())
+        RETURNING id
+    ),
+    group_medical_task2 AS (
+        INSERT INTO rescue_group_task (
+            audit_id, group_id, disaster_id, name, description, status_id, priority, min_member, max_member, assigned_at, completed_at
+        ) VALUES (
+            (SELECT id FROM group_medical_task2_audit),
+            (SELECT id FROM group_medical),
+            (SELECT id FROM disaster),
+            '現場人員健康狀況管理',
+            '負責現場人員健康管理',
+            NULL, 2, 2, 6, now(), NULL
         ) RETURNING id
     ),
 
 
+
+    -- 交通組
+    group_traffic_audit AS (
+        INSERT INTO audit_info (id, created_at, updated_at)
+        VALUES (gen_random_uuid(), now(), now())
+        RETURNING id
+    ),
+    group_traffic AS (
+        INSERT INTO rescue_group (audit_id, disaster_id, organization_id, name, description)
+        VALUES (
+            (SELECT id FROM group_traffic_audit),
+            (SELECT id FROM disaster),
+            (SELECT id FROM rescue_org_insert),
+            '交通組',
+            '負責現場交通管理'
+        ) RETURNING id
+    ),
+    group_traffic_task1_audit AS (
+        INSERT INTO audit_info (id, created_at, updated_at)
+        VALUES (gen_random_uuid(), now(), now())
+        RETURNING id
+    ),
+    group_traffic_task1 AS (
+        INSERT INTO rescue_group_task (
+            audit_id, group_id, disaster_id, name, description, status_id, priority, min_member, max_member, assigned_at, completed_at
+        ) VALUES (
+            (SELECT id FROM group_traffic_task1_audit),
+            (SELECT id FROM group_traffic),
+            (SELECT id FROM disaster),
+            '管理並確保現場交通順暢',
+            '負責現場交通順暢與安全',
+            NULL, 2, 2, 6, now(), NULL
+        ) RETURNING id
+    ),
+
+
+
+    -- 清淤組
     group_cleanup_audit AS (
         INSERT INTO audit_info (id, created_at, updated_at)
         VALUES (gen_random_uuid(), now(), now())
@@ -187,6 +329,40 @@ WITH
             (SELECT id FROM rescue_org_insert),
             '清淤組',
             '負責災區清理與環境恢復'
+        ) RETURNING id
+    ),
+    group_cleanup_task1_audit AS (
+        INSERT INTO audit_info (id, created_at, updated_at)
+        VALUES (gen_random_uuid(), now(), now())
+        RETURNING id
+    ),
+    group_cleanup_task1 AS (
+        INSERT INTO rescue_group_task (
+            audit_id, group_id, disaster_id, name, description, status_id, priority, min_member, max_member, assigned_at, completed_at
+        ) VALUES (
+            (SELECT id FROM group_cleanup_task1_audit),
+            (SELECT id FROM group_cleanup),
+            (SELECT id FROM disaster),
+            '操作機具清淤(挖土機、小山貓)',
+            '負責操作機具進行清淤',
+            NULL, 2, 2, 8, now(), NULL
+        ) RETURNING id
+    ),
+    group_cleanup_task2_audit AS (
+        INSERT INTO audit_info (id, created_at, updated_at)
+        VALUES (gen_random_uuid(), now(), now())
+        RETURNING id
+    ),
+    group_cleanup_task2 AS (
+        INSERT INTO rescue_group_task (
+            audit_id, group_id, disaster_id, name, description, status_id, priority, min_member, max_member, assigned_at, completed_at
+        ) VALUES (
+            (SELECT id FROM group_cleanup_task2_audit),
+            (SELECT id FROM group_cleanup),
+            (SELECT id FROM disaster),
+            '人力清淤(住宅、水溝)',
+            '負責人力清淤住宅及水溝',
+            NULL, 2, 2, 10, now(), NULL
         ) RETURNING id
     )
 SELECT 1;
