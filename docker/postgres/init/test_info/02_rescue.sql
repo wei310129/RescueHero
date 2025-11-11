@@ -134,8 +134,8 @@ WITH
             (SELECT id FROM group_resource_audit),
             (SELECT id FROM disaster),
             (SELECT id FROM rescue_org_insert),
-            '物資組',
-            '負責物資分配與管理'
+            '物資膳勤組',
+            '負責物資分配與現場管理'
         ) RETURNING id
     ),
     group_resource_task1_audit AS (
@@ -201,8 +201,8 @@ WITH
             (SELECT id FROM group_resource_task4_audit),
             (SELECT id FROM group_resource),
             (SELECT id FROM disaster),
-            '垃圾收集',
-            '負責現場垃圾收集',
+            '垃圾清運',
+            '負責現場垃圾收集及清運',
             NULL, 2, 2, 6, now(), NULL
         ) RETURNING id
     ),
