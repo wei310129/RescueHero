@@ -123,6 +123,14 @@ WITH
 
 
     -- 建立基本 group 及 所屬 task + taskItems
+    task_in_progress_status_id AS (
+        SELECT s.id
+        FROM status s
+                 JOIN status_type t ON s.type_id = t.id
+        WHERE t.name = 'TASK'
+          AND s.code = 'IN_PROGRESS'
+        LIMIT 1
+    ),
     group_resource_audit AS (
         INSERT INTO audit_info (id, created_at, updated_at)
         VALUES (gen_random_uuid(), now(), now())
@@ -155,12 +163,34 @@ WITH
             NULL, 2, 2, 10, now(), NULL
         ) RETURNING id
     ),
+    group_resource_task1_audits AS (
+        INSERT INTO audit_info (id, created_at, updated_at)
+        SELECT gen_random_uuid(), now(), now() FROM generate_series(1,3)
+        RETURNING id
+    ),
+    group_resource_task1_item_list AS (
+        SELECT * FROM (
+            VALUES
+                ('捐贈物資管理', '適合熟悉 Excel 或文書處理，協助登記、盤點、管理捐贈物資'),
+                ('物資採購', '適合有採購經驗或願意外出比價、聯絡供應商者，具備機車駕照者佳'),
+                ('物資分發', '適合具備溝通協調能力，部分角色可公開聯絡資訊以方便外界聯絡')
+        ) AS t(name, description)
+    ),
     group_resource_task1_items AS (
-        INSERT INTO rescue_group_task_item (audit_id, task_id, name, description, status_id, started_at, completed_at)
-        VALUES
-          ((SELECT audit_id FROM group_resource_task1), (SELECT id FROM group_resource_task1), '捐贈物資管理', '適合熟悉 Excel 或文書處理，協助登記、盤點、管理捐贈物資', NULL, NULL, NULL),
-          ((SELECT audit_id FROM group_resource_task1), (SELECT id FROM group_resource_task1), '物資採購', '適合有採購經驗或願意外出比價、聯絡供應商者，具備機車駕照者佳', NULL, NULL, NULL),
-          ((SELECT audit_id FROM group_resource_task1), (SELECT id FROM group_resource_task1), '物資分發', '適合具備溝通協調能力，部分角色可公開聯絡資訊以方便外界聯絡', NULL, NULL, NULL)
+        INSERT INTO rescue_group_task_item (
+            audit_id, task_id, name, description, status_id, started_at, completed_at)
+        SELECT
+            audits.id,
+            (SELECT id FROM group_resource_task1),
+            item.name,
+            item.description,
+            (SELECT id FROM task_in_progress_status_id),
+            NULL, NULL
+        FROM
+            (SELECT id, row_number() OVER () AS rn FROM group_resource_task1_audits) audits
+        JOIN
+            (SELECT name, description, row_number() OVER () AS rn FROM group_resource_task1_item_list) item
+        ON audits.rn = item.rn
     ),
     group_resource_task2_audit AS (
         INSERT INTO audit_info (id, created_at, updated_at)
@@ -179,12 +209,41 @@ WITH
             NULL, 2, 2, 8, now(), NULL
         ) RETURNING id
     ),
+    group_resource_task2_audits AS (
+        INSERT INTO audit_info (id, created_at, updated_at)
+        SELECT gen_random_uuid(), now(), now() FROM generate_series(1,3)
+        RETURNING id
+    ),
+    group_resource_task2_item_list AS (
+        SELECT * FROM (
+            VALUES
+                ('食材準備', '適合有食材採購或備料經驗者參與'),
+                ('烹飪', '適合有團體烹飪經驗或願意協助大量餐食製作者'),
+                ('餐食分配', '適合具備分配與溝通能力，協助現場分配餐食')
+        ) AS t(name, description)
+    ),
     group_resource_task2_items AS (
-        INSERT INTO rescue_group_task_item (audit_id, task_id, name, description, status_id, started_at, completed_at)
-        VALUES
-          ((SELECT audit_id FROM group_resource_task2), (SELECT id FROM group_resource_task2), '食材準備', '適合有食材採購或備料經驗者參與', NULL, NULL, NULL),
-          ((SELECT audit_id FROM group_resource_task2), (SELECT id FROM group_resource_task2), '烹飪', '適合有團體烹飪經驗或願意協助大量餐食製作者', NULL, NULL, NULL),
-          ((SELECT audit_id FROM group_resource_task2), (SELECT id FROM group_resource_task2), '餐食分配', '適合具備分配與溝通能力，協助現場分配餐食', NULL, NULL, NULL)
+        INSERT INTO rescue_group_task_item (
+            audit_id,
+            task_id,
+            name,
+            description,
+            status_id,
+            started_at,
+            completed_at
+        )
+        SELECT audits.id,
+               (SELECT id FROM group_resource_task2),
+               item.name,
+               item.description,
+               (SELECT id FROM task_in_progress_status_id),
+               NULL, NULL
+        FROM (
+            SELECT id, row_number() OVER () AS rn FROM group_resource_task2_audits
+        ) audits
+        JOIN (
+            SELECT name, description, row_number() OVER () AS rn FROM group_resource_task2_item_list
+        ) item ON audits.rn = item.rn
     ),
     group_resource_task3_audit AS (
         INSERT INTO audit_info (id, created_at, updated_at)
@@ -203,11 +262,40 @@ WITH
             NULL, 2, 2, 8, now(), NULL
         ) RETURNING id
     ),
+    group_resource_task3_audits AS (
+        INSERT INTO audit_info (id, created_at, updated_at)
+        SELECT gen_random_uuid(), now(), now() FROM generate_series(1,2)
+        RETURNING id
+    ),
+    group_resource_task3_item_list AS (
+        SELECT * FROM (
+            VALUES
+                ('物資運送', '適合有機車駕照或願意協助物資運送者'),
+                ('現場分發', '適合具備現場分發與溝通能力者')
+        ) AS t(name, description)
+    ),
     group_resource_task3_items AS (
-        INSERT INTO rescue_group_task_item (audit_id, task_id, name, description, status_id, started_at, completed_at)
-        VALUES
-          ((SELECT audit_id FROM group_resource_task3), (SELECT id FROM group_resource_task3), '物資運送', '適合有機車駕照或願意協助物資運送者', NULL, NULL, NULL),
-          ((SELECT audit_id FROM group_resource_task3), (SELECT id FROM group_resource_task3), '現場分發', '適合具備現場分發與溝通能力者', NULL, NULL, NULL)
+        INSERT INTO rescue_group_task_item (
+            audit_id,
+            task_id,
+            name,
+            description,
+            status_id,
+            started_at,
+            completed_at
+        )
+        SELECT audits.id,
+               (SELECT id FROM group_resource_task3),
+               item.name,
+               item.description,
+               (SELECT id FROM task_in_progress_status_id),
+               NULL, NULL
+        FROM (
+            SELECT id, row_number() OVER () AS rn FROM group_resource_task3_audits
+        ) audits
+        JOIN (
+            SELECT name, description, row_number() OVER () AS rn FROM group_resource_task3_item_list
+        ) item ON audits.rn = item.rn
     ),
     group_resource_task4_audit AS (
         INSERT INTO audit_info (id, created_at, updated_at)
@@ -226,11 +314,40 @@ WITH
             NULL, 2, 2, 6, now(), NULL
         ) RETURNING id
     ),
+    group_resource_task4_audits AS (
+        INSERT INTO audit_info (id, created_at, updated_at)
+        SELECT gen_random_uuid(), now(), now() FROM generate_series(1,2)
+        RETURNING id
+    ),
+    group_resource_task4_item_list AS (
+        SELECT * FROM (
+            VALUES
+                ('垃圾收集', '適合願意協助現場收集垃圾者'),
+                ('垃圾運送', '適合有機車駕照或願意協助垃圾運送者')
+        ) AS t(name, description)
+    ),
     group_resource_task4_items AS (
-        INSERT INTO rescue_group_task_item (audit_id, task_id, name, description, status_id, started_at, completed_at)
-        VALUES
-          ((SELECT audit_id FROM group_resource_task4), (SELECT id FROM group_resource_task4), '垃圾收集', '適合願意協助現場收集垃圾者', NULL, NULL, NULL),
-          ((SELECT audit_id FROM group_resource_task4), (SELECT id FROM group_resource_task4), '垃圾運送', '適合有機車駕照或願意協助垃圾運送者', NULL, NULL, NULL)
+        INSERT INTO rescue_group_task_item (
+            audit_id,
+            task_id,
+            name,
+            description,
+            status_id,
+            started_at,
+            completed_at
+        )
+        SELECT audits.id,
+               (SELECT id FROM group_resource_task4),
+               item.name,
+               item.description,
+               (SELECT id FROM task_in_progress_status_id),
+               NULL, NULL
+        FROM (
+            SELECT id, row_number() OVER () AS rn FROM group_resource_task4_audits
+        ) audits
+        JOIN (
+            SELECT name, description, row_number() OVER () AS rn FROM group_resource_task4_item_list
+        ) item ON audits.rn = item.rn
     ),
     group_resource_task5_audit AS (
         INSERT INTO audit_info (id, created_at, updated_at)
@@ -249,10 +366,39 @@ WITH
             NULL, 2, 2, 4, now(), NULL
         ) RETURNING id
     ),
+    group_resource_task5_audits AS (
+        INSERT INTO audit_info (id, created_at, updated_at)
+        SELECT gen_random_uuid(), now(), now() FROM generate_series(1,1)
+        RETURNING id
+    ),
+    group_resource_task5_item_list AS (
+        SELECT * FROM (
+            VALUES
+                ('廁所清掃', '適合細心負責、願意協助現場清掃者')
+        ) AS t(name, description)
+    ),
     group_resource_task5_items AS (
-        INSERT INTO rescue_group_task_item (audit_id, task_id, name, description, status_id, started_at, completed_at)
-        VALUES
-          ((SELECT audit_id FROM group_resource_task5), (SELECT id FROM group_resource_task5), '廁所清掃', '適合細心負責、願意協助現場清掃者', NULL, NULL, NULL)
+        INSERT INTO rescue_group_task_item (
+            audit_id,
+            task_id,
+            name,
+            description,
+            status_id,
+            started_at,
+            completed_at
+        )
+        SELECT audits.id,
+               (SELECT id FROM group_resource_task5),
+               item.name,
+               item.description,
+               (SELECT id FROM task_in_progress_status_id),
+               NULL, NULL
+        FROM (
+            SELECT id, row_number() OVER () AS rn FROM group_resource_task5_audits
+        ) audits
+        JOIN (
+            SELECT name, description, row_number() OVER () AS rn FROM group_resource_task5_item_list
+        ) item ON audits.rn = item.rn
     ),
 
 
@@ -290,11 +436,40 @@ WITH
             NULL, 2, 2, 10, now(), NULL
         ) RETURNING id
     ),
+    group_medical_task_audits AS (
+        INSERT INTO audit_info (id, created_at, updated_at)
+        SELECT gen_random_uuid(), now(), now() FROM generate_series(1,2)
+        RETURNING id
+    ),
+    group_medical_task_item_list AS (
+        SELECT * FROM (
+            VALUES
+                ('緊急救護', '需具備急救技能與醫療證照，負責現場醫療救護'),
+                ('健康狀況管理', '適合具備健康管理或護理相關知識者，協助現場人員健康管理')
+        ) AS t(name, description)
+    ),
     group_medical_task_items AS (
-        INSERT INTO rescue_group_task_item (audit_id, task_id, name, description, status_id, started_at, completed_at)
-        VALUES
-          ((SELECT audit_id FROM group_medical_task), (SELECT id FROM group_medical_task), '緊急救護', '需具備急救技能與醫療證照，負責現場醫療救護', NULL, NULL, NULL),
-          ((SELECT audit_id FROM group_medical_task), (SELECT id FROM group_medical_task), '健康狀況管理', '適合具備健康管理或護理相關知識者，協助現場人員健康管理', NULL, NULL, NULL)
+        INSERT INTO rescue_group_task_item (
+            audit_id,
+            task_id,
+            name,
+            description,
+            status_id,
+            started_at,
+            completed_at
+        )
+        SELECT audits.id,
+               (SELECT id FROM group_medical_task),
+               item.name,
+               item.description,
+               (SELECT id FROM task_in_progress_status_id),
+               NULL, NULL
+        FROM (
+            SELECT id, row_number() OVER () AS rn FROM group_medical_task_audits
+        ) audits
+        JOIN (
+            SELECT name, description, row_number() OVER () AS rn FROM group_medical_task_item_list
+        ) item ON audits.rn = item.rn
     ),
 
 
@@ -332,11 +507,40 @@ WITH
             NULL, 2, 2, 6, now(), NULL
         ) RETURNING id
     ),
+    group_traffic_task1_audits AS (
+        INSERT INTO audit_info (id, created_at, updated_at)
+        SELECT gen_random_uuid(), now(), now() FROM generate_series(1,2)
+        RETURNING id
+    ),
+    group_traffic_task1_item_list AS (
+        SELECT * FROM (
+            VALUES
+                ('交通指揮', '適合具備現場交通指揮經驗或願意協助人車分流者'),
+                ('路線規劃', '適合有路線規劃能力或願意協助救災車輛順利通行者')
+        ) AS t(name, description)
+    ),
     group_traffic_task1_items AS (
-        INSERT INTO rescue_group_task_item (audit_id, task_id, name, description, status_id, started_at, completed_at)
-        VALUES
-          ((SELECT audit_id FROM group_traffic_task1), (SELECT id FROM group_traffic_task1), '交通指揮', '適合具備現場交通指揮經驗或願意協助人車分流者', NULL, NULL, NULL),
-          ((SELECT audit_id FROM group_traffic_task1), (SELECT id FROM group_traffic_task1), '路線規劃', '適合有路線規劃能力或願意協助救災車輛順利通行者', NULL, NULL, NULL)
+        INSERT INTO rescue_group_task_item (
+            audit_id,
+            task_id,
+            name,
+            description,
+            status_id,
+            started_at,
+            completed_at
+        )
+        SELECT audits.id,
+               (SELECT id FROM group_traffic_task1),
+               item.name,
+               item.description,
+               (SELECT id FROM task_in_progress_status_id),
+               NULL, NULL
+        FROM (
+            SELECT id, row_number() OVER () AS rn FROM group_traffic_task1_audits
+        ) audits
+        JOIN (
+            SELECT name, description, row_number() OVER () AS rn FROM group_traffic_task1_item_list
+        ) item ON audits.rn = item.rn
     ),
 
 
@@ -374,10 +578,33 @@ WITH
             NULL, 2, 2, 8, now(), NULL
         ) RETURNING id
     ),
+    group_cleanup_task1_audits AS (
+        INSERT INTO audit_info (id, created_at, updated_at)
+        SELECT gen_random_uuid(), now(), now() FROM generate_series(1,1)
+        RETURNING id
+    ),
+    group_cleanup_task1_item_list AS (
+        SELECT * FROM (
+            VALUES
+                ('挖土機清淤', '需具備挖土機或小山貓操作證照')
+        ) AS t(name, description)
+    ),
     group_cleanup_task1_items AS (
-        INSERT INTO rescue_group_task_item (audit_id, task_id, name, description, status_id, started_at, completed_at)
-        VALUES
-          ((SELECT audit_id FROM group_cleanup_task1), (SELECT id FROM group_cleanup_task1), '挖土機清淤', '需具備挖土機或小山貓操作證照', NULL, NULL, NULL)
+        INSERT INTO rescue_group_task_item (
+            audit_id, task_id, name, description, status_id, started_at, completed_at
+        )
+        SELECT audits.id,
+               (SELECT id FROM group_cleanup_task1),
+               item.name,
+               item.description,
+               (SELECT id FROM task_in_progress_status_id),
+               NULL, NULL
+        FROM (
+            SELECT id, row_number() OVER () AS rn FROM group_cleanup_task1_audits
+        ) audits
+        JOIN (
+            SELECT name, description, row_number() OVER () AS rn FROM group_cleanup_task1_item_list
+        ) item ON audits.rn = item.rn
     ),
     group_cleanup_task2_audit AS (
         INSERT INTO audit_info (id, created_at, updated_at)
@@ -396,10 +623,39 @@ WITH
             NULL, 2, 2, 10, now(), NULL
         ) RETURNING id
     ),
+    group_cleanup_task2_audits AS (
+        INSERT INTO audit_info (id, created_at, updated_at)
+        SELECT gen_random_uuid(), now(), now() FROM generate_series(1,2)
+        RETURNING id
+    ),
+    group_cleanup_task2_item_list AS (
+        SELECT * FROM (
+            VALUES
+                ('住宅清淤', '適合具備體力或現場清理經驗者'),
+                ('水溝清淤', '適合有水溝清理經驗或願意配合團隊作業者')
+        ) AS t(name, description)
+    ),
     group_cleanup_task2_items AS (
-        INSERT INTO rescue_group_task_item (audit_id, task_id, name, description, status_id, started_at, completed_at)
-        VALUES
-          ((SELECT audit_id FROM group_cleanup_task2), (SELECT id FROM group_cleanup_task2), '住宅清淤', '適合具備體力或現場清理經驗者', NULL, NULL, NULL),
-          ((SELECT audit_id FROM group_cleanup_task2), (SELECT id FROM group_cleanup_task2), '水溝清淤', '適合有水溝清理經驗或願意配合團隊作業者', NULL, NULL, NULL)
+        INSERT INTO rescue_group_task_item (
+            audit_id,
+            task_id,
+            name,
+            description,
+            status_id,
+            started_at,
+            completed_at
+        )
+        SELECT audits.id,
+               (SELECT id FROM group_cleanup_task2),
+               item.name,
+               item.description,
+               (SELECT id FROM task_in_progress_status_id),
+               NULL, NULL
+        FROM (
+            SELECT id, row_number() OVER () AS rn FROM group_cleanup_task2_audits
+        ) audits
+        JOIN (
+            SELECT name, description, row_number() OVER () AS rn FROM group_cleanup_task2_item_list
+        ) item ON audits.rn = item.rn
     )
 SELECT 1;

@@ -37,53 +37,6 @@ CREATE TABLE status (
 CREATE INDEX idx_status_disaster_id ON status(disaster_id);
 CREATE INDEX idx_status_type_id ON status(type_id);
 
--- 初始化 status_type 與對應的 status，status_type 用自增id，status 直接取 ins_type.id
-WITH
-    ins_type_audit AS (
-        INSERT INTO audit_info (id, created_at, updated_at)
-            VALUES (gen_random_uuid(), now(), now())
-            RETURNING id
-    ),
-    ins_type AS (
-        INSERT INTO status_type (audit_id, name, description)
-            SELECT a.id, UPPER(REPLACE('TASK', ' ', '')), 'Rescue Task 狀態類型'
-            FROM ins_type_audit a
-            RETURNING id
-    ),
-    ins_status_audits AS (
-        INSERT INTO audit_info (id, created_at, updated_at)
-            SELECT gen_random_uuid(), now(), now()
-            FROM generate_series(1, 4)
-            RETURNING id
-    ),
-    ins_status_list AS (
-        SELECT * FROM (
-            VALUES
-                  ('PENDING',   '待處理',   '任務尚未開始'),
-                  ('IN_PROGRESS','進行中',  '任務正在進行'),
-                  ('COMPLETED', '已完成',   '任務已完成'),
-                  ('CANCELLED', '已取消',   '任務已取消')
-            ) AS t(code, name, description)
-    ),
-    ins_status AS (
-        INSERT INTO status (audit_id, disaster_id, type_id, code, name, description)
-            SELECT audits.id,
-                   1,
-                   t.id,
-                   UPPER(REPLACE(item.code, ' ', '')),
-                   item.name,
-                   item.description
-            FROM (
-                     SELECT id, row_number() OVER () AS rn FROM ins_status_audits
-                 ) audits
-                     CROSS JOIN ins_type t
-                     JOIN (
-                SELECT code, name, description, row_number() OVER () AS rn FROM ins_status_list
-            ) item ON audits.rn = item.rn
-            RETURNING id
-    )
-SELECT 1;
-
 
 
 -- 抽象化的人員表
