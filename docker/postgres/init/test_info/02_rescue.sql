@@ -273,39 +273,28 @@ WITH
             '負責醫療救護與健康管理'
         ) RETURNING id
     ),
-    group_medical_task1_audit AS (
+    group_medical_task_audit AS (
         INSERT INTO audit_info (id, created_at, updated_at)
         VALUES (gen_random_uuid(), now(), now())
         RETURNING id
     ),
-    group_medical_task1 AS (
+    group_medical_task AS (
         INSERT INTO rescue_group_task (
             audit_id, group_id, disaster_id, name, description, status_id, priority, min_member, max_member, assigned_at, completed_at
         ) VALUES (
-            (SELECT id FROM group_medical_task1_audit),
+            (SELECT id FROM group_medical_task_audit),
             (SELECT id FROM group_medical),
             (SELECT id FROM disaster),
-            '緊急救護',
-            '負責現場醫療救護',
-            NULL, 1, 2, 8, now(), NULL
+            '醫療救護與健康管理',
+            '負責現場醫療救護及人員健康管理',
+            NULL, 2, 2, 10, now(), NULL
         ) RETURNING id
     ),
-    group_medical_task2_audit AS (
-        INSERT INTO audit_info (id, created_at, updated_at)
-        VALUES (gen_random_uuid(), now(), now())
-        RETURNING id
-    ),
-    group_medical_task2 AS (
-        INSERT INTO rescue_group_task (
-            audit_id, group_id, disaster_id, name, description, status_id, priority, min_member, max_member, assigned_at, completed_at
-        ) VALUES (
-            (SELECT id FROM group_medical_task2_audit),
-            (SELECT id FROM group_medical),
-            (SELECT id FROM disaster),
-            '現場人員健康狀況管理',
-            '負責現場人員健康管理',
-            NULL, 2, 2, 6, now(), NULL
-        ) RETURNING id
+    group_medical_task_items AS (
+        INSERT INTO rescue_group_task_item (audit_id, task_id, name, description, status_id, started_at, completed_at)
+        VALUES
+          ((SELECT audit_id FROM group_medical_task), (SELECT id FROM group_medical_task), '緊急救護', '需具備急救技能與醫療證照，負責現場醫療救護', NULL, NULL, NULL),
+          ((SELECT audit_id FROM group_medical_task), (SELECT id FROM group_medical_task), '健康狀況管理', '需具備健康管理或護理相關知識，負責現場人員健康管理', NULL, NULL, NULL)
     ),
 
 
