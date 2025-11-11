@@ -1,21 +1,14 @@
 -- 測試資料
 
--- 整合建立 address_cell：花蓮（縣）與光復（鄉，parent: 花蓮）
+-- 只建立「光復」鄉 address_cell，parent_id 指向已存在的「花蓮」cell
 WITH
-    audit_rows AS (
+    audit_row AS (
         INSERT INTO audit_info (id, created_at, updated_at)
-        SELECT gen_random_uuid(), now(), now() FROM generate_series(1, 2)
-        RETURNING id, created_at
+            VALUES (gen_random_uuid(), now(), now())
+            RETURNING id
     ),
     tw_country AS (
         SELECT id FROM country WHERE code = 'TW'
-    ),
-    level_county AS (
-        SELECT id FROM address_level
-        WHERE country_id = (SELECT id FROM tw_country)
-          AND name = '縣'
-          AND sequence = 1
-        LIMIT 1
     ),
     level_town AS (
         SELECT id FROM address_level
@@ -24,28 +17,16 @@ WITH
           AND sequence = 2
         LIMIT 1
     ),
-    audit_county AS (
-        SELECT id FROM audit_rows ORDER BY created_at ASC LIMIT 1
-    ),
-    audit_town AS (
-        SELECT id FROM audit_rows ORDER BY created_at DESC LIMIT 1
-    ),
-    ins_county AS (
-        INSERT INTO address_cell (audit_id, level_id, parent_id, name)
-        VALUES (
-            (SELECT id FROM audit_county),
-            (SELECT id FROM level_county),
-            NULL,
-            '花蓮'
-        ) RETURNING id
+    hualien_cell AS (
+        SELECT id FROM address_cell WHERE name = '花蓮' LIMIT 1
     )
 INSERT INTO address_cell (audit_id, level_id, parent_id, name)
 VALUES (
-    (SELECT id FROM audit_town),
-    (SELECT id FROM level_town),
-    (SELECT id FROM ins_county),
-    '光復'
-);
+           (SELECT id FROM audit_row),
+           (SELECT id FROM level_town),
+           (SELECT id FROM hualien_cell),
+           '光復'
+       );
 
 -- 建立 address，指定 address_cell 為「光復」
 INSERT INTO audit_info (id, created_at, updated_at)
