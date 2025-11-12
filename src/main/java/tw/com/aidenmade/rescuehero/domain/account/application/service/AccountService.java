@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
+import tw.com.aidenmade.rescuehero.context.AuditScopes;
 import tw.com.aidenmade.rescuehero.domain.account.api.request.*;
 import tw.com.aidenmade.rescuehero.domain.account.application.dto.AccountDto;
 import tw.com.aidenmade.rescuehero.domain.account.entity.Account;
@@ -45,32 +46,36 @@ public class AccountService extends AbstractAccountBaseService {
     @Transactional
     public boolean register(AccountCreateRequest request) {
         try {
-            Instant nowTime = Instant.now();
+            return AuditScopes.runWithoutAuditing(() -> {
+                Instant now = Instant.now();
 
-            // 先設 null，因為還沒註冊
-            AuditInfo auditInfo = AuditInfo.builder()
-                    .createdAt(nowTime)
-                    .updatedAt(nowTime)
-                    .createdBy(null)
-                    .updatedBy(null)
-                    .build();
-            AuditInfo auditInfoEntity = auditInfoRepository.save(auditInfo);
+                // 1) 第一次 insert audit_info：不寫 createdBy/updatedBy（避免 FK）
+                AuditInfo auditInfo = auditInfoRepository.save(
+                        AuditInfo.builder()
+                                .createdAt(now)
+                                .updatedAt(now)
+                                // 不要手動塞 createdBy/updatedBy
+                                .build()
+                );
 
-            Account account = Account.builder()
-                    .auditInfo(auditInfoEntity)
-                    .role(Role.builder().id(request.getRoleId()).build())
-                    .username(request.getUsername())
-                    .passwordHash(PasswordUtils.encryptPassword(request.getPassword()))
-                    .email(request.getEmail())
-                    .build();
-            Account accountEntity = accountRepository.save(account);
+                // 2) 建立 account（掛上剛產生的 audit）
+                Account account = accountRepository.save(
+                        Account.builder()
+                                .auditInfo(auditInfo)
+                                .role(Role.builder().id(request.getRoleId()).build())
+                                .username(request.getUsername())
+                                .passwordHash(PasswordUtils.encryptPassword(request.getPassword()))
+                                .email(request.getEmail())
+                                .build()
+                );
 
-            // 註冊成功後再更新 createdBy/updatedBy 為新帳號
-            auditInfoEntity.setCreatedBy(accountEntity);
-            auditInfoEntity.setUpdatedBy(accountEntity);
-            auditInfoRepository.save(auditInfoEntity);
+                // 3) 回填 audit 的 createdBy/updatedBy 為「新帳號本人」
+                auditInfo.setCreatedBy(account);
+                auditInfo.setUpdatedBy(account);
+                auditInfoRepository.save(auditInfo);
 
-            return true;
+                return true;
+            });
         } catch (Exception e) {
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             log.error("註冊 Account 失敗", e);
