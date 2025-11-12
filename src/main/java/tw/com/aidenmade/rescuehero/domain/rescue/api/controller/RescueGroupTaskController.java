@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -29,7 +29,7 @@ public class RescueGroupTaskController extends AbstractBaseController {
     private final RescueGroupTaskService rescueGroupTaskService;
 
     @PreAuthorize("hasRole('USER')")
-    @GetMapping("/available")
+    @PostMapping("/available")
     public ResponseEntity<Object> getUserAvailable(@RequestBody RescueGroupTaskAvailableRequest request) {
         Page<RescueGroupTaskDto> page = rescueGroupTaskService.getUserAvailable(
                 request.getGroupId(),
@@ -37,7 +37,7 @@ public class RescueGroupTaskController extends AbstractBaseController {
                 request.getNameLike(),
                 request.getStatusId(),
                 request.getPriority(),
-                request.getPageable()
+                convertToPageable(request.getPage())
         );
         if (!page.hasContent()) {
             return notFoundResponse();

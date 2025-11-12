@@ -19,4 +19,16 @@ public record RescueGroupDto(
     String name,
     // 描述
     String description
-) {}
+) {
+
+    public RescueGroupDto(
+            Long id,
+//            AuditInfoDto auditInfo,
+            DisasterDto disaster,
+            RescueOrganizationDto organization,
+            String name,
+            String description
+    ) {
+        this(id, null, disaster, organization, name, description);
+    }
+}

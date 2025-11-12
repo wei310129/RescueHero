@@ -1,7 +1,10 @@
 package tw.com.aidenmade.rescuehero.domain.base.api.controller;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import tw.com.aidenmade.rescuehero.domain.base.api.request.PageableRequest;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,5 +65,11 @@ public abstract class AbstractBaseController {
         return ResponseEntity
                 .status(UNAUTHORIZED)
                 .body(Map.of(ERROR, msg));
+    }
+
+    protected Pageable convertToPageable(PageableRequest req) {
+        int page = req.getPage() != null ? req.getPage() : 0;
+        int size = req.getSize() != null ? req.getSize() : 10;
+        return PageRequest.of(page, size);
     }
 }

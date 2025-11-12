@@ -4,8 +4,7 @@ import tw.com.aidenmade.rescuehero.domain.base.projection.AuditInfoProjection;
 import tw.com.aidenmade.rescuehero.domain.base.projection.StatusProjection;
 import tw.com.aidenmade.rescuehero.domain.disaster.projection.DisasterProjection;
 
-import java.time.ZonedDateTime;
-import java.util.List;
+import java.time.Instant;
 
 public interface RescueGroupTaskProjection {
     Long getId();
@@ -18,7 +17,8 @@ public interface RescueGroupTaskProjection {
     Integer getPriority();
     Integer getMinMember();
     Integer getMaxMember();
-    ZonedDateTime getAssignedAt();
-    ZonedDateTime getCompletedAt();
-    List<RescueGroupTaskItemProjection> getItems();
+    Instant getAssignedAt();
+    Instant getCompletedAt();
+//    有需要再查詢，避免查詢效能低落，以及增加程式碼的維護難度
+//    List<RescueGroupTaskItemProjection> getItems();
 }

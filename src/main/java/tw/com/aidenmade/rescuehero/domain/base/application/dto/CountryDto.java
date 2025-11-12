@@ -14,4 +14,14 @@ public record CountryDto(
     String nativeName,
     // 國家代碼 (如 TW, US)
     String code
-) {}
+) {
+    public CountryDto(
+            Long id,
+//            AuditInfoDto auditInfo,
+            String name,
+            String nativeName,
+            String code
+    ) {
+        this(id, null, name, nativeName, code);
+    }
+}

@@ -4,8 +4,7 @@ import tw.com.aidenmade.rescuehero.domain.base.application.dto.AuditInfoDto;
 import tw.com.aidenmade.rescuehero.domain.base.application.dto.StatusDto;
 import tw.com.aidenmade.rescuehero.domain.disaster.application.dto.DisasterDto;
 
-import java.time.ZonedDateTime;
-import java.util.List;
+import java.time.Instant;
 
 /**
  * 群組救援任務
@@ -32,9 +31,24 @@ public record RescueGroupTaskDto(
     // 最多成員
     Integer maxMember,
     // 任務設立日期
-    ZonedDateTime assignedAt,
+    Instant assignedAt,
     // 任務完成日期
-    ZonedDateTime completedAt,
+    Instant completedAt
     // 任務細項
-    List<RescueGroupTaskItemDto> items
-) {}
+//    List<RescueGroupTaskItemDto> items
+) {
+    public RescueGroupTaskDto(Long id,
+//                              AuditInfoDto auditInfo,
+//                              RescueGroupDto group,
+                              DisasterDto disaster,
+                              String name,
+                              String description,
+                              StatusDto status,
+                              Integer priority,
+                              Integer minMember,
+                              Integer maxMember,
+                              Instant assignedAt,
+                              Instant completedAt) {
+        this(id, null, null, disaster, name, description, status, priority, minMember, maxMember, assignedAt, completedAt);
+    }
+}

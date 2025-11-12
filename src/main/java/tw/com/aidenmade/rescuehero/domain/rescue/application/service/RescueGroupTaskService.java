@@ -19,7 +19,6 @@ public class RescueGroupTaskService {
     public Page<RescueGroupTaskDto> getUserAvailable(Long groupId, Long disasterId, String nameLike,
                                                      Long statusId, Integer priority, Pageable pageable) {
         return rescueGroupTaskRepository
-                .findPageByConditions(groupId, disasterId, nameLike, statusId, priority, pageable)
-                .map(rescueGroupTaskProjectionMapper::toDto);
+                .findPageByConditions(groupId, disasterId, nameLike, statusId, priority, pageable);
     }
 }

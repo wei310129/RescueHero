@@ -20,4 +20,14 @@ public record StatusDto(
     String name,
     // 狀態說明
     String description
-) {}
+) {
+
+    public StatusDto(
+            Long id,
+            String code,
+            String name,
+            String description
+    ) {
+        this(id, null, null, null, code, name, description);
+    }
+}

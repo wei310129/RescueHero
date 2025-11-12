@@ -12,7 +12,7 @@ public record RescueGroupTaskItemDto(
     // 稽核資訊ID
     AuditInfoDto auditInfo,
     // 任務ID
-    RescueGroupTaskDto task,
+    Long task,
     // 名稱
     String name,
     // 描述

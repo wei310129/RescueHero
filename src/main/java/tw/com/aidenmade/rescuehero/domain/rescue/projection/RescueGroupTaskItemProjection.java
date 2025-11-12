@@ -1,14 +1,13 @@
 package tw.com.aidenmade.rescuehero.domain.rescue.projection;
 
-import tw.com.aidenmade.rescuehero.domain.rescue.application.dto.RescueGroupTaskDto;
-import tw.com.aidenmade.rescuehero.domain.base.application.dto.StatusDto;
-import tw.com.aidenmade.rescuehero.domain.base.application.dto.AuditInfoDto;
+import tw.com.aidenmade.rescuehero.domain.base.projection.AuditInfoProjection;
+import tw.com.aidenmade.rescuehero.domain.base.projection.StatusProjection;
 
 public interface RescueGroupTaskItemProjection {
     Long getId();
-    AuditInfoDto getAuditInfo();
-    RescueGroupTaskDto getTask();
+    AuditInfoProjection getAuditInfo();
+    RescueGroupTaskProjection getTask();
     String getName();
     String getDescription();
-    StatusDto getStatus();
+    StatusProjection getStatus();
 }

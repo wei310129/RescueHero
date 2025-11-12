@@ -27,4 +27,18 @@ public record DisasterDto(
     AddressDto location,
     // 災害描述
     String description
-) {}
+) {
+
+    public DisasterDto(
+            Long id,
+//            AuditInfoDto auditInfo,
+            CountryDto country,
+            DisasterStatus status,
+            String name,
+            Instant occurredAt,
+            AddressDto location,
+            String description
+    ) {
+        this(id, null, country, status, name, occurredAt, location, description);
+    }
+}

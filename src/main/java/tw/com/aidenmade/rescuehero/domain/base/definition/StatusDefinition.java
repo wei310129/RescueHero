@@ -8,7 +8,8 @@ import tw.com.aidenmade.rescuehero.domain.base.enums.StatusType;
 @Getter
 @AllArgsConstructor
 public enum StatusDefinition {
-    TASK_ACCEPTED(StatusType.TASK, Status.ACCEPTED),
+    TASK_ACTIVE(StatusType.TASK, Status.ACTIVE),
+    TASK_RESOLVED(StatusType.TASK, Status.RESOLVED),
     ;
 
     private final StatusType type;

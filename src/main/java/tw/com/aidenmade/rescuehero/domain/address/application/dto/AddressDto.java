@@ -23,4 +23,17 @@ public record AddressDto(
     Double latitude,
     // 經度
     Double longitude
-) {}
+) {
+    public AddressDto(
+//            Long id,
+//            AuditInfoDto auditInfo,
+//            CountryDto country,
+//            AddressCellDto addressCell,
+//            String detail,
+            String fullAddress
+//            Double latitude,
+//            Double longitude
+    ) {
+        this(null, null, null, null, null, fullAddress, null, null);
+    }
+}
