@@ -161,7 +161,7 @@ WITH
             '物資採購分發',
             '負責物資採購與分發',
             (SELECT id FROM task_in_progress_status_id),
-            2, 2, 10, now(), NULL
+            1, 2, 10, now(), NULL
         ) RETURNING id
     ),
     group_resource_task1_audits AS (
@@ -208,7 +208,7 @@ WITH
             '團膳',
             '負責現場團體膳食供應',
             (SELECT id FROM task_in_progress_status_id),
-            2, 2, 8, now(), NULL
+            1, 2, 8, now(), NULL
         ) RETURNING id
     ),
     group_resource_task2_audits AS (
@@ -262,7 +262,7 @@ WITH
             '送餐送水',
             '負責現場送餐與送水',
             (SELECT id FROM task_in_progress_status_id),
-            2, 2, 8, now(), NULL
+            3, 2, 8, now(), NULL
         ) RETURNING id
     ),
     group_resource_task3_audits AS (
@@ -368,7 +368,7 @@ WITH
             '流動廁所清掃',
             '負責流動廁所清掃',
             (SELECT id FROM task_in_progress_status_id),
-            2, 2, 4, now(), NULL
+            4, 2, 4, now(), NULL
         ) RETURNING id
     ),
     group_resource_task5_audits AS (
@@ -583,7 +583,7 @@ WITH
             '操作機具清淤(挖土機、小山貓)',
             '負責操作機具進行清淤',
             (SELECT id FROM task_in_progress_status_id),
-            2, 2, 8, now(), NULL
+            1, 2, 8, now(), NULL
         ) RETURNING id
     ),
     group_cleanup_task1_audits AS (
@@ -629,7 +629,7 @@ WITH
             '人力清淤(住宅、水溝)',
             '負責人力清淤住宅及水溝',
             (SELECT id FROM task_in_progress_status_id),
-            2, 2, 10, now(), NULL
+            5, 2, 10, now(), NULL
         ) RETURNING id
     ),
     group_cleanup_task2_audits AS (
