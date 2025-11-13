@@ -20,27 +20,6 @@
     </div>
     <div class="filters">
       <label>
-        群組：
-        <select v-model="selectedGroup">
-          <option :value="null">全部</option>
-          <option v-for="group in groups" :key="group.id" :value="group.id">{{ group.name }}</option>
-        </select>
-      </label>
-      <label>
-        災害類型：
-        <select v-model="selectedDisasterId">
-          <option :value="null">全部</option>
-          <option v-for="type in disasterTypes" :key="type.id" :value="type.id">{{ type.name }}</option>
-        </select>
-      </label>
-      <label>
-        狀態：
-        <select v-model="selectedStatusId">
-          <option :value="null">全部</option>
-          <option v-for="status in statuses" :key="status.id" :value="status.id">{{ status.name }}</option>
-        </select>
-      </label>
-      <label>
         優先度：
         <select v-model="selectedPriority">
           <option :value="null">全部</option>
@@ -49,7 +28,6 @@
           <option :value="3">中</option>
           <option :value="4">中低</option>
           <option :value="5">低</option>
-<!--          <option v-for="p in priorities" :key="p" :value="p">{{ p }}</option>-->
         </select>
       </label>
       <label>
@@ -60,6 +38,8 @@
     </div>
     <div v-if="loading" class="loading">載入中...</div>
     <div v-else>
+      <!-- 修改優先度顯示，1=高(紅色粗體)、2=中高、3=中、4=中低、5=低 -->
+      <!-- 卡片顯示 -->
       <ul v-if="tasks.length > 0 && displayMode==='card'" class="task-list">
         <li v-for="task in tasks" :key="task.id" class="task-item card">
           <div class="card-header">
@@ -71,21 +51,22 @@
             <div class="task-desc">{{ task.description }}</div>
           </div>
           <div class="task-info">
-            <span class="task-status">狀態：{{ task.status?.name || '-' }}</span>
-            <span class="task-priority">優先度：{{ task.priority }}</span>
-            <span class="task-member">人數：{{ task.minMember }} - {{ task.maxMember }}</span>
+            <span :class="['task-priority', task.priority === 1 ? 'priority-high' : '']">
+              優先度：<span v-if="task.priority === 1" class="priority-high-label">高</span><span v-else>{{ priorityLabels[task.priority-1] }}</span>
+            </span>
+            <span class="task-member">需求人數：{{ task.minMember }} - {{ task.maxMember }}</span>
           </div>
         </li>
       </ul>
+      <!-- 清單顯示 -->
       <table v-if="tasks.length > 0 && displayMode==='list'" class="task-table">
         <thead>
           <tr>
             <th>國家</th>
             <th>災害名稱</th>
             <th>任務名稱/描述</th>
-            <th>狀態</th>
             <th>優先度</th>
-            <th>人數</th>
+            <th>需求人數</th>
           </tr>
         </thead>
         <tbody>
@@ -96,8 +77,9 @@
               <div class="task-name-list"><strong>{{ task.name }}</strong></div>
               <div class="task-desc-list">{{ task.description }}</div>
             </td>
-            <td>{{ task.status?.name || '-' }}</td>
-            <td>{{ task.priority }}</td>
+            <td :class="task.priority === 1 ? 'priority-high' : 'task-priority'">
+              <span v-if="task.priority === 1" class="priority-high-label">高</span><span v-else>{{ priorityLabels[task.priority-1] }}</span>
+            </td>
             <td>{{ task.minMember }} - {{ task.maxMember }}</td>
           </tr>
         </tbody>
@@ -146,6 +128,7 @@ const statuses = ref([
 ])
 const priorities = ref([1,2,3,4,5])
 const sizeOptions = ref([10, 20, 50])
+const priorityLabels = ['高', '中高', '中', '中低', '低']
 
 // 選擇的值，狀態預設為"進行中"（id:1），其他預設null
 const selectedGroup = ref(null)
@@ -163,14 +146,10 @@ async function fetchTasks() {
   loading.value = true
   try {
     const requestBody = {
-      groupId: selectedGroup.value,
-      disasterId: selectedDisasterId.value,
-      // statusId: selectedStatusId.value,
-      statusId: null  ,
       priority: selectedPriority.value,
       nameLike: nameLike.value,
       page: {
-        page: currentPage.value - 1, // Spring page page從0開始
+        page: currentPage.value - 1,
         size: selectedSize.value
       }
     }
@@ -185,7 +164,8 @@ async function fetchTasks() {
     })
     if (res.ok) {
       const result = await res.json()
-      tasks.value = result.content || []
+      // 依優先度排序（1最高）
+      tasks.value = (result.content || []).slice().sort((a, b) => a.priority - b.priority)
       totalPages.value = result.totalPages || 1
       totalElements.value = result.totalElements || tasks.value.length
     } else {
@@ -378,6 +358,14 @@ h2 {
 }
 .task-member {
   color: #388e3c;
+}
+.priority-high-label {
+  color: #d32f2f;
+  font-weight: bold;
+}
+.priority-high {
+  color: #d32f2f !important;
+  font-weight: bold;
 }
 @media (max-width: 900px) {
   .task-list {
