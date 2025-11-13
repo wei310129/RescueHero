@@ -160,7 +160,8 @@ WITH
             (SELECT id FROM disaster),
             '物資採購分發',
             '負責物資採購與分發',
-            NULL, 2, 2, 10, now(), NULL
+            (SELECT id FROM task_in_progress_status_id),
+            2, 2, 10, now(), NULL
         ) RETURNING id
     ),
     group_resource_task1_audits AS (
@@ -206,7 +207,8 @@ WITH
             (SELECT id FROM disaster),
             '團膳',
             '負責現場團體膳食供應',
-            NULL, 2, 2, 8, now(), NULL
+            (SELECT id FROM task_in_progress_status_id),
+            2, 2, 8, now(), NULL
         ) RETURNING id
     ),
     group_resource_task2_audits AS (
@@ -259,7 +261,8 @@ WITH
             (SELECT id FROM disaster),
             '送餐送水',
             '負責現場送餐與送水',
-            NULL, 2, 2, 8, now(), NULL
+            (SELECT id FROM task_in_progress_status_id),
+            2, 2, 8, now(), NULL
         ) RETURNING id
     ),
     group_resource_task3_audits AS (
@@ -311,7 +314,8 @@ WITH
             (SELECT id FROM disaster),
             '垃圾清運',
             '負責現場垃圾收集及清運',
-            NULL, 2, 2, 6, now(), NULL
+            (SELECT id FROM task_in_progress_status_id),
+            2, 2, 6, now(), NULL
         ) RETURNING id
     ),
     group_resource_task4_audits AS (
@@ -363,7 +367,8 @@ WITH
             (SELECT id FROM disaster),
             '流動廁所清掃',
             '負責流動廁所清掃',
-            NULL, 2, 2, 4, now(), NULL
+            (SELECT id FROM task_in_progress_status_id),
+            2, 2, 4, now(), NULL
         ) RETURNING id
     ),
     group_resource_task5_audits AS (
@@ -433,7 +438,8 @@ WITH
             (SELECT id FROM disaster),
             '醫療救護與健康管理',
             '負責現場醫療救護及人員健康管理',
-            NULL, 2, 2, 10, now(), NULL
+            (SELECT id FROM task_in_progress_status_id),
+            2, 2, 10, now(), NULL
         ) RETURNING id
     ),
     group_medical_task_audits AS (
@@ -504,7 +510,8 @@ WITH
             (SELECT id FROM disaster),
             '管理並確保現場交通順暢',
             '負責現場交通順暢與安全',
-            NULL, 2, 2, 6, now(), NULL
+            (SELECT id FROM task_in_progress_status_id),
+            2, 2, 6, now(), NULL
         ) RETURNING id
     ),
     group_traffic_task1_audits AS (
@@ -575,7 +582,8 @@ WITH
             (SELECT id FROM disaster),
             '操作機具清淤(挖土機、小山貓)',
             '負責操作機具進行清淤',
-            NULL, 2, 2, 8, now(), NULL
+            (SELECT id FROM task_in_progress_status_id),
+            2, 2, 8, now(), NULL
         ) RETURNING id
     ),
     group_cleanup_task1_audits AS (
@@ -620,7 +628,8 @@ WITH
             (SELECT id FROM disaster),
             '人力清淤(住宅、水溝)',
             '負責人力清淤住宅及水溝',
-            NULL, 2, 2, 10, now(), NULL
+            (SELECT id FROM task_in_progress_status_id),
+            2, 2, 10, now(), NULL
         ) RETURNING id
     ),
     group_cleanup_task2_audits AS (
