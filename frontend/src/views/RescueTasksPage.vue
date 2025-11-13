@@ -27,7 +27,12 @@
         優先度：
         <select v-model="selectedPriority">
           <option :value="null">全部</option>
-          <option v-for="p in priorities" :key="p" :value="p">{{ p }}</option>
+          <option :value="1">高</option>
+          <option :value="2">中高</option>
+          <option :value="3">中</option>
+          <option :value="4">中低</option>
+          <option :value="5">低</option>
+<!--          <option v-for="p in priorities" :key="p" :value="p">{{ p }}</option>-->
         </select>
       </label>
       <label>
@@ -39,12 +44,18 @@
     <div v-if="loading" class="loading">載入中...</div>
     <div v-else>
       <ul v-if="tasks.length > 0" class="task-list">
-        <li v-for="task in tasks" :key="task.id" class="task-item">
-          <div class="task-title">
-            <router-link :to="`/tasks/${task.id}`">{{ task.title }}</router-link>
+        <li v-for="task in tasks" :key="task.id" class="task-item card">
+          <div class="card-header">
+            <span class="disaster-country">{{ task.disaster?.country?.name || '-' }}</span>
+            <span class="disaster-name">｜{{ task.disaster?.name || '-' }}</span>
           </div>
+          <div class="task-name"><strong>{{ task.name }}</strong></div>
           <div class="task-desc">{{ task.description }}</div>
-          <div class="task-status">狀態：{{ task.status }}</div>
+          <div class="task-info">
+            <span class="task-status">狀態：{{ task.status?.name || '-' }}</span>
+            <span class="task-priority">優先度：{{ task.priority }}</span>
+            <span class="task-member">人數：{{ task.minMember }} - {{ task.maxMember }}</span>
+          </div>
         </li>
       </ul>
       <div v-else class="empty">目前沒有可接的任務</div>
@@ -195,6 +206,71 @@ onMounted(() => {
     padding: 12px 0;
   }
 }
+.task-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.task-item.card {
+  background: #f8f9fa;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  margin-bottom: 18px;
+  padding: 18px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.card-header {
+  font-size: 1.05rem;
+  color: #1976d2;
+  font-weight: 600;
+  margin-bottom: 4px;
+  word-break: break-all;
+}
+.task-name {
+  font-size: 1.15rem;
+  font-weight: bold;
+  color: #222;
+  word-break: break-all;
+}
+.task-desc {
+  margin: 4px 0 8px 0;
+  color: #333;
+  font-size: 1rem;
+  word-break: break-all;
+}
+.task-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  font-size: 0.98rem;
+  color: #555;
+  justify-content: center;
+  text-align: center;
+}
+.task-status {
+  color: #1976d2;
+  font-weight: 500;
+}
+.task-priority {
+  color: #d2691e;
+}
+.task-member {
+  color: #388e3c;
+}
+@media (max-width: 600px) {
+  .task-item.card {
+    padding: 12px 8px;
+    margin-bottom: 12px;
+  }
+  .task-info {
+    gap: 8px;
+    font-size: 0.95rem;
+    justify-content: center;
+    text-align: center;
+  }
+}
 .filters label {
   display: flex;
   align-items: center;
@@ -218,33 +294,6 @@ h2 {
   text-align: center;
   color: #888;
   font-size: 1.1rem;
-}
-.task-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-.task-item {
-  padding: 18px 0;
-  border-bottom: 1px solid #eee;
-  width: 100%;
-  box-sizing: border-box;
-}
-.task-title a {
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: #1976d2;
-  text-decoration: underline;
-  cursor: pointer;
-  word-break: break-all;
-}
-.task-desc {
-  margin: 8px 0;
-  color: #333;
-}
-.task-status {
-  font-size: 0.95rem;
-  color: #666;
 }
 .empty {
   text-align: center;
