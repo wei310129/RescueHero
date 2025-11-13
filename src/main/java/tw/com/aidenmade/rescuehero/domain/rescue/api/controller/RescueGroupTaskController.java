@@ -45,13 +45,14 @@ public class RescueGroupTaskController extends AbstractBaseController {
         return okResponse(page);
     }
 
+    // TODO: 此 api 尚未有前端呼叫過，待測
     @PreAuthorize("hasRole('USER')")
-    @GetMapping("/accepted")
+    @PostMapping("/accepted")
     public ResponseEntity<Object> getUserAccepted(@RequestBody RescueGroupTaskAcceptedRequest request) {
         Optional<StatusDto> statusDtoOptional = statusService.getTaskStatuses().stream()
-                .filter(s -> s.name().equals(StatusDefinition.TASK_ACCEPTED.getStatusName())).findFirst();
+                .filter(s -> s.name().equals(StatusDefinition.TASK_ACTIVE.getStatusName())).findFirst();
         if (statusDtoOptional.isEmpty()) {
-            log.error("找不到任務類型: {}", StatusDefinition.TASK_ACCEPTED.getStatusName());
+            log.error("找不到任務類型: {}", StatusDefinition.TASK_ACTIVE.getStatusName());
             return notFoundResponse();
         }
         StatusDto statusDto = statusDtoOptional.get();
@@ -61,7 +62,7 @@ public class RescueGroupTaskController extends AbstractBaseController {
                 request.getNameLike(),
                 statusDto.id(),
                 request.getPriority(),
-                request.getPageable()
+                convertToPageable(request.getPage())
         );
         if (!page.hasContent()) {
             return notFoundResponse();
