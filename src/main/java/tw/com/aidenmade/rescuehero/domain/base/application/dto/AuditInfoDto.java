@@ -1,5 +1,8 @@
 package tw.com.aidenmade.rescuehero.domain.base.application.dto;
 
+import tw.com.aidenmade.rescuehero.domain.base.mapstruct.utils.TimeMapper;
+
+import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.UUID;
 
@@ -18,5 +21,21 @@ public record AuditInfoDto(
     Long createdBy,
     // 修改者
     Long updatedBy
-) {}
+) {
+    public AuditInfoDto(
+//            UUID id,
+            Instant createdAt,
+            Instant updatedAt,
+            Long createdBy,
+            Long updatedBy
+    ) {
+        this(
+                null,
+                TimeMapper.INSTANCE.toZonedDateTime(createdAt),
+                TimeMapper.INSTANCE.toZonedDateTime(updatedAt),
+                createdBy,
+                updatedBy
+        );
+    }
+}
 

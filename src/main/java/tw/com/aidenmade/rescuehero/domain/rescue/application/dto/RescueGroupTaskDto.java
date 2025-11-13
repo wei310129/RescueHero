@@ -1,10 +1,12 @@
 package tw.com.aidenmade.rescuehero.domain.rescue.application.dto;
 
+import tw.com.aidenmade.rescuehero.context.TimezoneContext;
 import tw.com.aidenmade.rescuehero.domain.base.application.dto.AuditInfoDto;
 import tw.com.aidenmade.rescuehero.domain.base.application.dto.StatusDto;
 import tw.com.aidenmade.rescuehero.domain.disaster.application.dto.DisasterDto;
 
 import java.time.Instant;
+import java.time.ZonedDateTime;
 
 /**
  * 群組救援任務
@@ -31,14 +33,16 @@ public record RescueGroupTaskDto(
     // 最多成員
     Integer maxMember,
     // 任務設立日期
-    Instant assignedAt,
+    ZonedDateTime assignedAt,
     // 任務完成日期
-    Instant completedAt
+    ZonedDateTime completedAt,
     // 任務細項
 //    List<RescueGroupTaskItemDto> items
+    // 新增目前成員人數欄位
+    Integer currentMemberCount
 ) {
     public RescueGroupTaskDto(Long id,
-//                              AuditInfoDto auditInfo,
+                              AuditInfoDto auditInfo,
 //                              RescueGroupDto group,
                               DisasterDto disaster,
                               String name,
@@ -48,7 +52,22 @@ public record RescueGroupTaskDto(
                               Integer minMember,
                               Integer maxMember,
                               Instant assignedAt,
-                              Instant completedAt) {
-        this(id, null, null, disaster, name, description, status, priority, minMember, maxMember, assignedAt, completedAt);
+                              Instant completedAt,
+                              Integer currentMemberCount
+                              ) {
+        this(id,
+                auditInfo,
+                null,
+                disaster,
+                name,
+                description,
+                status,
+                priority,
+                minMember,
+                maxMember,
+                assignedAt == null ? null : assignedAt.atZone(TimezoneContext.getZone()),
+                completedAt == null ? null : completedAt.atZone(TimezoneContext.getZone()),
+                currentMemberCount
+        );
     }
 }

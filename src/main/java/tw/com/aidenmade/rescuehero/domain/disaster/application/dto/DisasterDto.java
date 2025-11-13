@@ -3,9 +3,11 @@ package tw.com.aidenmade.rescuehero.domain.disaster.application.dto;
 import tw.com.aidenmade.rescuehero.domain.address.application.dto.AddressDto;
 import tw.com.aidenmade.rescuehero.domain.base.application.dto.AuditInfoDto;
 import tw.com.aidenmade.rescuehero.domain.base.application.dto.CountryDto;
+import tw.com.aidenmade.rescuehero.domain.base.mapstruct.utils.TimeMapper;
 import tw.com.aidenmade.rescuehero.domain.disaster.enums.DisasterStatus;
 
 import java.time.Instant;
+import java.time.ZonedDateTime;
 
 /**
  * 災害
@@ -22,7 +24,7 @@ public record DisasterDto(
     // 災害名稱
     String name,
     // 發生日期 (只存到日 yyyy-MM-dd)
-    Instant occurredAt,
+    ZonedDateTime occurredAt,
     // 發生地點（Address 關聯）
     AddressDto location,
     // 災害描述
@@ -39,6 +41,14 @@ public record DisasterDto(
             AddressDto location,
             String description
     ) {
-        this(id, null, country, status, name, occurredAt, location, description);
+        this(id,
+                null,
+                country,
+                status,
+                name,
+                TimeMapper.INSTANCE.toZonedDateTime(occurredAt),
+                location,
+                description
+        );
     }
 }

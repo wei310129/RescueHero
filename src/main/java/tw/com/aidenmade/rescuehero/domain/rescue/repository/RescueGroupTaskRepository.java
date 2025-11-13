@@ -12,10 +12,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 import tw.com.aidenmade.rescuehero.domain.account.entity.QAccount;
 import tw.com.aidenmade.rescuehero.domain.address.application.dto.AddressDto;
+import tw.com.aidenmade.rescuehero.domain.base.application.dto.AuditInfoDto;
 import tw.com.aidenmade.rescuehero.domain.base.application.dto.CountryDto;
 import tw.com.aidenmade.rescuehero.domain.base.application.dto.StatusDto;
 import tw.com.aidenmade.rescuehero.domain.base.entity.QAuditInfo;
 import tw.com.aidenmade.rescuehero.domain.base.entity.QStatus;
+import tw.com.aidenmade.rescuehero.domain.base.mapstruct.utils.TimeMapper;
 import tw.com.aidenmade.rescuehero.domain.disaster.application.dto.DisasterDto;
 import tw.com.aidenmade.rescuehero.domain.disaster.entity.QDisaster;
 import tw.com.aidenmade.rescuehero.domain.rescue.application.dto.RescueGroupTaskDto;
@@ -55,6 +57,7 @@ class RescueGroupTaskQueryDslRepositoryImpl extends QuerydslRepositorySupport im
         QAuditInfo audit = QAuditInfo.auditInfo;
         QAccount createdBy = QAccount.account;
         QAccount updatedBy = QAccount.account;
+        TimeMapper timeMapper = TimeMapper.INSTANCE;
 
         BooleanExpression predicate = task.isNotNull();
         if (groupId != null) predicate = predicate.and(task.group.id.eq(groupId));
@@ -76,14 +79,13 @@ class RescueGroupTaskQueryDslRepositoryImpl extends QuerydslRepositorySupport im
         List<RescueGroupTaskDto> content = queryFactory
                 .select(Projections.constructor(RescueGroupTaskDto.class,
                         task.id,
-//                    Projections.constructor(AuditInfoDto.class,
+                    Projections.constructor(AuditInfoDto.class,
 //                            audit.id,
-//                            audit.createdAt,
-//                            audit.updatedAt,
-//                            Projections.constructor(AccountDto.class, createdBy),
-//                            Projections.constructor(AccountDto.class, updatedBy.id)
-//                    ),
-//                    task.auditInfo,
+                            audit.createdAt,
+                            audit.updatedAt,
+                            audit.createdBy.id,
+                            audit.updatedBy.id
+                    ),
 //                    Projections.constructor(RescueGroupDto.class,
 //                            group.id,
 //                            Projections.constructor(RescueOrganizationDto.class,
@@ -118,14 +120,15 @@ class RescueGroupTaskQueryDslRepositoryImpl extends QuerydslRepositorySupport im
                         task.minMember,
                         task.maxMember,
                         task.assignedAt,
-                        task.completedAt
+                        task.completedAt,
+                        task.items.size() // 新增目前成員人數  TODO: 先用 items 暫代，之後改用實際成員關聯
                 ))
                 .from(task)
 //            .leftJoin(task.group, group)
 //            .leftJoin(group.organization, org)
             .leftJoin(task.disaster, disaster)
             .leftJoin(task.status, status)
-//            .leftJoin(task.auditInfo, audit)
+            .leftJoin(task.auditInfo, audit)
 //            .leftJoin(audit.createdBy, createdBy)
 //            .leftJoin(audit.updatedBy, updatedBy)
                 .where(predicate)
