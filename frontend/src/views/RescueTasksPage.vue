@@ -2,8 +2,21 @@
   <div class="tasks-container">
     <h2>目前可接的救援任務</h2>
     <div class="display-toggle">
-      <button :class="{active: displayMode==='card'}" @click="displayMode='card'">區塊顯示</button>
-      <button :class="{active: displayMode==='list'}" @click="displayMode='list'">清單顯示</button>
+      <button :class="{active: displayMode==='card'}" @click="displayMode='card'" aria-label="區塊顯示">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="3" y="3" width="7" height="7" rx="2" fill="currentColor"/>
+          <rect x="14" y="3" width="7" height="7" rx="2" fill="currentColor"/>
+          <rect x="3" y="14" width="7" height="7" rx="2" fill="currentColor"/>
+          <rect x="14" y="14" width="7" height="7" rx="2" fill="currentColor"/>
+        </svg>
+      </button>
+      <button :class="{active: displayMode==='list'}" @click="displayMode='list'" aria-label="清單顯示">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="4" y="6" width="16" height="2.5" rx="1.2" fill="currentColor"/>
+          <rect x="4" y="11" width="16" height="2.5" rx="1.2" fill="currentColor"/>
+          <rect x="4" y="16" width="16" height="2.5" rx="1.2" fill="currentColor"/>
+        </svg>
+      </button>
     </div>
     <div class="filters">
       <label>
@@ -212,19 +225,25 @@ onMounted(() => {
 <style scoped>
 .tasks-container {
   max-width: 700px;
-  margin: 80px auto 0 auto;
+  margin: 8px auto 0 auto;
   padding: 32px 24px;
   background: #fff;
   border-radius: 16px;
   box-shadow: 0 8px 32px rgba(0,0,0,0.12);
 }
+h2 {
+  margin-bottom: 12px;
+  color: #1976d2;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
 .display-toggle {
   display: flex;
   gap: 12px;
-  margin-bottom: 18px;
+  margin-bottom: 12px;
 }
 .display-toggle button {
-  padding: 6px 18px;
+  padding: 6px;
   border: 1px solid #1976d2;
   background: #fff;
   color: #1976d2;
@@ -232,6 +251,16 @@ onMounted(() => {
   cursor: pointer;
   font-weight: 600;
   transition: background 0.2s, color 0.2s;
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.display-toggle button svg {
+  display: block;
+  width: 22px;
+  height: 22px;
 }
 .display-toggle button.active {
   background: #1976d2;
@@ -378,7 +407,7 @@ onMounted(() => {
   cursor: pointer;
 }
 h2 {
-  margin-bottom: 24px;
+  margin-bottom: 12px;
   color: #1976d2;
   font-weight: 700;
   letter-spacing: 2px;
