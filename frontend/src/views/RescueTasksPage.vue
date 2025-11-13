@@ -47,14 +47,18 @@
             <span class="disaster-name">｜{{ task.disaster?.name || '-' }}</span>
           </div>
           <div class="task-main">
-            <div class="task-name"><strong>{{ task.name }}</strong></div>
+            <div class="task-name">
+              <strong>{{ task.name }}</strong>
+              <span v-if="task.currentMemberCount >= task.maxMember" style="font-size:0.92em;color:#d32f2f;font-weight:400;margin-left:6px;">（已額滿）</span>
+            </div>
             <div class="task-desc">{{ task.description }}</div>
           </div>
           <div class="task-info">
-            <span :class="['task-priority', task.priority === 1 ? 'priority-high' : '']">
-              優先度：<span v-if="task.priority === 1" class="priority-high-label">高</span><span v-else>{{ priorityLabels[task.priority-1] }}</span>
+            <span :class="priorityClass(task.priority)">
+              優先度：<span>{{ priorityLabels[task.priority-1] }}</span>
             </span>
             <span class="task-member">需求人數：{{ task.minMember }} - {{ task.maxMember }}</span>
+            <span class="task-member">目前人數：{{ task.currentMemberCount }}</span>
           </div>
         </li>
       </ul>
@@ -67,6 +71,7 @@
             <th>任務名稱/描述</th>
             <th>優先度</th>
             <th>需求人數</th>
+            <th>目前人數</th>
           </tr>
         </thead>
         <tbody>
@@ -74,13 +79,17 @@
             <td>{{ task.disaster?.country?.name || '-' }}</td>
             <td>{{ task.disaster?.name || '-' }}</td>
             <td>
-              <div class="task-name-list"><strong>{{ task.name }}</strong></div>
+              <div class="task-name-list">
+                <strong>{{ task.name }}</strong>
+                <span v-if="task.currentMemberCount >= task.maxMember" style="font-size:0.92em;color:#d32f2f;font-weight:400;margin-left:6px;">（已額滿）</span>
+              </div>
               <div class="task-desc-list">{{ task.description }}</div>
             </td>
-            <td :class="task.priority === 1 ? 'priority-high' : 'task-priority'">
-              <span v-if="task.priority === 1" class="priority-high-label">高</span><span v-else>{{ priorityLabels[task.priority-1] }}</span>
+            <td :class="priorityClass(task.priority)">
+              <span>{{ priorityLabels[task.priority-1] }}</span>
             </td>
             <td>{{ task.minMember }} - {{ task.maxMember }}</td>
+            <td>{{ task.currentMemberCount }}</td>
           </tr>
         </tbody>
       </table>
@@ -195,6 +204,17 @@ function changePage(page) {
 function changeSize() {
   currentPage.value = 1
   fetchTasks()
+}
+
+function priorityClass(priority) {
+  switch (priority) {
+    case 1: return 'priority-high';
+    case 2: return 'priority-midhigh';
+    case 3: return 'priority-mid';
+    case 4: return 'priority-midlow';
+    case 5: return 'priority-low';
+    default: return '';
+  }
 }
 
 onMounted(() => {
@@ -365,6 +385,22 @@ h2 {
 }
 .priority-high {
   color: #d32f2f !important;
+  font-weight: bold;
+}
+.priority-midhigh {
+  color: #ff9800 !important;
+  font-weight: bold;
+}
+.priority-mid {
+  color: #ffd600 !important;
+  font-weight: bold;
+}
+.priority-midlow {
+  color: #cddc39 !important;
+  font-weight: bold;
+}
+.priority-low {
+  color: #388e3c !important;
   font-weight: bold;
 }
 @media (max-width: 900px) {
