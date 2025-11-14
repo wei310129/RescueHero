@@ -3,10 +3,12 @@
   <div style="padding-top: 64px;">
     <router-view />
   </div>
+  <ChatWidget />
 </template>
 
 <script setup>
 import AppHeader from './components/AppHeader.vue'
+import ChatWidget from './components/ChatWidget.vue'
 </script>
 
 
