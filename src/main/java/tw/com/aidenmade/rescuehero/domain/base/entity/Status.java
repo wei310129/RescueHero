@@ -31,7 +31,7 @@ public class Status {
     private Disaster disaster;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "type_id", nullable = false)
+    @JoinColumn(name = "type_id")
     @Comment("狀態類型 (status_type 外鍵)")
     private StatusType type;
 
