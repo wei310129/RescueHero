@@ -1,13 +1,11 @@
 package tw.com.aidenmade.rescuehero.domain.address.projection;
 
-import tw.com.aidenmade.rescuehero.domain.address.application.dto.AddressCellDto;
-import tw.com.aidenmade.rescuehero.domain.address.application.dto.AddressLevelDto;
-import tw.com.aidenmade.rescuehero.domain.base.application.dto.AuditInfoDto;
+import tw.com.aidenmade.rescuehero.domain.base.projection.AuditInfoProjection;
 
 public interface AddressCellProjection {
     Long getId();
-    AuditInfoDto getAuditInfo();
-    AddressLevelDto getLevel();
-    AddressCellDto getParent();
+    AuditInfoProjection getAuditInfo();
+    AddressLevelProjection getLevel();
+    AddressCellProjection getParent();
     String getName();
 }

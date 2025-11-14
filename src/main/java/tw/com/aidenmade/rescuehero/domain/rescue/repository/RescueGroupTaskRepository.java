@@ -10,20 +10,16 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
-import tw.com.aidenmade.rescuehero.domain.account.entity.QAccount;
 import tw.com.aidenmade.rescuehero.domain.address.application.dto.AddressDto;
 import tw.com.aidenmade.rescuehero.domain.base.application.dto.AuditInfoDto;
 import tw.com.aidenmade.rescuehero.domain.base.application.dto.CountryDto;
 import tw.com.aidenmade.rescuehero.domain.base.application.dto.StatusDto;
 import tw.com.aidenmade.rescuehero.domain.base.entity.QAuditInfo;
 import tw.com.aidenmade.rescuehero.domain.base.entity.QStatus;
-import tw.com.aidenmade.rescuehero.domain.base.mapstruct.utils.TimeMapper;
 import tw.com.aidenmade.rescuehero.domain.disaster.application.dto.DisasterDto;
 import tw.com.aidenmade.rescuehero.domain.disaster.entity.QDisaster;
 import tw.com.aidenmade.rescuehero.domain.rescue.application.dto.RescueGroupTaskDto;
-import tw.com.aidenmade.rescuehero.domain.rescue.entity.QRescueGroup;
 import tw.com.aidenmade.rescuehero.domain.rescue.entity.QRescueGroupTask;
-import tw.com.aidenmade.rescuehero.domain.rescue.entity.QRescueOrganization;
 import tw.com.aidenmade.rescuehero.domain.rescue.entity.RescueGroupTask;
 
 import java.util.List;
@@ -35,7 +31,7 @@ public interface RescueGroupTaskRepository
 }
 
 interface RescueGroupTaskQueryDslRepository {
-    Page<RescueGroupTaskDto> findPageByConditions(Long groupId, Long disasterId, String nameLike, Long statusId, Integer priority, Pageable pageable);
+    Page<RescueGroupTaskDto> findPageByConditions(String nameLike, List<Long> statusIdList, Integer priority, Pageable pageable);
 }
 
 class RescueGroupTaskQueryDslRepositoryImpl extends QuerydslRepositorySupport implements RescueGroupTaskQueryDslRepository {
@@ -46,24 +42,22 @@ class RescueGroupTaskQueryDslRepositoryImpl extends QuerydslRepositorySupport im
         this.queryFactory = new JPAQueryFactory(entityManager);
     }
 
-    public Page<RescueGroupTaskDto> findPageByConditions(
-            Long groupId, Long disasterId, String nameLike, Long statusId, Integer priority, Pageable pageable) {
+    public Page<RescueGroupTaskDto> findPageByConditions(String nameLike, List<Long> statusIdList, Integer priority, Pageable pageable) {
 
         QRescueGroupTask task = QRescueGroupTask.rescueGroupTask;
-        QRescueGroup group = QRescueGroup.rescueGroup;
-        QRescueOrganization org = QRescueOrganization.rescueOrganization;
+//        QRescueGroup group = QRescueGroup.rescueGroup;
+//        QRescueOrganization org = QRescueOrganization.rescueOrganization;
         QDisaster disaster = QDisaster.disaster;
         QStatus status = QStatus.status;
         QAuditInfo audit = QAuditInfo.auditInfo;
-        QAccount createdBy = QAccount.account;
-        QAccount updatedBy = QAccount.account;
-        TimeMapper timeMapper = TimeMapper.INSTANCE;
+//        QAccount createdBy = QAccount.account;
+//        QAccount updatedBy = QAccount.account;
 
         BooleanExpression predicate = task.isNotNull();
-        if (groupId != null) predicate = predicate.and(task.group.id.eq(groupId));
-        if (disasterId != null) predicate = predicate.and(task.disaster.id.eq(disasterId));
+//        if (groupId != null) predicate = predicate.and(task.group.id.eq(groupId));
+//        if (disasterId != null) predicate = predicate.and(task.disaster.id.eq(disasterId));
         if (nameLike != null && !nameLike.isEmpty()) predicate = predicate.and(task.name.containsIgnoreCase(nameLike));
-        if (statusId != null) predicate = predicate.and(task.status.id.eq(statusId));
+        if (statusIdList != null && !statusIdList.isEmpty()) predicate = predicate.and(task.status.id.in(statusIdList));
         if (priority != null) predicate = predicate.and(task.priority.eq(priority));
 
         // 排序
@@ -79,13 +73,13 @@ class RescueGroupTaskQueryDslRepositoryImpl extends QuerydslRepositorySupport im
         List<RescueGroupTaskDto> content = queryFactory
                 .select(Projections.constructor(RescueGroupTaskDto.class,
                         task.id,
-                    Projections.constructor(AuditInfoDto.class,
+                        Projections.constructor(AuditInfoDto.class,
 //                            audit.id,
-                            audit.createdAt,
-                            audit.updatedAt,
-                            audit.createdBy.id,
-                            audit.updatedBy.id
-                    ),
+                                audit.createdAt,
+                                audit.updatedAt,
+                                audit.createdBy.id,
+                                audit.updatedBy.id
+                        ),
 //                    Projections.constructor(RescueGroupDto.class,
 //                            group.id,
 //                            Projections.constructor(RescueOrganizationDto.class,
@@ -126,9 +120,9 @@ class RescueGroupTaskQueryDslRepositoryImpl extends QuerydslRepositorySupport im
                 .from(task)
 //            .leftJoin(task.group, group)
 //            .leftJoin(group.organization, org)
-            .leftJoin(task.disaster, disaster)
-            .leftJoin(task.status, status)
-            .leftJoin(task.auditInfo, audit)
+                .leftJoin(task.disaster, disaster)
+                .leftJoin(task.status, status)
+                .leftJoin(task.auditInfo, audit)
 //            .leftJoin(audit.createdBy, createdBy)
 //            .leftJoin(audit.updatedBy, updatedBy)
                 .where(predicate)

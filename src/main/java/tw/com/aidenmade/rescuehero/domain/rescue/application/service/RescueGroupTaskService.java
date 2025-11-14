@@ -9,6 +9,8 @@ import tw.com.aidenmade.rescuehero.domain.rescue.application.dto.RescueGroupTask
 import tw.com.aidenmade.rescuehero.domain.rescue.mapstruct.RescueGroupTaskProjectionMapper;
 import tw.com.aidenmade.rescuehero.domain.rescue.repository.RescueGroupTaskRepository;
 
+import java.util.List;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -16,9 +18,14 @@ public class RescueGroupTaskService {
     private final RescueGroupTaskRepository rescueGroupTaskRepository;
     private final RescueGroupTaskProjectionMapper rescueGroupTaskProjectionMapper;
 
-    public Page<RescueGroupTaskDto> getUserAvailable(Long groupId, Long disasterId, String nameLike,
+    public Page<RescueGroupTaskDto> getUserAvailable(String nameLike,
                                                      Long statusId, Integer priority, Pageable pageable) {
         return rescueGroupTaskRepository
-                .findPageByConditions(groupId, disasterId, nameLike, statusId, priority, pageable);
+                .findPageByConditions(nameLike, List.of(statusId), priority, pageable);
+    }
+
+    public Page<RescueGroupTaskDto> getUserAccepted(String nameLike, Integer priority, Pageable pageable) {
+        return rescueGroupTaskRepository
+                .findPageByConditions(nameLike, null, priority, pageable);
     }
 }

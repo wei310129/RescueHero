@@ -1,5 +1,6 @@
 package tw.com.aidenmade.rescuehero.domain.rescue.api.controller;
 
+import io.micrometer.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -18,8 +19,6 @@ import tw.com.aidenmade.rescuehero.domain.rescue.api.request.RescueGroupTaskAvai
 import tw.com.aidenmade.rescuehero.domain.rescue.application.dto.RescueGroupTaskDto;
 import tw.com.aidenmade.rescuehero.domain.rescue.application.service.RescueGroupTaskService;
 
-import java.util.Optional;
-
 @Slf4j
 @RestController
 @RequestMapping("/group-task")
@@ -31,11 +30,17 @@ public class RescueGroupTaskController extends AbstractBaseController {
     @PreAuthorize("hasRole('USER')")
     @PostMapping("/available")
     public ResponseEntity<Object> getUserAvailable(@RequestBody RescueGroupTaskAvailableRequest request) {
+        StatusDto statusInProgress;
+        try {
+            statusInProgress = getStatusDtoByCode(StatusDefinition.TASK_IN_PROGRESS);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return notFoundResponse();
+        }
+
         Page<RescueGroupTaskDto> page = rescueGroupTaskService.getUserAvailable(
-                request.getGroupId(),
-                request.getDisasterId(),
                 request.getNameLike(),
-                request.getStatusId(),
+                statusInProgress.id(),
                 request.getPriority(),
                 convertToPageable(request.getPage())
         );
@@ -49,18 +54,8 @@ public class RescueGroupTaskController extends AbstractBaseController {
     @PreAuthorize("hasRole('USER')")
     @PostMapping("/accepted")
     public ResponseEntity<Object> getUserAccepted(@RequestBody RescueGroupTaskAcceptedRequest request) {
-        Optional<StatusDto> statusDtoOptional = statusService.getTaskStatuses().stream()
-                .filter(s -> s.name().equals(StatusDefinition.TASK_ACTIVE.getStatusName())).findFirst();
-        if (statusDtoOptional.isEmpty()) {
-            log.error("找不到任務類型: {}", StatusDefinition.TASK_ACTIVE.getStatusName());
-            return notFoundResponse();
-        }
-        StatusDto statusDto = statusDtoOptional.get();
-        Page<RescueGroupTaskDto> page = rescueGroupTaskService.getUserAvailable(
-                request.getGroupId(),
-                request.getDisasterId(),
+        Page<RescueGroupTaskDto> page = rescueGroupTaskService.getUserAccepted(
                 request.getNameLike(),
-                statusDto.id(),
                 request.getPriority(),
                 convertToPageable(request.getPage())
         );
@@ -68,5 +63,13 @@ public class RescueGroupTaskController extends AbstractBaseController {
             return notFoundResponse();
         }
         return okResponse(page);
+    }
+
+    private StatusDto getStatusDtoByCode(StatusDefinition statusDefinition) {
+        String statusName = statusDefinition.getStatusName();
+        return statusService.getTaskStatuses().stream()
+                .filter(s -> StringUtils.isBlank(statusName) || s.code().equals(statusName))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("找不到任務類型: {" + statusName + "}，若為空則代表找不到任何 status"));
     }
 }

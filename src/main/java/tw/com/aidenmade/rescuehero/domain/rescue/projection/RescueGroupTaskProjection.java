@@ -19,6 +19,7 @@ public interface RescueGroupTaskProjection {
     Integer getMaxMember();
     Instant getAssignedAt();
     Instant getCompletedAt();
+    Integer getCurrentMemberCount();
 //    有需要再查詢，避免查詢效能低落，以及增加程式碼的維護難度
 //    List<RescueGroupTaskItemProjection> getItems();
 }

@@ -1,12 +1,12 @@
 package tw.com.aidenmade.rescuehero.domain.address.projection;
 
-import tw.com.aidenmade.rescuehero.domain.base.application.dto.CountryDto;
-import tw.com.aidenmade.rescuehero.domain.base.application.dto.AuditInfoDto;
+import tw.com.aidenmade.rescuehero.domain.base.projection.AuditInfoProjection;
+import tw.com.aidenmade.rescuehero.domain.base.projection.CountryProjection;
 
 public interface AddressLevelProjection {
     Long getId();
-    AuditInfoDto getAuditInfo();
-    CountryDto getCountry();
+    AuditInfoProjection getAuditInfo();
+    CountryProjection getCountry();
     String getName();
     String getSuffix();
     Integer getSequence();
