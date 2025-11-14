@@ -131,6 +131,22 @@ WITH
           AND s.code = 'IN_PROGRESS'
         LIMIT 1
     ),
+    task_completed_status_id AS (
+        SELECT s.id
+        FROM status s
+                 JOIN status_type t ON s.type_id = t.id
+        WHERE t.name = 'TASK'
+          AND s.code = 'COMPLETED'
+        LIMIT 1
+    ),
+    task_cancelled_status_id AS (
+        SELECT s.id
+        FROM status s
+                 JOIN status_type t ON s.type_id = t.id
+        WHERE t.name = 'TASK'
+          AND s.code = 'CANCELLED'
+        LIMIT 1
+    ),
     group_resource_audit AS (
         INSERT INTO audit_info (id, created_at, updated_at)
         VALUES (gen_random_uuid(), now(), now())
@@ -207,7 +223,7 @@ WITH
             (SELECT id FROM disaster),
             '團膳',
             '負責現場團體膳食供應',
-            (SELECT id FROM task_in_progress_status_id),
+            (SELECT id FROM task_cancelled_status_id),
             1, 2, 8, now(), NULL
         ) RETURNING id
     ),
@@ -628,7 +644,7 @@ WITH
             (SELECT id FROM disaster),
             '人力清淤(住宅、水溝)',
             '負責人力清淤住宅及水溝',
-            (SELECT id FROM task_in_progress_status_id),
+            (SELECT id FROM task_completed_status_id),
             5, 2, 10, now(), NULL
         ) RETURNING id
     ),
