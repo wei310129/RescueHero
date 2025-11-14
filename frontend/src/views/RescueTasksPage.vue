@@ -2,7 +2,7 @@
   <div class="tasks-container">
     <h2>目前可接的救援任務</h2>
     <div class="display-toggle">
-      <button :class="{active: displayMode==='card'}" @click="displayMode='card'" aria-label="區塊顯示">
+      <button :class="{active: displayMode==='card'}" @click="setDisplayMode('card')" aria-label="區塊顯示">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
           <rect x="3" y="3" width="7" height="7" rx="2" fill="currentColor"/>
           <rect x="14" y="3" width="7" height="7" rx="2" fill="currentColor"/>
@@ -10,7 +10,7 @@
           <rect x="14" y="14" width="7" height="7" rx="2" fill="currentColor"/>
         </svg>
       </button>
-      <button :class="{active: displayMode==='list'}" @click="displayMode='list'" aria-label="清單顯示">
+      <button :class="{active: displayMode==='list'}" @click="setDisplayMode('list')" aria-label="清單顯示">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
           <rect x="4" y="6" width="16" height="2.5" rx="1.2" fill="currentColor"/>
           <rect x="4" y="11" width="16" height="2.5" rx="1.2" fill="currentColor"/>
@@ -151,6 +151,22 @@ const totalPages = ref(1)
 const totalElements = ref(0)
 const displayMode = ref('card')
 
+// Persisted key for remembering user's display preference
+const DISPLAY_MODE_KEY = 'rescueTasksDisplayMode'
+
+function setDisplayMode(mode) {
+  if (!mode) return
+  if (mode !== 'card' && mode !== 'list') return
+  displayMode.value = mode
+  try {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      window.localStorage.setItem(DISPLAY_MODE_KEY, mode)
+    }
+  } catch (e) {
+    // ignore localStorage errors (e.g., privacy mode)
+  }
+}
+
 async function fetchTasks() {
   loading.value = true
   try {
@@ -218,6 +234,18 @@ function priorityClass(priority) {
 }
 
 onMounted(() => {
+  // restore persisted display mode before fetching so UI layout matches immediately
+  try {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      const saved = window.localStorage.getItem(DISPLAY_MODE_KEY)
+      if (saved === 'card' || saved === 'list') {
+        displayMode.value = saved
+      }
+    }
+  } catch (e) {
+    // ignore
+  }
+
   fetchTasks()
 })
 </script>
