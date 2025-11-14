@@ -1,10 +1,10 @@
 <template>
   <div class="tasks-container">
-    <h2>{{ showAcceptedTasks ? '已接的救援任務' : '目前可接的救援任務' }}</h2>
+    <h2>{{ showAcceptedTasks ? '我的救援任務' : '可接的救援任務' }}</h2>
     <div class="filters">
       <label>
         優先度：
-        <select v-model="selectedPriority">
+        <select v-model="selectedPriority" class="modern-input">
           <option :value="null">全部</option>
           <option :value="1">高</option>
           <option :value="2">中高</option>
@@ -15,7 +15,7 @@
       </label>
       <label>
         關鍵字：
-        <input v-model="nameLike" type="text" placeholder="任務名稱關鍵字" />
+        <input v-model="nameLike" type="text" class="modern-input" placeholder="任務名稱關鍵字" />
       </label>
       <button @click="fetchTasks">查詢</button>
     </div>
@@ -37,8 +37,8 @@
           </svg>
         </button>
       </div>
-      <button class="my-tasks-btn" @click="toggleTaskType">
-        {{ showAcceptedTasks ? '回到可接任務' : '已接任務' }}
+      <button class="my-tasks-btn" :class="{'accepted': showAcceptedTasks}" @click="toggleTaskType">
+        {{ showAcceptedTasks ? '可接任務' : '已接任務' }}
       </button>
     </div>
     <div v-if="loading" class="loading">載入中...</div>
@@ -306,7 +306,7 @@ onMounted(() => {
   justify-content: flex-start;
 }
 .my-tasks-btn {
-  background: #388e3c;
+  background: #ff9800;
   color: #fff;
   border: none;
   border-radius: 6px;
@@ -315,14 +315,9 @@ onMounted(() => {
   cursor: pointer;
   transition: background 0.2s;
 }
-.my-tasks-btn:hover {
-  background: #1976d2;
-}
-h2 {
-  margin-bottom: 12px;
-  color: #1976d2;
-  font-weight: 700;
-  letter-spacing: 2px;
+.my-tasks-btn.accepted {
+  background: #388e3c;
+  color: #fff;
 }
 .display-toggle {
   display: flex;
@@ -356,7 +351,7 @@ h2 {
 .filters {
   display: flex;
   gap: 16px;
-  margin-top: 15px;
+  margin-top: 25px;
   margin-bottom: 10px;
   flex-wrap: wrap;
 }
@@ -523,7 +518,7 @@ h2 {
   gap: 8px;
 }
 .filters button {
-  padding: 6px 16px;
+  padding: 6px 14px;
   background: #1976d2;
   color: #fff;
   border: none;
@@ -556,5 +551,21 @@ h2 {
 .size-selector {
   margin-top: 16px;
   text-align: right;
+}
+.modern-input {
+  height: 34px;
+  border-radius: 6px;
+  border: 1px solid #1976d2;
+  padding: 0 12px;
+  font-size: 1rem;
+  background: #f8f9fa;
+  box-shadow: 0 2px 8px rgba(25, 118, 210, 0.07);
+  transition: border-color 0.2s, box-shadow 0.2s;
+  outline: none;
+}
+.modern-input:focus,
+.modern-input:hover {
+  border-color: #388e3c;
+  box-shadow: 0 2px 12px rgba(56, 142, 60, 0.12);
 }
 </style>
