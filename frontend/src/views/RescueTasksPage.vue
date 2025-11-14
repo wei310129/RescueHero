@@ -1,23 +1,6 @@
 <template>
   <div class="tasks-container">
-    <h2>目前可接的救援任務</h2>
-    <div class="display-toggle">
-      <button :class="{active: displayMode==='card'}" @click="setDisplayMode('card')" aria-label="區塊顯示">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect x="3" y="3" width="7" height="7" rx="2" fill="currentColor"/>
-          <rect x="14" y="3" width="7" height="7" rx="2" fill="currentColor"/>
-          <rect x="3" y="14" width="7" height="7" rx="2" fill="currentColor"/>
-          <rect x="14" y="14" width="7" height="7" rx="2" fill="currentColor"/>
-        </svg>
-      </button>
-      <button :class="{active: displayMode==='list'}" @click="setDisplayMode('list')" aria-label="清單顯示">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect x="4" y="6" width="16" height="2.5" rx="1.2" fill="currentColor"/>
-          <rect x="4" y="11" width="16" height="2.5" rx="1.2" fill="currentColor"/>
-          <rect x="4" y="16" width="16" height="2.5" rx="1.2" fill="currentColor"/>
-        </svg>
-      </button>
-    </div>
+    <h2>{{ showAcceptedTasks ? '已接的救援任務' : '目前可接的救援任務' }}</h2>
     <div class="filters">
       <label>
         優先度：
@@ -36,6 +19,28 @@
       </label>
       <button @click="fetchTasks">查詢</button>
     </div>
+    <div class="actions-row">
+      <div class="display-toggle">
+        <button :class="{active: displayMode==='card'}" @click="setDisplayMode('card')" aria-label="區塊顯示">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="3" y="3" width="7" height="7" rx="2" fill="currentColor"/>
+            <rect x="14" y="3" width="7" height="7" rx="2" fill="currentColor"/>
+            <rect x="3" y="14" width="7" height="7" rx="2" fill="currentColor"/>
+            <rect x="14" y="14" width="7" height="7" rx="2" fill="currentColor"/>
+          </svg>
+        </button>
+        <button :class="{active: displayMode==='list'}" @click="setDisplayMode('list')" aria-label="清單顯示">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="4" y="6" width="16" height="2.5" rx="1.2" fill="currentColor"/>
+            <rect x="4" y="11" width="16" height="2.5" rx="1.2" fill="currentColor"/>
+            <rect x="4" y="16" width="16" height="2.5" rx="1.2" fill="currentColor"/>
+          </svg>
+        </button>
+      </div>
+      <button class="my-tasks-btn" @click="toggleTaskType">
+        {{ showAcceptedTasks ? '回到可接任務' : '已接任務' }}
+      </button>
+    </div>
     <div v-if="loading" class="loading">載入中...</div>
     <div v-else>
       <!-- 修改優先度顯示，1=高(紅色粗體)、2=中高、3=中、4=中低、5=低 -->
@@ -48,7 +53,9 @@
           </div>
           <div class="task-main">
             <div class="task-name">
-              <strong>{{ task.name }}</strong>
+              <strong>
+                <span v-if="task.status?.name" :class="statusColorClass(task.status?.name)">({{ task.status.name }}) </span>{{ task.name }}
+              </strong>
               <span v-if="task.currentMemberCount >= task.maxMember" style="font-size:0.92em;color:#d32f2f;font-weight:400;margin-left:6px;">（已額滿）</span>
             </div>
             <div class="task-desc">{{ task.description }}</div>
@@ -80,7 +87,9 @@
             <td>{{ task.disaster?.name || '-' }}</td>
             <td>
               <div class="task-name-list">
-                <strong>{{ task.name }}</strong>
+                <strong>
+                  <span v-if="task.status?.name" :class="statusColorClass(task.status?.name)">({{ task.status.name }}) </span>{{ task.name }}
+                </strong>
                 <span v-if="task.currentMemberCount >= task.maxMember" style="font-size:0.92em;color:#d32f2f;font-weight:400;margin-left:6px;">（已額滿）</span>
               </div>
               <div class="task-desc-list">{{ task.description }}</div>
@@ -150,6 +159,8 @@ const currentPage = ref(1)
 const totalPages = ref(1)
 const totalElements = ref(0)
 const displayMode = ref('card')
+const SHOW_ACCEPTED_KEY = 'rescueTasksShowAccepted'
+const showAcceptedTasks = ref(false)
 
 // Persisted key for remembering user's display preference
 const DISPLAY_MODE_KEY = 'rescueTasksDisplayMode'
@@ -183,13 +194,13 @@ async function fetchTasks() {
         requestBody[key] = null
       }
     })
-    const res = await apiFetch('/group-task/available', {
+    const apiPath = showAcceptedTasks.value ? '/group-task/accepted' : '/group-task/available'
+    const res = await apiFetch(apiPath, {
       method: 'POST',
       body: JSON.stringify(requestBody)
     })
     if (res.ok) {
       const result = await res.json()
-      // 依優先度排序（1最高）
       tasks.value = (result.content || []).slice().sort((a, b) => a.priority - b.priority)
       totalPages.value = result.totalPages || 1
       totalElements.value = result.totalElements || tasks.value.length
@@ -233,19 +244,47 @@ function priorityClass(priority) {
   }
 }
 
+function goToMyTasks() {
+  router.push('/my-tasks') // 根據你的路由設計調整路徑
+}
+
+function toggleTaskType() {
+  showAcceptedTasks.value = !showAcceptedTasks.value
+  try {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      window.localStorage.setItem(SHOW_ACCEPTED_KEY, showAcceptedTasks.value ? '1' : '0')
+    }
+  } catch (e) {}
+  currentPage.value = 1
+  fetchTasks()
+}
+
+function statusColorClass(name) {
+  switch (name) {
+    case '待處理': return 'status-pending';
+    case '進行中': return 'status-inprogress';
+    case '已完成': return 'status-completed';
+    case '已取消': return 'status-cancelled';
+    default: return '';
+  }
+}
+
 onMounted(() => {
   // restore persisted display mode before fetching so UI layout matches immediately
   try {
     if (typeof window !== 'undefined' && window.localStorage) {
-      const saved = window.localStorage.getItem(DISPLAY_MODE_KEY)
-      if (saved === 'card' || saved === 'list') {
-        displayMode.value = saved
+      const savedDisplay = window.localStorage.getItem(DISPLAY_MODE_KEY)
+      if (savedDisplay === 'card' || savedDisplay === 'list') {
+        displayMode.value = savedDisplay
+      }
+        const savedAccepted = window.localStorage.getItem(SHOW_ACCEPTED_KEY)
+      if (savedAccepted === '1') {
+        showAcceptedTasks.value = true
+      } else {
+        showAcceptedTasks.value = false
       }
     }
-  } catch (e) {
-    // ignore
-  }
-
+  } catch (e) {}
   fetchTasks()
 })
 </script>
@@ -259,6 +298,26 @@ onMounted(() => {
   border-radius: 16px;
   box-shadow: 0 8px 32px rgba(0,0,0,0.12);
 }
+.actions-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 8px;
+  justify-content: flex-start;
+}
+.my-tasks-btn {
+  background: #388e3c;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 18px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.my-tasks-btn:hover {
+  background: #1976d2;
+}
 h2 {
   margin-bottom: 12px;
   color: #1976d2;
@@ -268,7 +327,7 @@ h2 {
 .display-toggle {
   display: flex;
   gap: 12px;
-  margin-bottom: 12px;
+  margin-bottom: 0;
 }
 .display-toggle button {
   padding: 6px;
@@ -297,7 +356,8 @@ h2 {
 .filters {
   display: flex;
   gap: 16px;
-  margin-bottom: 24px;
+  margin-top: 15px;
+  margin-bottom: 10px;
   flex-wrap: wrap;
 }
 .task-list {
@@ -430,6 +490,18 @@ h2 {
 .priority-low {
   color: #388e3c !important;
   font-weight: bold;
+}
+.status-pending {
+  color: #42a5f5 !important; /* 淺藍色 */
+}
+.status-inprogress {
+  color: #d32f2f !important; /* 紅色 */
+}
+.status-completed {
+  color: #388e3c !important; /* 綠色 */
+}
+.status-cancelled {
+  color: #888 !important; /* 灰色 */
 }
 @media (max-width: 900px) {
   .task-list {
