@@ -682,5 +682,74 @@ WITH
         JOIN (
             SELECT name, description, row_number() OVER () AS rn FROM group_cleanup_task2_item_list
         ) item ON audits.rn = item.rn
+    ),
+
+    -- 民間自發的清淤隊伍（兩筆）
+    private_unit1_audit AS (
+        INSERT INTO audit_info (id, created_at, updated_at)
+        VALUES (gen_random_uuid(), now(), now())
+        RETURNING id
+    ),
+    private_unit1 AS (
+        INSERT INTO unit (
+            audit_id, country_id, name, location, contact_name, contact_phone
+        ) VALUES (
+            (SELECT id FROM private_unit1_audit),
+            (SELECT id FROM tw_country),
+            '仁愛里清淤志工隊',
+            (SELECT id FROM address_insert),
+            '王小明',
+            '0911222333'
+        ) RETURNING id
+    ),
+    private_unit2_audit AS (
+        INSERT INTO audit_info (id, created_at, updated_at)
+        VALUES (gen_random_uuid(), now(), now())
+        RETURNING id
+    ),
+    private_unit2 AS (
+        INSERT INTO unit (
+            audit_id, country_id, name, location, contact_name, contact_phone
+        ) VALUES (
+            (SELECT id FROM private_unit2_audit),
+            (SELECT id FROM tw_country),
+            '社區清潔自救會',
+            (SELECT id FROM address_insert),
+            '李小華',
+            '0922333444'
+        ) RETURNING id
+    ),
+
+    team1_audit AS (
+        INSERT INTO audit_info (id, created_at, updated_at)
+        VALUES (gen_random_uuid(), now(), now())
+        RETURNING id
+    ),
+    team1 AS (
+        INSERT INTO rescue_team (
+            audit_id, unit_id, task_id, status_id, min_member, max_member
+        ) VALUES (
+            (SELECT id FROM team1_audit),
+            (SELECT id FROM private_unit1),
+            (SELECT id FROM group_cleanup_task2),
+            (SELECT s.id FROM status s JOIN status_type t ON s.type_id = t.id WHERE t.name = 'TEAM' AND s.code = 'ASSIGNED' LIMIT 1),
+            5, 12
+        ) RETURNING id
+    ),
+    team2_audit AS (
+        INSERT INTO audit_info (id, created_at, updated_at)
+        VALUES (gen_random_uuid(), now(), now())
+        RETURNING id
+    ),
+    team2 AS (
+        INSERT INTO rescue_team (
+            audit_id, unit_id, task_id, status_id, min_member, max_member
+        ) VALUES (
+            (SELECT id FROM team2_audit),
+            (SELECT id FROM private_unit2),
+            (SELECT id FROM group_cleanup_task2),
+            (SELECT s.id FROM status s JOIN status_type t ON s.type_id = t.id WHERE t.name = 'TEAM' AND s.code = 'DEPLOYED' LIMIT 1),
+            4, 10
+        ) RETURNING id
     )
 SELECT 1;
