@@ -34,9 +34,11 @@
           <span>與 {{ selectedTarget.name }} 聊天 ({{ selectedType === 'team' ? '團隊' : '群組' }})</span>
           <button @click="resetTarget">切換對象</button>
         </div>
-        <div class="chat-messages">
-          <div v-for="msg in messages" :key="msg.id" :class="msg.fromSelf ? 'self' : 'other'">
-            <span>{{ msg.content }}</span>
+        <div class="chat-messages" ref="messagesContainerRef">
+          <div v-for="(msg, idx) in messages" :key="msg.id" :class="msg.fromSelf ? 'self' : 'other'">
+            <div v-if="!msg.fromSelf && (!messages[idx-1] || messages[idx-1].senderName !== msg.senderName) && msg.senderName" class="msg-sender">{{ msg.senderName }}</div>
+            <div class="msg-content">{{ msg.content }}</div>
+            <div class="msg-time">{{ formatTime(msg.createdAt) }}</div>
           </div>
         </div>
         <form @submit.prevent="sendMessage">
@@ -64,12 +66,28 @@ const messages = ref([])
 const input = ref('')
 let stompClient = null
 const chatWindowRef = ref(null)
+const messagesContainerRef = ref(null)
+const currentUser = ref('')
+
+function scrollToBottom(smooth = false) {
+  try {
+    const el = messagesContainerRef.value
+    if (!el) return
+    if (smooth && 'scrollTo' in el) {
+      el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' })
+    } else {
+      el.scrollTop = el.scrollHeight
+    }
+  } catch (e) { /* ignore */ }
+}
 
 function toggleChat() {
   isOpen.value = !isOpen.value
   if (isOpen.value) {
     nextTick(() => {
       document.addEventListener('mousedown', handleClickOutside)
+      // ensure scroll at open
+      nextTick(() => scrollToBottom())
     })
   } else {
     document.removeEventListener('mousedown', handleClickOutside)
@@ -110,12 +128,27 @@ function resetTarget() {
     }
   }
 }
+function formatTime(ts) {
+  if (!ts) return ''
+  try {
+    const d = new Date(ts)
+    return d.toLocaleString()
+  } catch (e) {
+    return ''
+  }
+}
 function sendMessage() {
   if (!input.value.trim() || !stompClient) return
+  const content = input.value
+  const senderName = currentUser.value || ''
+  // generate a short clientId for dedupe matching
+  const clientId = Date.now() + '-' + Math.random().toString(36).slice(2,8)
   const payload = {
+    from: senderName,
     to: selectedTarget.value.id,
     type: selectedType.value,
-    content: input.value
+    content: content,
+    clientId // include clientId so server can echo it back
   }
 
   // send via STOMP to application destination - adjust destination if backend expects a different path
@@ -125,12 +158,18 @@ function sendMessage() {
     console.error('send failed', e)
   }
 
+  // optimistic push with timestamp, senderName and clientId
+  const now = new Date().toISOString()
   messages.value.push({
     id: Date.now(),
-    content: input.value,
-    fromSelf: true
+    content: content,
+    fromSelf: true,
+    senderName: senderName,
+    createdAt: now,
+    clientId
   })
   input.value = ''
+  nextTick(() => scrollToBottom(true))
 }
 function connectWebSocket() {
   // ensure previous client is closed
@@ -156,21 +195,62 @@ function connectWebSocket() {
       stompClient.subscribe(subDestination, function(message) {
         let body = message.body
         try { body = JSON.parse(message.body) } catch (e) { /* not json */ }
+
+        // normalize content and createdAt
         const content = (body && body.content) ? body.content : (typeof body === 'string' ? body : JSON.stringify(body))
-        messages.value.push({ id: Date.now(), content, fromSelf: false })
+        const createdAt = (body && (body.createdAt || body.ts || body.time)) ? (body.createdAt || body.ts || body.time) : new Date().toISOString()
+
+        // determine sender identity and display name using several common fields
+        const senderCandidates = [body && body.senderName, body && body.sender, body && body.from, body && body.username, body && body.user, body && body.senderId]
+        const senderName = senderCandidates.find(s => typeof s === 'string' && s) || null
+        const senderIdCandidate = (body && (body.senderId || body.fromId || body.userId)) || null
+        const isFromSelf = (() => {
+          if (senderName) {
+            try { return currentUser.value && String(senderName).toLowerCase() === String(currentUser.value).toLowerCase() } catch (e) { return false }
+          }
+          // fallback: if server sends some id and we had no name, we don't know
+          return false
+        })()
+
+        // after parsing body, try to obtain clientId
+        const incomingClientId = body && body.clientId ? body.clientId : null
+
+        // if server echoes clientId we can match optimistic message reliably
+        if (incomingClientId) {
+          const match = messages.value.find(m => m.clientId === incomingClientId)
+          if (match) {
+            // update match with authoritative fields from server
+            match.createdAt = createdAt
+            if (senderName) match.senderName = senderName
+            match.fromSelf = isFromSelf
+            nextTick(() => scrollToBottom())
+            return
+          }
+        }
+
+        // dedupe heuristic: match content + senderName (if available) and timestamp proximity
+        const similar = messages.value.find(m => m.content === content && (senderName ? m.senderName === senderName : true) && m.fromSelf === isFromSelf && m.createdAt && Math.abs(new Date(m.createdAt).getTime() - new Date(createdAt).getTime()) < 5000)
+        if (similar) {
+          similar.createdAt = createdAt
+          nextTick(() => scrollToBottom())
+          return
+        }
+
+        // fallback: if no senderName provided, try to match optimistic self messages by content and time
+        if (!senderName) {
+          const opt = messages.value.find(m => m.content === content && m.fromSelf === true && m.createdAt && Math.abs(new Date(m.createdAt).getTime() - new Date(createdAt).getTime()) < 5000)
+          if (opt) {
+            opt.createdAt = createdAt
+            nextTick(() => scrollToBottom())
+            return
+          }
+        }
+
+        messages.value.push({ id: Date.now(), content, fromSelf: isFromSelf, senderName: senderName, createdAt })
+        nextTick(() => scrollToBottom())
       })
     } catch (e) {
       console.error('subscribe failed', e)
-      // fallback: subscribe to a generic room
-      // try {
-      //   stompClient.subscribe('/room/messages', function(message) {
-      //     let body = message.body
-      //     try { body = JSON.parse(message.body) } catch (e) {}
-      //     messages.value.push({ id: Date.now(), content: body.content || body, fromSelf: false })
-      //   })
-      // } catch (err) {
-      //   console.error('fallback subscribe failed', err)
-      // }
     }
 
     // // optionally notify server that we joined (backend may or may not expect this)
@@ -183,11 +263,25 @@ function connectWebSocket() {
   })
 }
 
+function handleUserLogin() {
+  try { currentUser.value = localStorage.getItem('currentUser') || '' } catch (e) { currentUser.value = '' }
+}
+function handleUserLogout() {
+  currentUser.value = ''
+}
+
 onMounted(async () => {
+  // read current user from localStorage so we can mark own messages
+  try { currentUser.value = localStorage.getItem('currentUser') || '' } catch (e) { currentUser.value = '' }
+  // listen for global login/logout events so we update marker when user changes
+  try { window.addEventListener('user-login', handleUserLogin) } catch (e) { /* ignore */ }
+  try { window.addEventListener('user-logout', handleUserLogout) } catch (e) { /* ignore */ }
+
   // TODO: 替換為實際 API 取得團隊/群組
   // 範例：fetch('/api/user/teams-groups')
   // 回傳 { teams: [...], groups: [...] }
   try {
+
     // 假資料
     teams.value = [ { id: 't1', name: '團隊A' }, { id: 't2', name: '團隊B' } ]
     groups.value = [ { id: 'g1', name: '群組X' }, { id: 'g2', name: '群組Y' } ]
@@ -201,6 +295,8 @@ onUnmounted(() => {
     stompClient = null
   }
   document.removeEventListener('mousedown', handleClickOutside)
+  try { window.removeEventListener('user-login', handleUserLogin) } catch (e) { /* ignore */ }
+  try { window.removeEventListener('user-logout', handleUserLogout) } catch (e) { /* ignore */ }
 })
 </script>
 
@@ -261,6 +357,7 @@ onUnmounted(() => {
   border-radius: 4px;
   padding: 8px;
   min-height: 120px;
+  max-height: 320px; /* limit height and enable scrollbar when content exceeds */
 }
 .chat-messages .self {
   text-align: right;
@@ -269,6 +366,17 @@ onUnmounted(() => {
 .chat-messages .other {
   text-align: left;
   color: #333;
+}
+.chat-messages .msg-sender {
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: #222;
+}
+.chat-messages .msg-content { white-space: pre-wrap; }
+.chat-messages .msg-time {
+  font-size: 0.75rem;
+  color: #888;
+  margin-top: 2px;
 }
 form {
   display: flex;
