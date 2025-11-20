@@ -39,6 +39,7 @@ CREATE INDEX idx_status_type_id ON status(type_id);
 
 -- task status, status_type 要移到 init SQL
 WITH
+    -- 任務狀態
     ins_type_audit AS (
         INSERT INTO audit_info (id, created_at, updated_at)
             VALUES (gen_random_uuid(), now(), now())
@@ -78,6 +79,52 @@ WITH
                      CROSS JOIN ins_type t
                      JOIN (
                 SELECT code, name, description, row_number() OVER () AS rn FROM ins_status_list
+            ) item ON audits.rn = item.rn
+            RETURNING id
+    ),
+
+    -- 團隊狀態
+    team_type_audit AS (
+        INSERT INTO audit_info (id, created_at, updated_at)
+            VALUES (gen_random_uuid(), now(), now())
+            RETURNING id
+    ),
+    team_type AS (
+        INSERT INTO status_type (audit_id, name, description)
+            SELECT a.id, UPPER(REPLACE('TEAM', ' ', '')), 'Rescue Team 狀態類型'
+            FROM team_type_audit a
+            RETURNING id
+    ),
+    team_status_audits AS (
+        INSERT INTO audit_info (id, created_at, updated_at)
+            SELECT gen_random_uuid(), now(), now()
+            FROM generate_series(1, 4)
+            RETURNING id
+    ),
+    team_status_list AS (
+        SELECT * FROM (
+                          VALUES
+                              ('ASSIGNED',     '已指派',       '已分配任務但尚未出發'),
+                              ('DEPLOYED',     '出動中',       '已前往或正在前往現場'),
+                              ('ON_SCENE',     '在場',         '已到達現場並執行救援'),
+                              ('RETURNED',     '已返回',       '任務結束已返回基地/營地'),
+                              ('COMPLETED',    '已完成',       '任務完成並結案'),
+                              ('UNAVAILABLE',    '已解散',       '團隊已解散')
+                      ) AS t(code, name, description)
+    ),
+    team_status AS (
+        INSERT INTO status (audit_id, type_id, code, name, description)
+            SELECT audits.id,
+                   t.id,
+                   UPPER(REPLACE(item.code, ' ', '')),
+                   item.name,
+                   item.description
+            FROM (
+                     SELECT id, row_number() OVER () AS rn FROM team_status_audits
+                 ) audits
+                     CROSS JOIN team_type t
+                     JOIN (
+                SELECT code, name, description, row_number() OVER () AS rn FROM team_status_list
             ) item ON audits.rn = item.rn
             RETURNING id
     )
