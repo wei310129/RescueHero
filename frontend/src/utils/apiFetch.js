@@ -1,5 +1,6 @@
 // apiFetch.js - fetch wrapper for auth token management
 export const apiContextPath = "/api";
+export const stompAppPrefix = "/app";
 
 export async function apiFetch(url, options = {}) {
     let newUrl = apiContextPath + url;

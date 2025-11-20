@@ -10,7 +10,9 @@
   "dependencies": {
     "core-js": "^3.8.3",
     "vue": "^3.2.13",
-    "vue-router": "^4.6.0"
+    "vue-router": "^4.6.0",
+    "sockjs-client": "^1.6.1",
+    "@stomp/stompjs": "^7.2.1"
   },
   "devDependencies": {
     "@babel/core": "^7.12.16",

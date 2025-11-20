@@ -50,6 +50,9 @@
 
 <script setup>
 import {nextTick, onMounted, onUnmounted, ref} from 'vue'
+import SockJS from 'sockjs-client'
+import {Stomp} from '@stomp/stompjs'
+import {apiContextPath, stompAppPrefix} from "@/utils/apiFetch";
 
 const isOpen = ref(false)
 const selectedTarget = ref(null)
@@ -59,7 +62,7 @@ const groups = ref([])
 const loading = ref(true)
 const messages = ref([])
 const input = ref('')
-let ws = null
+let stompClient = null
 const chatWindowRef = ref(null)
 
 function toggleChat() {
@@ -89,18 +92,39 @@ function resetTarget() {
   selectedTarget.value = null
   selectedType.value = ''
   messages.value = []
-  if (ws) {
-    ws.close()
-    ws = null
+  if (stompClient) {
+    try {
+      // disconnect compat client
+      if (typeof stompClient.disconnect === 'function') {
+        stompClient.disconnect(() => {
+          stompClient = null
+        })
+      } else if (typeof stompClient.deactivate === 'function') {
+        stompClient.deactivate()
+        stompClient = null
+      } else {
+        stompClient = null
+      }
+    } catch (e) {
+      stompClient = null
+    }
   }
 }
 function sendMessage() {
-  if (!input.value.trim() || !ws) return
-  ws.send(JSON.stringify({
+  if (!input.value.trim() || !stompClient) return
+  const payload = {
     to: selectedTarget.value.id,
     type: selectedType.value,
     content: input.value
-  }))
+  }
+
+  // send via STOMP to application destination - adjust destination if backend expects a different path
+  try {
+    stompClient.send(stompAppPrefix + '/chat.' + selectedType.value, {}, JSON.stringify(payload))
+  } catch (e) {
+    console.error('send failed', e)
+  }
+
   messages.value.push({
     id: Date.now(),
     content: input.value,
@@ -109,26 +133,54 @@ function sendMessage() {
   input.value = ''
 }
 function connectWebSocket() {
-  if (ws) ws.close()
-  // TODO: 替換為實際後端 WebSocket 位址
-  ws = new WebSocket('ws://localhost:8080/chat')
-  ws.onopen = () => {
-    // 可傳送身分/目標資訊
-    ws.send(JSON.stringify({
-      action: 'join',
-      targetId: selectedTarget.value.id,
-      targetType: selectedType.value
-    }))
+  // ensure previous client is closed
+  if (stompClient) {
+    try { stompClient.disconnect(() => {}) } catch (e) { /* ignore */ }
+    stompClient = null
   }
-  ws.onmessage = (event) => {
-    const msg = JSON.parse(event.data)
-    messages.value.push({
-      id: Date.now(),
-      content: msg.content,
-      fromSelf: false
-    })
-  }
-  ws.onclose = () => {}
+
+  // Use SockJS over the same origin; since server has context-path /api, endpoint is /api/ws
+  const sockUrl = apiContextPath + '/ws'
+  const socket = new SockJS(sockUrl)
+  // create a STOMP client over SockJS (compat mode)
+  stompClient = Stomp.over(socket)
+  // disable verbose debug logs
+  stompClient.debug = () => {}
+
+  stompClient.connect({}, function(frame) {
+    console.info('STOMP connected', frame)
+
+    // subscribe to a room for this target; adjust destination to match backend conventions
+    const subDestination = `/room/${selectedType.value}/${selectedTarget.value.id}`
+    try {
+      stompClient.subscribe(subDestination, function(message) {
+        let body = message.body
+        try { body = JSON.parse(message.body) } catch (e) { /* not json */ }
+        const content = (body && body.content) ? body.content : (typeof body === 'string' ? body : JSON.stringify(body))
+        messages.value.push({ id: Date.now(), content, fromSelf: false })
+      })
+    } catch (e) {
+      console.error('subscribe failed', e)
+      // fallback: subscribe to a generic room
+      // try {
+      //   stompClient.subscribe('/room/messages', function(message) {
+      //     let body = message.body
+      //     try { body = JSON.parse(message.body) } catch (e) {}
+      //     messages.value.push({ id: Date.now(), content: body.content || body, fromSelf: false })
+      //   })
+      // } catch (err) {
+      //   console.error('fallback subscribe failed', err)
+      // }
+    }
+
+    // // optionally notify server that we joined (backend may or may not expect this)
+    // try {
+    //   stompClient.send(stompAppPrefix + '/chat.join', {}, JSON.stringify({ targetId: selectedTarget.value.id, targetType: selectedType.value }))
+    // } catch (e) { /* ignore if backend doesn't handle it */ }
+
+  }, function(err) {
+    console.error('STOMP connection error', err)
+  })
 }
 
 onMounted(async () => {
@@ -144,7 +196,10 @@ onMounted(async () => {
   }
 })
 onUnmounted(() => {
-  if (ws) ws.close()
+  if (stompClient) {
+    try { stompClient.disconnect(() => {}) } catch (e) { /* ignore */ }
+    stompClient = null
+  }
   document.removeEventListener('mousedown', handleClickOutside)
 })
 </script>
