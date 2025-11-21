@@ -5,7 +5,7 @@ import lombok.Getter;
 import tw.com.aidenmade.rescuehero.enums.TTLType;
 
 import static tw.com.aidenmade.rescuehero.enums.TTLType.DAY_7;
-import static tw.com.aidenmade.rescuehero.enums.TTLType.MINUTE_5;
+import static tw.com.aidenmade.rescuehero.enums.TTLType.HOUR_12;
 
 /**
  * Cache定義清單
@@ -15,7 +15,7 @@ import static tw.com.aidenmade.rescuehero.enums.TTLType.MINUTE_5;
 @AllArgsConstructor
 public enum CacheDefinition {
     // JWT
-    JWT_ACCESS_TOKEN(CacheName.JWT_ACCESS_TOKEN, MINUTE_5),
+    JWT_ACCESS_TOKEN(CacheName.JWT_ACCESS_TOKEN, HOUR_12),
     JWT_REFRESH_TOKEN(CacheName.JWT_REFRESH_TOKEN, DAY_7),
 
 
