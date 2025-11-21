@@ -51,7 +51,7 @@
 </template>
 
 <script setup>
-import {nextTick, onMounted, onUnmounted, ref} from 'vue'
+import {nextTick, onMounted, onUnmounted, ref, watch} from 'vue'
 import SockJS from 'sockjs-client'
 import {Stomp} from '@stomp/stompjs'
 import {apiContextPath, stompAppPrefix} from "@/utils/apiFetch";
@@ -62,9 +62,16 @@ const selectedType = ref('')
 const teams = ref([])
 const groups = ref([])
 const loading = ref(true)
+// global view array shown for the currently selected room (bound to UI)
 const messages = ref([])
+// per-room messages cache: key = `${type}:${id}` -> array of messages
+const messagesMap = ref({})
 const input = ref('')
 let stompClient = null
+const subscriptions = {} // map of "type:id" -> stomp subscription; keep subscriptions active when switching
+// queue of subscriptions to attempt once websocket connects
+let pendingSubscribeQueue = []
+let stompConnected = false
 const chatWindowRef = ref(null)
 const messagesContainerRef = ref(null)
 const currentUser = ref('')
@@ -104,29 +111,20 @@ function handleClickOutside(e) {
 function selectTarget(target, type) {
   selectedTarget.value = target
   selectedType.value = type
-  connectWebSocket()
+  // ensure there's an array for this room
+  const key = `${type}:${target.id}`
+  if (!messagesMap.value[key]) messagesMap.value[key] = []
+  // bind the UI messages to the room's array so it persists across switches
+  messages.value = messagesMap.value[key]
+  // subscribe to new target without disconnecting the websocket
+  subscribeToTarget()
 }
 function resetTarget() {
+  // do not unsubscribe here; keep websocket subscriptions active
+  // do not clear per-room messages - keep cached messages for when user returns
   selectedTarget.value = null
   selectedType.value = ''
-  messages.value = []
-  if (stompClient) {
-    try {
-      // disconnect compat client
-      if (typeof stompClient.disconnect === 'function') {
-        stompClient.disconnect(() => {
-          stompClient = null
-        })
-      } else if (typeof stompClient.deactivate === 'function') {
-        stompClient.deactivate()
-        stompClient = null
-      } else {
-        stompClient = null
-      }
-    } catch (e) {
-      stompClient = null
-    }
-  }
+  // do not modify messages.value so the cache remains intact
 }
 function formatTime(ts) {
   if (!ts) return ''
@@ -138,14 +136,15 @@ function formatTime(ts) {
   }
 }
 function sendMessage() {
-  if (!input.value.trim() || !stompClient) return
+  if (!input.value.trim()) return
+  if (!selectedTarget.value || !selectedType.value) return // require a target
   const content = input.value
   const senderName = currentUser.value || ''
   // generate a short clientId for dedupe matching
   const clientId = Date.now() + '-' + Math.random().toString(36).slice(2,8)
   const payload = {
     from: senderName,
-    to: selectedTarget.value.id,
+    to: selectedTarget.value ? selectedTarget.value.id : null,
     type: selectedType.value,
     content: content,
     clientId // include clientId so server can echo it back
@@ -153,30 +152,125 @@ function sendMessage() {
 
   // send via STOMP to application destination - adjust destination if backend expects a different path
   try {
-    stompClient.send(stompAppPrefix + '/chat.' + selectedType.value, {}, JSON.stringify(payload))
+    if (stompClient && stompConnected && typeof stompClient.send === 'function') {
+      stompClient.send(stompAppPrefix + '/chat.' + selectedType.value, {}, JSON.stringify(payload))
+    } else {
+      // if not yet connected, optionally queue or warn — here we log and still optimistic-push
+      console.warn('STOMP not connected yet, sending will fail until connected')
+    }
   } catch (e) {
     console.error('send failed', e)
   }
 
-  // optimistic push with timestamp, senderName and clientId
+  // optimistic push with timestamp, senderName and clientId into per-room cache
   const now = new Date().toISOString()
-  messages.value.push({
-    id: Date.now(),
-    content: content,
-    fromSelf: true,
-    senderName: senderName,
-    createdAt: now,
-    clientId
-  })
+  const roomKey = `${selectedType.value}:${selectedTarget.value.id}`
+  if (!messagesMap.value[roomKey]) messagesMap.value[roomKey] = []
+  const optimistic = { id: Date.now(), content: content, fromSelf: true, senderName: senderName, createdAt: now, clientId }
+  messagesMap.value[roomKey].push(optimistic)
+  // if currently viewing this room, ensure UI array points to it (it should already) and scroll
+  if (selectedType.value && selectedTarget.value && messages.value !== messagesMap.value[roomKey]) {
+    messages.value = messagesMap.value[roomKey]
+  }
   input.value = ''
   nextTick(() => scrollToBottom(true))
 }
-function connectWebSocket() {
-  // ensure previous client is closed
-  if (stompClient) {
-    try { stompClient.disconnect(() => {}) } catch (e) { /* ignore */ }
-    stompClient = null
+
+// subscribe helper: unsubscribes previous subscription and subscribes to the selected target
+function subscribeRoom(type, id) {
+  if (!type || !id) return
+  const key = `${type}:${id}`
+  const subDestination = `/room/${type}/${id}`
+
+  const doSubscribe = () => {
+    if (!stompClient) return
+    // if already subscribed to this room, do nothing
+    if (subscriptions[key]) return
+
+    try {
+      subscriptions[key] = stompClient.subscribe(subDestination, function(message) {
+        let body = message.body
+        try { body = JSON.parse(message.body) } catch (e) { /* not json */ }
+
+        const content = (body && body.content) ? body.content : (typeof body === 'string' ? body : JSON.stringify(body))
+        const createdAt = (body && (body.createdAt || body.ts || body.time)) ? (body.createdAt || body.ts || body.time) : new Date().toISOString()
+
+        const senderCandidates = [body && body.senderName, body && body.sender, body && body.from, body && body.username, body && body.user, body && body.senderId]
+        const senderName = senderCandidates.find(s => typeof s === 'string' && s) || null
+        const isFromSelf = (() => {
+          if (senderName) {
+            try { return currentUser.value && String(senderName).toLowerCase() === String(currentUser.value).toLowerCase() } catch (e) { return false }
+          }
+          return false
+        })()
+
+        const incomingClientId = body && body.clientId ? body.clientId : null
+
+        const roomKey = `${type}:${id}`
+        if (!messagesMap.value[roomKey]) messagesMap.value[roomKey] = []
+
+        if (incomingClientId) {
+          const match = messagesMap.value[roomKey].find(m => m.clientId === incomingClientId)
+          if (match) {
+            match.createdAt = createdAt
+            if (senderName) match.senderName = senderName
+            match.fromSelf = isFromSelf
+            if (selectedType.value === type && selectedTarget.value && String(selectedTarget.value.id) === String(id)) nextTick(() => scrollToBottom())
+            return
+          }
+        }
+
+        const similar = messagesMap.value[roomKey].find(m => m.content === content && (senderName ? m.senderName === senderName : true) && m.fromSelf === isFromSelf && m.createdAt && Math.abs(new Date(m.createdAt).getTime() - new Date(createdAt).getTime()) < 5000)
+        if (similar) {
+          similar.createdAt = createdAt
+          if (selectedType.value === type && selectedTarget.value && String(selectedTarget.value.id) === String(id)) nextTick(() => scrollToBottom())
+          return
+        }
+
+        if (!senderName) {
+          const opt = messagesMap.value[roomKey].find(m => m.content === content && m.fromSelf === true && m.createdAt && Math.abs(new Date(m.createdAt).getTime() - new Date(createdAt).getTime()) < 5000)
+          if (opt) {
+            opt.createdAt = createdAt
+            if (selectedType.value === type && selectedTarget.value && String(selectedTarget.value.id) === String(id)) nextTick(() => scrollToBottom())
+            return
+          }
+        }
+
+        messagesMap.value[roomKey].push({ id: Date.now(), content, fromSelf: isFromSelf, senderName: senderName, createdAt })
+        if (selectedType.value === type && selectedTarget.value && String(selectedTarget.value.id) === String(id)) {
+          if (messages.value !== messagesMap.value[roomKey]) messages.value = messagesMap.value[roomKey]
+          nextTick(() => scrollToBottom())
+        }
+      })
+    } catch (e) {
+      console.error('subscribe failed', e)
+      if (subscriptions[key]) subscriptions[key] = null
+    }
   }
+
+  if (stompConnected && stompClient) {
+    doSubscribe()
+  } else {
+    // push to pending queue
+    pendingSubscribeQueue.push(() => doSubscribe())
+  }
+}
+
+function subscribeToTarget() {
+  if (!selectedTarget.value || !selectedType.value) return
+  subscribeRoom(selectedType.value, selectedTarget.value.id)
+}
+
+function subscribeAllRooms() {
+  try {
+    teams.value.forEach(t => subscribeRoom('team', t.id))
+    groups.value.forEach(g => subscribeRoom('group', g.id))
+  } catch (e) { /* ignore */ }
+}
+
+function connectWebSocket() {
+  // if already created and connected or connecting, do nothing
+  if (stompClient) return
 
   // Use SockJS over the same origin; since server has context-path /api, endpoint is /api/ws
   const sockUrl = apiContextPath + '/ws'
@@ -188,78 +282,19 @@ function connectWebSocket() {
 
   stompClient.connect({}, function(frame) {
     console.info('STOMP connected', frame)
+    stompConnected = true
 
-    // subscribe to a room for this target; adjust destination to match backend conventions
-    const subDestination = `/room/${selectedType.value}/${selectedTarget.value.id}`
+    // flush pending subscribe queue
     try {
-      stompClient.subscribe(subDestination, function(message) {
-        let body = message.body
-        try { body = JSON.parse(message.body) } catch (e) { /* not json */ }
-
-        // normalize content and createdAt
-        const content = (body && body.content) ? body.content : (typeof body === 'string' ? body : JSON.stringify(body))
-        const createdAt = (body && (body.createdAt || body.ts || body.time)) ? (body.createdAt || body.ts || body.time) : new Date().toISOString()
-
-        // determine sender identity and display name using several common fields
-        const senderCandidates = [body && body.senderName, body && body.sender, body && body.from, body && body.username, body && body.user, body && body.senderId]
-        const senderName = senderCandidates.find(s => typeof s === 'string' && s) || null
-        const senderIdCandidate = (body && (body.senderId || body.fromId || body.userId)) || null
-        const isFromSelf = (() => {
-          if (senderName) {
-            try { return currentUser.value && String(senderName).toLowerCase() === String(currentUser.value).toLowerCase() } catch (e) { return false }
-          }
-          // fallback: if server sends some id and we had no name, we don't know
-          return false
-        })()
-
-        // after parsing body, try to obtain clientId
-        const incomingClientId = body && body.clientId ? body.clientId : null
-
-        // if server echoes clientId we can match optimistic message reliably
-        if (incomingClientId) {
-          const match = messages.value.find(m => m.clientId === incomingClientId)
-          if (match) {
-            // update match with authoritative fields from server
-            match.createdAt = createdAt
-            if (senderName) match.senderName = senderName
-            match.fromSelf = isFromSelf
-            nextTick(() => scrollToBottom())
-            return
-          }
-        }
-
-        // dedupe heuristic: match content + senderName (if available) and timestamp proximity
-        const similar = messages.value.find(m => m.content === content && (senderName ? m.senderName === senderName : true) && m.fromSelf === isFromSelf && m.createdAt && Math.abs(new Date(m.createdAt).getTime() - new Date(createdAt).getTime()) < 5000)
-        if (similar) {
-          similar.createdAt = createdAt
-          nextTick(() => scrollToBottom())
-          return
-        }
-
-        // fallback: if no senderName provided, try to match optimistic self messages by content and time
-        if (!senderName) {
-          const opt = messages.value.find(m => m.content === content && m.fromSelf === true && m.createdAt && Math.abs(new Date(m.createdAt).getTime() - new Date(createdAt).getTime()) < 5000)
-          if (opt) {
-            opt.createdAt = createdAt
-            nextTick(() => scrollToBottom())
-            return
-          }
-        }
-
-        messages.value.push({ id: Date.now(), content, fromSelf: isFromSelf, senderName: senderName, createdAt })
-        nextTick(() => scrollToBottom())
-      })
-    } catch (e) {
-      console.error('subscribe failed', e)
-    }
-
-    // // optionally notify server that we joined (backend may or may not expect this)
-    // try {
-    //   stompClient.send(stompAppPrefix + '/chat.join', {}, JSON.stringify({ targetId: selectedTarget.value.id, targetType: selectedType.value }))
-    // } catch (e) { /* ignore if backend doesn't handle it */ }
+      while (pendingSubscribeQueue.length) {
+        const fn = pendingSubscribeQueue.shift()
+        try { fn() } catch (e) { console.error('pending subscribe failed', e) }
+      }
+    } catch (e) { /* ignore */ }
 
   }, function(err) {
     console.error('STOMP connection error', err)
+    stompConnected = false
   })
 }
 
@@ -277,6 +312,9 @@ onMounted(async () => {
   try { window.addEventListener('user-login', handleUserLogin) } catch (e) { /* ignore */ }
   try { window.addEventListener('user-logout', handleUserLogout) } catch (e) { /* ignore */ }
 
+  // connect websocket immediately when component mounts so connection persists while view exists
+  try { connectWebSocket() } catch (e) { console.error('connectWebSocket failed on mount', e) }
+
   // TODO: 替換為實際 API 取得團隊/群組
   // 範例：fetch('/api/user/teams-groups')
   // 回傳 { teams: [...], groups: [...] }
@@ -288,15 +326,92 @@ onMounted(async () => {
   } finally {
     loading.value = false
   }
+  // ensure messagesMap contains entries for current rooms
+  syncMessageMapWithRooms()
+  // watch for changes in teams/groups to keep messagesMap in sync
+  watch([teams, groups], () => syncMessageMapWithRooms(), { deep: true })
+  // subscribe to all known rooms immediately on mount (if websocket not ready, will queue)
+  subscribeAllRooms()
 })
+
+// Keep messagesMap in sync with current team/group lists: create empty arrays for new rooms and remove caches for deleted rooms
+function syncMessageMapWithRooms() {
+  try {
+    const keys = new Set()
+    teams.value.forEach(t => keys.add(`team:${t.id}`))
+    groups.value.forEach(g => keys.add(`group:${g.id}`))
+
+    // create arrays for new rooms
+    keys.forEach(k => {
+      if (!messagesMap.value[k]) {
+        messagesMap.value[k] = []
+
+        // auto-subscribe to new room (parse type:id)
+        try {
+          const parts = k.split(':')
+          if (parts.length === 2) {
+            const t = parts[0]
+            const id = parts[1]
+            // subscribeRoom checks for existing subscriptions and queues if needed
+            try { subscribeRoom(t, id) } catch (e) { /* ignore */ }
+          }
+        } catch (e) { /* ignore */ }
+      }
+    })
+
+    // remove caches and subscriptions for rooms that no longer exist
+    Object.keys(messagesMap.value).forEach(k => {
+      if (!keys.has(k)) {
+        try {
+          // unsubscribe if we have an active subscription for that room
+          if (subscriptions[k] && typeof subscriptions[k].unsubscribe === 'function') {
+            try { subscriptions[k].unsubscribe() } catch (e) { /* ignore */ }
+          }
+          // remove subscription entry
+          try { delete subscriptions[k] } catch (e) { /* ignore */ }
+          // remove cached messages
+          try { delete messagesMap.value[k] } catch (e) { /* ignore */ }
+        } catch (e) { /* ignore */ }
+      }
+    })
+  } catch (e) { /* ignore */ }
+}
+
 onUnmounted(() => {
-  if (stompClient) {
-    try { stompClient.disconnect(() => {}) } catch (e) { /* ignore */ }
-    stompClient = null
-  }
+  // disconnect websocket only when component unmounts
   document.removeEventListener('mousedown', handleClickOutside)
   try { window.removeEventListener('user-login', handleUserLogin) } catch (e) { /* ignore */ }
   try { window.removeEventListener('user-logout', handleUserLogout) } catch (e) { /* ignore */ }
+
+  // unsubscribe all subscriptions we created
+  try {
+    Object.keys(subscriptions).forEach(k => {
+      const sub = subscriptions[k]
+      if (sub && typeof sub.unsubscribe === 'function') {
+        try { sub.unsubscribe() } catch (e) { /* ignore */ }
+      }
+      try { delete subscriptions[k] } catch (e) { /* ignore */ }
+    })
+  } catch (e) { /* ignore */ }
+
+  // ensure websocket is cleaned up (disconnect should have been attempted above)
+  if (stompClient) {
+    try {
+      if (typeof stompClient.disconnect === 'function') {
+        stompClient.disconnect(() => { stompClient = null; stompConnected = false })
+      } else if (typeof stompClient.deactivate === 'function') {
+        stompClient.deactivate()
+        stompClient = null
+        stompConnected = false
+      } else {
+        stompClient = null
+        stompConnected = false
+      }
+    } catch (e) {
+      stompClient = null
+      stompConnected = false
+    }
+  }
 })
 </script>
 
