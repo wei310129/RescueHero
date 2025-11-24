@@ -1,4 +1,4 @@
-package tw.com.aidenmade.rescuehero.config;
+package tw.com.aidenmade.rescuehero.config.auth;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;

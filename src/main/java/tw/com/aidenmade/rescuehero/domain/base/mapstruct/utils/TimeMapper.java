@@ -2,7 +2,7 @@ package tw.com.aidenmade.rescuehero.domain.base.mapstruct.utils;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
-import tw.com.aidenmade.rescuehero.context.TimezoneContext;
+import tw.com.aidenmade.rescuehero.config.data.TimezoneContext;
 
 import java.time.Instant;
 import java.time.ZoneId;

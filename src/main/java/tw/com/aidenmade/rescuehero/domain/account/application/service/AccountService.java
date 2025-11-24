@@ -6,7 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
-import tw.com.aidenmade.rescuehero.context.AuditScopes;
+import tw.com.aidenmade.rescuehero.config.data.AuditScopes;
 import tw.com.aidenmade.rescuehero.domain.account.api.request.*;
 import tw.com.aidenmade.rescuehero.domain.account.application.dto.AccountDto;
 import tw.com.aidenmade.rescuehero.domain.account.entity.Account;

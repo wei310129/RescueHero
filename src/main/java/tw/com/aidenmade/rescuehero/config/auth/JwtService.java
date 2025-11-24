@@ -1,4 +1,4 @@
-package tw.com.aidenmade.rescuehero.cache;
+package tw.com.aidenmade.rescuehero.config.auth;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

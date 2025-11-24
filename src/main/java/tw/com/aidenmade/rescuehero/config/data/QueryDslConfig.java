@@ -1,4 +1,4 @@
-package tw.com.aidenmade.rescuehero.config;
+package tw.com.aidenmade.rescuehero.config.data;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;

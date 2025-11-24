@@ -1,4 +1,4 @@
-package tw.com.aidenmade.rescuehero.config;
+package tw.com.aidenmade.rescuehero.config.data;
 
 import lombok.NonNull;
 import org.springframework.cache.interceptor.KeyGenerator;

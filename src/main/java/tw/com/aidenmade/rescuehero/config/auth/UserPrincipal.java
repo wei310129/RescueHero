@@ -1,4 +1,4 @@
-package tw.com.aidenmade.rescuehero.principal;
+package tw.com.aidenmade.rescuehero.config.auth;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

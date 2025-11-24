@@ -1,4 +1,4 @@
-package tw.com.aidenmade.rescuehero.config;
+package tw.com.aidenmade.rescuehero.config.data;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -6,9 +6,8 @@ import org.springframework.data.domain.AuditorAware;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
-import tw.com.aidenmade.rescuehero.context.AuditScopes;
+import tw.com.aidenmade.rescuehero.config.auth.UserPrincipal;
 import tw.com.aidenmade.rescuehero.domain.account.entity.Account;
-import tw.com.aidenmade.rescuehero.principal.UserPrincipal;
 
 import java.util.Optional;
 

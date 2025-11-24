@@ -1,4 +1,4 @@
-package tw.com.aidenmade.rescuehero.filter;
+package tw.com.aidenmade.rescuehero.config.auth;
 
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
@@ -12,9 +12,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import tw.com.aidenmade.rescuehero.cache.JwtService;
 import tw.com.aidenmade.rescuehero.definition.cache.CacheName;
-import tw.com.aidenmade.rescuehero.principal.UserPrincipal;
 import tw.com.aidenmade.rescuehero.utils.JwtUtils;
 
 import java.io.IOException;

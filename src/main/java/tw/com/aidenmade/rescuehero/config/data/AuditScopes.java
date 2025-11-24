@@ -1,4 +1,4 @@
-package tw.com.aidenmade.rescuehero.context;
+package tw.com.aidenmade.rescuehero.config.data;
 
 
 import java.util.function.Supplier;

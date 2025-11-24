@@ -1,4 +1,4 @@
-package tw.com.aidenmade.rescuehero.config;
+package tw.com.aidenmade.rescuehero.config.data;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.web.config.EnableSpringDataWebSupport;
