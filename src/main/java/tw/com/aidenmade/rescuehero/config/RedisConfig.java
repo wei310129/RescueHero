@@ -60,7 +60,7 @@ public class RedisConfig {
                 .collect(Collectors.toMap(
                         CacheDefinition::getName,
                         e -> defaultConfig.entryTtl(Duration.ofMinutes(e.getTtlType().getMinutes())),
-                        (_, _) -> {
+                        (existing, replacement) -> {
                             throw new IllegalStateException("Duplicate key detected");
                         }
                 ));
