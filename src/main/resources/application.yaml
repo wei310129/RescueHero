@@ -45,8 +45,10 @@ spring:
       mode: always
 
   data:
-#    mongodb:
-#      uri: mongodb://${MONGO_USER}:${MONGO_PASSWORD}@localhost:27017/rescuehero
+    mongodb:
+      username: ENC(0IFRlsLDJzO5qD7O6Hp46mIrbGfEPe5qwH0pFK8Ph+eDA7F6wRwIVDLlOfHfFEZt)
+      password: ENC(+A9Sit3tyOGTusnUMYjYjQbU1Ixb5oSe8rJTG700eD7SXkyGR7nNYNdQl4NhJpIf)
+      uri: mongodb://${spring.data.mongodb.username}:${spring.data.mongodb.password}@localhost:27017/rescuehero
     redis:
       host: localhost
       port: 6379

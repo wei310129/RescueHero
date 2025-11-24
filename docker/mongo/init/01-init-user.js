@@ -15,3 +15,7 @@ db.createUser({
 
 print('User hero created successfully in rescuehero database');
 
+// 明確建立資料庫（透過建立一個集合）
+db.createCollection('chat_messages');
+
+print('Database rescuehero initialized successfully');
