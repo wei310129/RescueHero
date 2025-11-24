@@ -1,4 +1,4 @@
-docker/mongo/
+docker/mongo/data
 docker/redis/
 target/
 .mvn/wrapper/maven-wrapper.jar

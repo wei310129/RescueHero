@@ -15,12 +15,11 @@ services:
     image: mongo:6.0
     environment:
       - 'MONGO_INITDB_DATABASE=rescuehero'
-      - 'MONGO_INITDB_ROOT_USERNAME=hero'
-      - 'MONGO_INITDB_ROOT_PASSWORD=rescue'
     ports:
       - '27017:27017'
     volumes:
       - mongodb-data:/data/db
+      - ./mongo/init:/docker-entrypoint-initdb.d:ro
 
   postgres:
     image: postgres:16-alpine
