@@ -1,7 +1,7 @@
 name: rescuehero
 services:
   nginx:
-    image: nginx:latest
+    image: nginx:1.25-alpine
     ports:
       - '443:443'
     volumes:
@@ -12,7 +12,7 @@ services:
 #      - "host.docker.internal:host-gateway"
 
   mongodb:
-    image: 'mongo:latest'
+    image: mongo:6.0
     environment:
       - 'MONGO_INITDB_DATABASE=rescuehero'
       - 'MONGO_INITDB_ROOT_USERNAME=hero'
@@ -35,7 +35,7 @@ services:
       - ./postgres/init:/docker-entrypoint-initdb.d:ro
 
   redis:
-    image: 'redis:latest'
+    image: redis:7.2-alpine
     command: ["redis-server", "--requirepass", "rescue"]
     ports:
       - '6379:6379'
