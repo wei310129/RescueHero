@@ -52,25 +52,53 @@ services:
       - zookeeper-data:/var/lib/zookeeper/data
       - zookeeper-logs:/var/lib/zookeeper/log
 
-  kafka:
+  kafka-1:
     image: confluentinc/cp-kafka:7.5.0
+    container_name: kafka-1
     depends_on:
       - zookeeper
     ports:
-      - '9092:9092'
-      - '29092:29092'
+      - '9092:9092'   # 對外連線用
+      - '29092:29092' # broker 內部用
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT_EXTERNAL://localhost:9092,PLAINTEXT_INTERNAL://kafka:29092
+      # 外部（localhost） & 內部（docker network） listener
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT_EXTERNAL://localhost:9092,PLAINTEXT_INTERNAL://kafka-1:29092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT_EXTERNAL:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT_INTERNAL
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
-      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
-      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+      # 副本數量：上限是broker數量，但正式環境 FACTOR 建議至少 3，ISR 至少 2
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 2
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 2
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 2
+      # 關閉自動建立 topic
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'false'
     volumes:
-      - kafka-data:/var/lib/kafka/data
+      - kafka-1-data:/var/lib/kafka/data
+
+  kafka-2:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: kafka-2
+    depends_on:
+      - zookeeper
+    ports:
+      - '9093:9092'   # 第二台 broker 對外 port 用 9093
+      - '29093:29092' # 第二台 broker 內部 port 映射
+    environment:
+      KAFKA_BROKER_ID: 2
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      # 注意 INTERNAL host 換成 kafka-2
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT_EXTERNAL://localhost:9093,PLAINTEXT_INTERNAL://kafka-2:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT_EXTERNAL:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT_INTERNAL
+      # 副本數量：上限是broker數量，但正式環境 FACTOR 建議至少 3，ISR 至少 2
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 2
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 2
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 2
+      # 關閉自動建立 topic
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'false'
+    volumes:
+      - kafka-2-data:/var/lib/kafka/data
 
 volumes:
   mongodb-data:
@@ -78,4 +106,5 @@ volumes:
   redis-data:
   zookeeper-data:
   zookeeper-logs:
-  kafka-data:
+  kafka-1-data:
+  kafka-2-data:
