@@ -1,10 +1,10 @@
-package tw.com.aidenmade.rescuehero.config.data;
+package tw.com.aidenmade.rescuehero.configuration.context;
 
 
 import java.util.function.Supplier;
 
-public final class AuditScopes {
-    private AuditScopes() {}
+public final class AuditScopesContext {
+    private AuditScopesContext() {}
 
     public static final ScopedValue<Boolean> AUDIT_BYPASS = ScopedValue.newInstance();
     public static final ScopedValue<Long> AUDITOR_ID_OVERRIDE = ScopedValue.newInstance();

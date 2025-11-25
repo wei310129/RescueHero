@@ -1,6 +1,6 @@
 package tw.com.aidenmade.rescuehero.domain.rescue.application.dto;
 
-import tw.com.aidenmade.rescuehero.config.data.TimezoneContext;
+import tw.com.aidenmade.rescuehero.configuration.context.TimezoneContext;
 import tw.com.aidenmade.rescuehero.domain.base.application.dto.AuditInfoDto;
 import tw.com.aidenmade.rescuehero.domain.base.application.dto.StatusDto;
 import tw.com.aidenmade.rescuehero.domain.disaster.application.dto.DisasterDto;

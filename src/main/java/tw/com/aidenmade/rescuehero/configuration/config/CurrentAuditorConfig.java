@@ -1,4 +1,4 @@
-package tw.com.aidenmade.rescuehero.config.data;
+package tw.com.aidenmade.rescuehero.configuration.config;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -6,13 +6,14 @@ import org.springframework.data.domain.AuditorAware;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
-import tw.com.aidenmade.rescuehero.config.auth.UserPrincipal;
+import tw.com.aidenmade.rescuehero.configuration.context.AuditScopesContext;
+import tw.com.aidenmade.rescuehero.configuration.function.auth.UserPrincipal;
 import tw.com.aidenmade.rescuehero.domain.account.entity.Account;
 
 import java.util.Optional;
 
 @Component("currentAuditor")
-public class CurrentAuditor implements AuditorAware<Account> {
+public class CurrentAuditorConfig implements AuditorAware<Account> {
 
     @PersistenceContext
     private EntityManager em;
@@ -20,13 +21,13 @@ public class CurrentAuditor implements AuditorAware<Account> {
     @Override
     public Optional<Account> getCurrentAuditor() {
         // 檢查是否暫停審計
-        if (AuditScopes.AUDIT_BYPASS.isBound() && Boolean.TRUE.equals(AuditScopes.AUDIT_BYPASS.get())) {
+        if (AuditScopesContext.AUDIT_BYPASS.isBound() && Boolean.TRUE.equals(AuditScopesContext.AUDIT_BYPASS.get())) {
             return Optional.empty();
         }
 
         // 檢查是否覆寫審計帳號
-        if (AuditScopes.AUDITOR_ID_OVERRIDE.isBound()) {
-            Long id = AuditScopes.AUDITOR_ID_OVERRIDE.get();
+        if (AuditScopesContext.AUDITOR_ID_OVERRIDE.isBound()) {
+            Long id = AuditScopesContext.AUDITOR_ID_OVERRIDE.get();
             return Optional.of(em.getReference(Account.class, id));
         }
 

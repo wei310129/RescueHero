@@ -1,4 +1,4 @@
-package tw.com.aidenmade.rescuehero.config.auth;
+package tw.com.aidenmade.rescuehero.configuration.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
@@ -32,5 +32,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         registry.enableSimpleBroker("/room", "/user");
         // 前端 SEND 目的地 prefix，會被轉給 @MessageMapping
         registry.setApplicationDestinationPrefixes("/app");
+        // user 其實不須手動設定，spring預設就是/user
+        registry.setUserDestinationPrefix("/user");
     }
 }

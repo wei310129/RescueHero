@@ -1,4 +1,4 @@
-package tw.com.aidenmade.rescuehero.config.data;
+package tw.com.aidenmade.rescuehero.configuration.context;
 
 import java.time.ZoneId;
 

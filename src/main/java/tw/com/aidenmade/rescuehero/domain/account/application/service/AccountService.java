@@ -6,7 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
-import tw.com.aidenmade.rescuehero.config.data.AuditScopes;
+import tw.com.aidenmade.rescuehero.configuration.context.AuditScopesContext;
 import tw.com.aidenmade.rescuehero.domain.account.api.request.*;
 import tw.com.aidenmade.rescuehero.domain.account.application.dto.AccountDto;
 import tw.com.aidenmade.rescuehero.domain.account.entity.Account;
@@ -46,7 +46,7 @@ public class AccountService extends AbstractAccountBaseService {
     @Transactional
     public boolean register(AccountCreateRequest request) {
         try {
-            return AuditScopes.runWithoutAuditing(() -> {
+            return AuditScopesContext.runWithoutAuditing(() -> {
                 Instant now = Instant.now();
 
                 // 1) 第一次 insert audit_info：不寫 createdBy/updatedBy（避免 FK）

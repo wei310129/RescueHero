@@ -11,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import tw.com.aidenmade.rescuehero.config.auth.JwtService;
+import tw.com.aidenmade.rescuehero.configuration.function.auth.JwtService;
 import tw.com.aidenmade.rescuehero.definition.cache.CacheDefinition;
 import tw.com.aidenmade.rescuehero.definition.cache.CacheName;
 import tw.com.aidenmade.rescuehero.domain.account.api.request.AuthLoginRequest;
