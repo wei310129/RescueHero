@@ -63,6 +63,8 @@ services:
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      # 實際給 Kafka 自己看的 port，對應 ports 設定
+      KAFKA_LISTENERS: PLAINTEXT_EXTERNAL://0.0.0.0:9092,PLAINTEXT_INTERNAL://0.0.0.0:29092
       # 外部（localhost） & 內部（docker network） listener
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT_EXTERNAL://localhost:9092,PLAINTEXT_INTERNAL://kafka-1:29092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT_EXTERNAL:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
@@ -87,6 +89,10 @@ services:
     environment:
       KAFKA_BROKER_ID: 2
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      # 若在 docker 起兩台 kafka 且 ports 設定內外不同(如:9093:9092)的話就必須指定 KAFKA_LISTENERS，
+      # 否則 kafka 會搞錯自己內部是聽什麼 port，預設是會以外部 port(9093) 來當作自己監聽的 port，但其實 ports 設定是連到 9092
+      # 當然也可以直接設定 ports: 9093:9093，但是不建議
+      KAFKA_LISTENERS: PLAINTEXT_EXTERNAL://0.0.0.0:9092,PLAINTEXT_INTERNAL://0.0.0.0:29092
       # 注意 INTERNAL host 換成 kafka-2
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT_EXTERNAL://localhost:9093,PLAINTEXT_INTERNAL://kafka-2:29092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT_EXTERNAL:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
