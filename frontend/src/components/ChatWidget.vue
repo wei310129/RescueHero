@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="isVisible">
     <!-- 懸浮聊天按鈕 -->
     <div class="chat-fab" @click="toggleChat">
       <span v-if="!isOpen">💬</span>
@@ -64,6 +64,7 @@ import {Stomp} from '@stomp/stompjs'
 import {apiContextPath, stompAppPrefix} from "@/utils/apiFetch";
 
 const isOpen = ref(false)
+const isVisible = ref(false) // only show the chat FAB when user is logged in
 const selectedTarget = ref(null)
 const selectedType = ref('')
 const teams = ref([])
@@ -324,40 +325,96 @@ function connectWebSocket() {
   })
 }
 
+// disconnect helper that safely unsubscribes and tears down the STOMP/SockJS client
+function disconnectWebSocket() {
+  try {
+    // unsubscribe all subscriptions we created
+    Object.keys(subscriptions).forEach(k => {
+      const sub = subscriptions[k]
+      if (sub && typeof sub.unsubscribe === 'function') {
+        try { sub.unsubscribe() } catch (e) { /* ignore */ }
+      }
+      try { delete subscriptions[k] } catch (e) { /* ignore */ }
+    })
+  } catch (e) { /* ignore */ }
+
+  // clear pending subscribe queue
+  try { pendingSubscribeQueue = [] } catch (e) { /* ignore */ }
+
+  // disconnect or deactivate stomp client
+  if (stompClient) {
+    try {
+      if (typeof stompClient.disconnect === 'function') {
+        try { stompClient.disconnect(() => { stompClient = null; stompConnected = false }) } catch (e) { stompClient = null; stompConnected = false }
+      } else if (typeof stompClient.deactivate === 'function') {
+        try { stompClient.deactivate() } catch (e) { /* ignore */ }
+        stompClient = null
+        stompConnected = false
+      } else {
+        stompClient = null
+        stompConnected = false
+      }
+    } catch (e) {
+      stompClient = null
+      stompConnected = false
+    }
+  }
+}
+
 function handleUserLogin() {
   try { currentUser.value = localStorage.getItem('currentUser') || '' } catch (e) { currentUser.value = '' }
+  // when user logs in, show widget and (re)connect websocket
+  try { isVisible.value = true } catch (e) { /* ignore */ }
+  try { connectWebSocket() } catch (e) { /* ignore */ }
+  // initialize rooms/subscriptions after login
+  try { initRoomsAndSubscriptions() } catch (e) { /* ignore */ }
 }
 function handleUserLogout() {
   currentUser.value = ''
+  // close websocket, hide chat icon and close window immediately on logout
+  try { disconnectWebSocket() } catch (e) { /* ignore */ }
+  try { isOpen.value = false } catch (e) { /* ignore */ }
+  try { isVisible.value = false } catch (e) { /* ignore */ }
+  // clear in-memory caches to avoid leaking data between users
+  try { messagesMap.value = {}; messages.value = []; unreadMap.value = {} } catch (e) { /* ignore */ }
+}
+
+// initialize teams/groups and subscribe to rooms; usable on mount (if user logged in) or on login
+function initRoomsAndSubscriptions() {
+  try {
+    // TODO: replace with real API fetch
+    teams.value = [ { id: 't1', name: '團隊A' }, { id: 't2', name: '團隊B' } ]
+    groups.value = [ { id: 'g1', name: '群組X' }, { id: 'g2', name: '群組Y' } ]
+  } catch (e) {
+    teams.value = []
+    groups.value = []
+  } finally {
+    loading.value = false
+  }
+
+  try { syncMessageMapWithRooms() } catch (e) { /* ignore */ }
+  try { subscribeAllRooms() } catch (e) { /* ignore */ }
+  // ensure watchers are set to keep messageMap in sync
+  try { watch([teams, groups], () => syncMessageMapWithRooms(), { deep: true }) } catch (e) { /* ignore */ }
 }
 
 onMounted(async () => {
   // read current user from localStorage so we can mark own messages
   try { currentUser.value = localStorage.getItem('currentUser') || '' } catch (e) { currentUser.value = '' }
+  // only show widget if a user is logged in
+  try { isVisible.value = !!currentUser.value } catch (e) { /* ignore */ }
   // listen for global login/logout events so we update marker when user changes
   try { window.addEventListener('user-login', handleUserLogin) } catch (e) { /* ignore */ }
   try { window.addEventListener('user-logout', handleUserLogout) } catch (e) { /* ignore */ }
 
-  // connect websocket immediately when component mounts so connection persists while view exists
-  try { connectWebSocket() } catch (e) { console.error('connectWebSocket failed on mount', e) }
-
-  // TODO: 替換為實際 API 取得團隊/群組
-  // 範例：fetch('/api/user/teams-groups')
-  // 回傳 { teams: [...], groups: [...] }
-  try {
-
-    // 假資料
-    teams.value = [ { id: 't1', name: '團隊A' }, { id: 't2', name: '團隊B' } ]
-    groups.value = [ { id: 'g1', name: '群組X' }, { id: 'g2', name: '群組Y' } ]
-  } finally {
+  // if user already logged in when component mounts, initialize rooms and websocket
+  if (isVisible.value) {
+    try { connectWebSocket() } catch (e) { console.error('connectWebSocket failed on mount', e) }
+    try { initRoomsAndSubscriptions() } catch (e) { /* ignore */ }
+  } else {
+    // not logged in: leave loading false and wait for user-login
     loading.value = false
   }
-  // ensure messagesMap contains entries for current rooms
-  syncMessageMapWithRooms()
-  // watch for changes in teams/groups to keep messagesMap in sync
-  watch([teams, groups], () => syncMessageMapWithRooms(), { deep: true })
-  // subscribe to all known rooms immediately on mount (if websocket not ready, will queue)
-  subscribeAllRooms()
 })
 
 // Keep messagesMap in sync with current team/group lists: create empty arrays for new rooms and remove caches for deleted rooms
@@ -412,38 +469,8 @@ onUnmounted(() => {
   try { window.removeEventListener('user-login', handleUserLogin) } catch (e) { /* ignore */ }
   try { window.removeEventListener('user-logout', handleUserLogout) } catch (e) { /* ignore */ }
 
-  // unsubscribe all subscriptions we created
-  try {
-    Object.keys(subscriptions).forEach(k => {
-      const sub = subscriptions[k]
-      if (sub && typeof sub.unsubscribe === 'function') {
-        try { sub.unsubscribe() } catch (e) { /* ignore */ }
-      }
-      try { delete subscriptions[k] } catch (e) { /* ignore */ }
-    })
-  } catch (e) { /* ignore */ }
-
-  // clear pending subscribe queue
-  try { pendingSubscribeQueue = [] } catch (e) { /* ignore */ }
-
-  // ensure websocket is cleaned up (disconnect should have been attempted above)
-  if (stompClient) {
-    try {
-      if (typeof stompClient.disconnect === 'function') {
-        stompClient.disconnect(() => { stompClient = null; stompConnected = false })
-      } else if (typeof stompClient.deactivate === 'function') {
-        stompClient.deactivate()
-        stompClient = null
-        stompConnected = false
-      } else {
-        stompClient = null
-        stompConnected = false
-      }
-    } catch (e) {
-      stompClient = null
-      stompConnected = false
-    }
-  }
+  // reuse disconnect helper so logout and unmount behave the same
+  try { disconnectWebSocket() } catch (e) { /* ignore */ }
 })
 </script>
 
