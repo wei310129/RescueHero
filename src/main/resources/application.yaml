@@ -54,6 +54,33 @@ spring:
       port: 6379
       password: ENC(+A9Sit3tyOGTusnUMYjYjQbU1Ixb5oSe8rJTG700eD7SXkyGR7nNYNdQl4NhJpIf)
 
-# mongodb
-#MONGO_USER: ENC(0IFRlsLDJzO5qD7O6Hp46mIrbGfEPe5qwH0pFK8Ph+eDA7F6wRwIVDLlOfHfFEZt)
-#MONGO_PASSWORD: ENC(+A9Sit3tyOGTusnUMYjYjQbU1Ixb5oSe8rJTG700eD7SXkyGR7nNYNdQl4NhJpIf)
+  kafka:
+    bootstrap-servers: localhost:9092,localhost:9093  # 可以止寫一台，但如果這台掛了就會連不上，最好都寫上去
+
+    consumer:
+      group-id: rescuehero-group
+      auto-offset-reset: earliest
+      enable-auto-commit: false  # 關掉 Kafka 自己的 auto commit
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        session-timeout: 30s          # 對應 session.timeout.ms
+        heartbeat-interval: 10s       # 對應 heartbeat.interval.ms
+        max-poll-interval: 300s       # 對應 max.poll.interval.ms (5 分鐘)
+        spring.json.trusted.packages: "tw.com.aidenmade.rescuehero.domain.chat"
+        spring.json.value.default.type: "tw.com.aidenmade.rescuehero.domain.chat.api.request.ChatMessageRequest"
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    listener:
+      concurrency: 3     # 併發數
+      ack-mode: record   # commit 模式 (record會自動commit、manual要自己commit、預設auto自動commit回報offset)
+
+chat:
+  kafka:
+    group-id:
+      chat: rescuehero-chat
+    topics:
+      group: rescuehero.chat.group
+      team: rescuehero.chat.team
+

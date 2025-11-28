@@ -177,6 +177,12 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-websocket</artifactId>
         </dependency>
+        <!-- Kafka -->
+        <dependency>
+            <groupId>org.springframework.kafka</groupId>
+            <artifactId>spring-kafka</artifactId>
+            <version>3.3.11</version>
+        </dependency>
     </dependencies>
 
     <dependencyManagement>
@@ -202,10 +208,10 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.13.0</version>
                 <configuration>
-                    <!-- JDK 版本 -->
-                    <source>21</source>
-                    <target>21</target>
-                    <release>21</release>
+                    <!-- JDK 版本 (driven by project property) -->
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                    <release>${java.version}</release>
 
                     <!-- 啟用 ScopedValue 等 preview API 以及 @Cacheable 命名參數編譯-->
                     <compilerArgs>
