@@ -327,7 +327,7 @@ function connectWebSocket() {
 function handleUserLogin() {
   try { currentUser.value = localStorage.getItem('currentUser') || '' } catch (e) { currentUser.value = '' }
   // 登入後重新建立WebSocket連線
-  try { connectWebSocket() } catch (e) { console.error('connectWebSocket failed on login', e) }
+  try { connectWebSocket() } catch (e) { console.error('WebSocket連線建立失敗', e) }
   // 重新訂閱所有房間
   subscribeAllRooms()
 }
@@ -346,11 +346,11 @@ function handleUserLogout() {
       if (sub && typeof sub.unsubscribe === 'function') {
         try { sub.unsubscribe() } catch (e) { /* ignore */ }
       }
-      try { delete subscriptions[k] } catch (e) { /* ignore */ }
+      delete subscriptions[k]
     })
   } catch (e) { /* ignore */ }
   // 清空待處理的訂閱隊列
-  try { pendingSubscribeQueue = [] } catch (e) { /* ignore */ }
+  pendingSubscribeQueue = []
   // 斷開WebSocket連線
   if (stompClient) {
     try {
