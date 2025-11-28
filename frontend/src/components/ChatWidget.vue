@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <!-- 懸浮聊天按鈕 -->
+  <div v-if="currentUser">
+    <!-- 懸浮聊天按鈕 - 只有登入時才顯示 -->
     <div class="chat-fab" @click="toggleChat">
       <span v-if="!isOpen">💬</span>
       <span v-else>✖</span>
@@ -326,9 +326,49 @@ function connectWebSocket() {
 
 function handleUserLogin() {
   try { currentUser.value = localStorage.getItem('currentUser') || '' } catch (e) { currentUser.value = '' }
+  // 登入後重新建立WebSocket連線
+  try { connectWebSocket() } catch (e) { console.error('connectWebSocket failed on login', e) }
+  // 重新訂閱所有房間
+  subscribeAllRooms()
 }
 function handleUserLogout() {
   currentUser.value = ''
+  // 關閉聊天視窗
+  isOpen.value = false
+  document.removeEventListener('mousedown', handleClickOutside)
+  // 重置選擇的聊天對象
+  selectedTarget.value = null
+  selectedType.value = ''
+  // 取消所有訂閱
+  try {
+    Object.keys(subscriptions).forEach(k => {
+      const sub = subscriptions[k]
+      if (sub && typeof sub.unsubscribe === 'function') {
+        try { sub.unsubscribe() } catch (e) { /* ignore */ }
+      }
+      try { delete subscriptions[k] } catch (e) { /* ignore */ }
+    })
+  } catch (e) { /* ignore */ }
+  // 清空待處理的訂閱隊列
+  try { pendingSubscribeQueue = [] } catch (e) { /* ignore */ }
+  // 斷開WebSocket連線
+  if (stompClient) {
+    try {
+      if (typeof stompClient.disconnect === 'function') {
+        stompClient.disconnect(() => { stompClient = null; stompConnected = false })
+      } else if (typeof stompClient.deactivate === 'function') {
+        stompClient.deactivate()
+        stompClient = null
+        stompConnected = false
+      } else {
+        stompClient = null
+        stompConnected = false
+      }
+    } catch (e) {
+      stompClient = null
+      stompConnected = false
+    }
+  }
 }
 
 onMounted(async () => {
