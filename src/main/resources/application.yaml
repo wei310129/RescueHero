@@ -55,7 +55,7 @@ spring:
       password: ENC(+A9Sit3tyOGTusnUMYjYjQbU1Ixb5oSe8rJTG700eD7SXkyGR7nNYNdQl4NhJpIf)
 
   kafka:
-    bootstrap-servers: localhost:9092,localhost:9093  # 可以止寫一台，但如果這台掛了就會連不上，最好都寫上去
+    bootstrap-servers: localhost:9092,localhost:9093,localhost:9094  # 可以只寫一台，但如果這台掛了就會連不上，最好都寫上去
 
     consumer:
       group-id: rescuehero-group

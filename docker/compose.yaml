@@ -106,6 +106,30 @@ services:
     volumes:
       - kafka-2-data:/var/lib/kafka/data
 
+  kafka-3:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: kafka-3
+    depends_on:
+      - zookeeper
+    ports:
+      - '9094:9092'
+      - '29094:29092'
+    environment:
+      KAFKA_BROKER_ID: 3
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENERS: PLAINTEXT_EXTERNAL://0.0.0.0:9092,PLAINTEXT_INTERNAL://0.0.0.0:29092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT_EXTERNAL://localhost:9094,PLAINTEXT_INTERNAL://kafka-3:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT_EXTERNAL:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT_INTERNAL
+      # 副本數量：上限是broker數量，但正式環境 FACTOR 建議至少 3，ISR 至少 2
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 2
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 2
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 2
+      # 關閉自動建立 topic
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'false'
+    volumes:
+      - kafka-3-data:/var/lib/kafka/data
+
 volumes:
   mongodb-data:
   postgres-data:
@@ -114,3 +138,4 @@ volumes:
   zookeeper-logs:
   kafka-1-data:
   kafka-2-data:
+  kafka-3-data:
