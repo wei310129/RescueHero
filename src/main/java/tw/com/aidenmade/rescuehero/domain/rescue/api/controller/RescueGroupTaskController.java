@@ -1,6 +1,10 @@
 package tw.com.aidenmade.rescuehero.domain.rescue.api.controller;
 
 import io.micrometer.common.util.StringUtils;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -20,6 +24,7 @@ import tw.com.aidenmade.rescuehero.domain.rescue.application.dto.RescueGroupTask
 import tw.com.aidenmade.rescuehero.domain.rescue.application.service.RescueGroupTaskService;
 
 @Slf4j
+@Tag(name = "救援任務管理", description = "處理救援群組任務相關 API")
 @RestController
 @RequestMapping("/group-task")
 @RequiredArgsConstructor
@@ -27,6 +32,13 @@ public class RescueGroupTaskController extends AbstractBaseController {
     private final StatusService statusService;
     private final RescueGroupTaskService rescueGroupTaskService;
 
+    @Operation(summary = "取得可用任務", description = "查詢用戶可接取的救援任務列表")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "查詢成功"),
+            @ApiResponse(responseCode = "404", description = "查無可用任務"),
+            @ApiResponse(responseCode = "401", description = "未授權"),
+            @ApiResponse(responseCode = "403", description = "權限不足")
+    })
     @PreAuthorize("hasRole('USER')")
     @PostMapping("/available")
     public ResponseEntity<Object> getUserAvailable(@RequestBody RescueGroupTaskAvailableRequest request) {
@@ -50,6 +62,13 @@ public class RescueGroupTaskController extends AbstractBaseController {
         return okResponse(page);
     }
 
+    @Operation(summary = "取得已接受任務", description = "查詢用戶已接取的救援任務列表")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "查詢成功"),
+            @ApiResponse(responseCode = "404", description = "查無已接受任務"),
+            @ApiResponse(responseCode = "401", description = "未授權"),
+            @ApiResponse(responseCode = "403", description = "權限不足")
+    })
     // TODO: 此 api 尚未有前端呼叫過，待測
     @PreAuthorize("hasRole('USER')")
     @PostMapping("/accepted")

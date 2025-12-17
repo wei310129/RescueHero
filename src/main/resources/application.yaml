@@ -11,6 +11,16 @@ logging:
     org.springframework.web: DEBUG
     tw.com.aidenmade.rescuehero: DEBUG
 
+# SpringDoc OpenAPI (Swagger) 配置
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha
+  show-actuator: false
+
 spring:
   application:
     name: RescueHero

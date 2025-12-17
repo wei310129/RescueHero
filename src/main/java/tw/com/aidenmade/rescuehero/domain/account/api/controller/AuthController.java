@@ -2,6 +2,10 @@ package tw.com.aidenmade.rescuehero.domain.account.api.controller;
 
 import io.jsonwebtoken.Claims;
 import io.micrometer.common.util.StringUtils;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.security.PermitAll;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,6 +28,7 @@ import tw.com.aidenmade.rescuehero.utils.PasswordUtils;
 
 import java.util.Optional;
 
+@Tag(name = "認證管理", description = "處理用戶登入、登出、Token 刷新及驗證碼相關 API")
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
@@ -32,6 +37,12 @@ public class AuthController extends AbstractBaseController {
     private final JwtService jwtService;
     private final CaptchaService captchaService;
 
+    @Operation(summary = "用戶登入", description = "驗證帳號密碼及驗證碼，成功後回傳 JWT Access Token")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "登入成功，回傳 Access Token"),
+            @ApiResponse(responseCode = "401", description = "帳號不存在、密碼錯誤或帳號已停用"),
+            @ApiResponse(responseCode = "400", description = "驗證碼錯誤或逾期")
+    })
     @PermitAll
     @PostMapping("/login")
     public ResponseEntity<Object> login(@RequestBody AuthLoginRequest request, HttpSession session, HttpServletResponse response) {
@@ -66,6 +77,11 @@ public class AuthController extends AbstractBaseController {
         return result;
     }
 
+    @Operation(summary = "刷新 Token", description = "從 HttpOnly Cookie 讀取 Refresh Token，驗證後回傳新的 Access Token 並輪換 Refresh Token")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "刷新成功，回傳新的 Access Token"),
+            @ApiResponse(responseCode = "401", description = "Refresh Token 無效或已過期")
+    })
     // refresh: 從 HttpOnly cookie 讀 refresh token，驗證後回傳新的 access（可選輪換 refresh）
     @PermitAll
     @PostMapping("/refresh")
@@ -105,6 +121,10 @@ public class AuthController extends AbstractBaseController {
         response.addCookie(refreshCookie);
     }
 
+    @Operation(summary = "用戶登出", description = "使 Access Token 及 Refresh Token 失效")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "登出成功"),
+    })
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/logout")
     public ResponseEntity<Object> logout(HttpServletRequest servletRequest) {
@@ -113,6 +133,11 @@ public class AuthController extends AbstractBaseController {
         return successResponseMsg("登出");
     }
 
+    @Operation(summary = "取得驗證碼", description = "產生圖形驗證碼並回傳")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "驗證碼取得成功"),
+            @ApiResponse(responseCode = "500", description = "驗證碼產生失敗")
+    })
     @PermitAll
     @GetMapping("/captcha")
     public ResponseEntity<Object> getCaptcha(HttpSession session, HttpServletResponse response) {

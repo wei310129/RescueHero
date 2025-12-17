@@ -1,5 +1,9 @@
 package tw.com.aidenmade.rescuehero.domain.notification.api.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -14,11 +18,18 @@ import tw.com.aidenmade.rescuehero.domain.notification.api.request.MarkReadReque
 import java.util.List;
 
 @Slf4j
+@Tag(name = "通知管理", description = "處理用戶通知訊息相關 API")
 @RestController
 @RequestMapping("/notification")
 @RequiredArgsConstructor
 public class NotificationController extends AbstractBaseController {
 
+    @Operation(summary = "取得用戶通知", description = "取得當前登入用戶的通知訊息列表")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "查詢成功"),
+            @ApiResponse(responseCode = "404", description = "找不到用戶資訊"),
+            @ApiResponse(responseCode = "401", description = "未授權")
+    })
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/user")
     public ResponseEntity<Object> getUserNotifications() {
@@ -35,6 +46,12 @@ public class NotificationController extends AbstractBaseController {
         }
     }
 
+    @Operation(summary = "標記通知為已讀", description = "將指定的通知訊息標記為已讀")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "標記成功"),
+            @ApiResponse(responseCode = "404", description = "找不到用戶資訊"),
+            @ApiResponse(responseCode = "401", description = "未授權")
+    })
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/mark-read")
     public ResponseEntity<Object> getMarkRead(@RequestBody MarkReadRequest request) {

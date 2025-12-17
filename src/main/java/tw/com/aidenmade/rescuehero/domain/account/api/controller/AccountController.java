@@ -1,6 +1,11 @@
 package tw.com.aidenmade.rescuehero.domain.account.api.controller;
 
 import io.micrometer.common.util.StringUtils;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.security.PermitAll;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +22,7 @@ import tw.com.aidenmade.rescuehero.utils.EmailUtils;
 import java.util.ArrayList;
 import java.util.List;
 
+@Tag(name = "帳號管理", description = "處理用戶帳號註冊、查詢、更新等相關 API")
 @RestController
 @RequestMapping("/account")
 @RequiredArgsConstructor
@@ -27,23 +33,40 @@ public class AccountController extends AbstractBaseController {
     private final String SAFE_SYMBOLS = "!@#$%^&*";
     private final String RISKY_SYMBOLS = "\"'\\\\<>";
 
+    @Operation(summary = "取得所有帳號", description = "分頁查詢所有帳號資訊（僅限管理員）")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "查詢成功"),
+            @ApiResponse(responseCode = "403", description = "權限不足")
+    })
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public ResponseEntity<Object> listAll(Pageable pageable) {
         return okResponse(accountService.listAll(pageable));
     }
 
+    @Operation(summary = "取得帳號資訊", description = "根據帳號名稱查詢帳號資訊")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "查詢成功"),
+            @ApiResponse(responseCode = "404", description = "帳號不存在"),
+            @ApiResponse(responseCode = "401", description = "未授權")
+    })
     /**
      * 取得帳號資訊
      */
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/{username}")
-    public ResponseEntity<Object> getByUsername(@PathVariable String username) {
+    public ResponseEntity<Object> getByUsername(
+            @Parameter(description = "帳號名稱") @PathVariable String username) {
         return accountService.getByUsername(username)
                 .map(this::okResponse)
                 .orElse(notFoundResponse());
     }
 
+    @Operation(summary = "註冊帳號", description = "建立新帳號，需通過驗證碼驗證及密碼規則檢查")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "註冊成功"),
+            @ApiResponse(responseCode = "400", description = "驗證碼錯誤、帳號密碼格式不符或帳號已存在")
+    })
     /**
      * 建立帳號
      */
@@ -113,6 +136,12 @@ public class AccountController extends AbstractBaseController {
         // 能不能寫成 fallback 的風格較好閱讀
     }
 
+    @Operation(summary = "更新非敏感資訊", description = "更新帳號的非敏感資訊（如暱稱等）")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "更新成功"),
+            @ApiResponse(responseCode = "400", description = "更新失敗"),
+            @ApiResponse(responseCode = "401", description = "未授權")
+    })
     /**
      * 更新非敏感資訊
      */
@@ -122,6 +151,12 @@ public class AccountController extends AbstractBaseController {
         return booleanToCommonResponse(accountService.updateInsensitive(request), "變更使用者資訊");
     }
 
+    @Operation(summary = "更新密碼", description = "變更帳號密碼")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "密碼變更成功"),
+            @ApiResponse(responseCode = "400", description = "密碼變更失敗"),
+            @ApiResponse(responseCode = "401", description = "未授權")
+    })
     /**
      * 更新密碼
      */
@@ -131,6 +166,12 @@ public class AccountController extends AbstractBaseController {
         return booleanToCommonResponse(accountService.updatePassword(request), "變更密碼");
     }
 
+    @Operation(summary = "更新管理員權限", description = "變更帳號的管理員權限（僅限管理員）")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "權限變更成功"),
+            @ApiResponse(responseCode = "400", description = "權限變更失敗"),
+            @ApiResponse(responseCode = "403", description = "權限不足")
+    })
     /**
      * 更新管理帳號
      */
@@ -140,6 +181,12 @@ public class AccountController extends AbstractBaseController {
         return booleanToCommonResponse(accountService.updateIsAdmin(request), "變更管理帳號");
     }
 
+    @Operation(summary = "停用帳號", description = "停用指定帳號")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "停用成功"),
+            @ApiResponse(responseCode = "400", description = "停用失敗"),
+            @ApiResponse(responseCode = "401", description = "未授權")
+    })
     /**
      * 停用帳號
      */
@@ -149,6 +196,12 @@ public class AccountController extends AbstractBaseController {
         return booleanToCommonResponse(accountService.updateIsActive(request, false), "停用帳號");
     }
 
+    @Operation(summary = "啟用帳號", description = "啟用指定帳號（僅限管理員）")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "啟用成功"),
+            @ApiResponse(responseCode = "400", description = "啟用失敗"),
+            @ApiResponse(responseCode = "403", description = "權限不足")
+    })
     /**
      * 啟用帳號
      */
