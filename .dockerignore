@@ -1,0 +1,41 @@
+# Build artifacts
+target/
+!target/*.jar
+
+# IDE files
+*.iml
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Git
+.git/
+.gitignore
+
+# Docker
+docker/
+Dockerfile*
+.dockerignore
+
+# Documentation
+README.md
+*.md
+
+# Frontend (如果前端要分開打包的話)
+frontend/
+
+# K8s
+k8s/
+
+# Logs
+*.log
+logs/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Test files
+src/test/
+

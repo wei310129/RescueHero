@@ -1,5 +1,84 @@
 name: rescuehero
+
+x-rescuehero-common: &rescuehero-common
+  build:
+    context: ..
+    dockerfile: Dockerfile
+  environment: &rescuehero-env
+    - JASYPT_ENCRYPTOR_PASSWORD=${JASYPT_ENCRYPTOR_PASSWORD}
+    - JWT_SECRET=${JWT_SECRET}
+    - SERVER_PORT=8081
+    - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/rescuehero
+    - SPRING_DATA_MONGODB_URI=mongodb://hero:rescue@mongodb:27017/rescuehero
+    - SPRING_DATA_REDIS_HOST=redis
+    - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka-1:29092,kafka-2:29092,kafka-3:29092
+  depends_on: &rescuehero-depends
+    - postgres
+    - mongodb
+    - redis
+    - kafka-1
+    - kafka-2
+    - kafka-3
+  restart: unless-stopped
+  healthcheck:
+    test: ["CMD", "wget", "-q", "--spider", "http://localhost:8081/api/actuator/health"]
+    interval: 30s
+    timeout: 10s
+    retries: 3
+    start_period: 60s
+
 services:
+  # =====================
+  # RescueHero Application (3 instances)
+  # =====================
+  rescuehero-app-1:
+    <<: *rescuehero-common
+    container_name: rescuehero-app-1
+    ports:
+      - '8081:8081'
+    environment:
+      - JASYPT_ENCRYPTOR_PASSWORD=${JASYPT_ENCRYPTOR_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET}
+      - SERVER_PORT=8081
+      - CHAT_KAFKA_GROUP_ID_CHAT=rescuehero-chat-1
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/rescuehero
+      - SPRING_DATA_MONGODB_URI=mongodb://hero:rescue@mongodb:27017/rescuehero
+      - SPRING_DATA_REDIS_HOST=redis
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka-1:29092,kafka-2:29092,kafka-3:29092
+
+  rescuehero-app-2:
+    <<: *rescuehero-common
+    container_name: rescuehero-app-2
+    ports:
+      - '8082:8081'
+    environment:
+      - JASYPT_ENCRYPTOR_PASSWORD=${JASYPT_ENCRYPTOR_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET}
+      - SERVER_PORT=8081
+      - CHAT_KAFKA_GROUP_ID_CHAT=rescuehero-chat-2
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/rescuehero
+      - SPRING_DATA_MONGODB_URI=mongodb://hero:rescue@mongodb:27017/rescuehero
+      - SPRING_DATA_REDIS_HOST=redis
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka-1:29092,kafka-2:29092,kafka-3:29092
+
+  rescuehero-app-3:
+    <<: *rescuehero-common
+    container_name: rescuehero-app-3
+    ports:
+      - '8083:8081'
+    environment:
+      - JASYPT_ENCRYPTOR_PASSWORD=${JASYPT_ENCRYPTOR_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET}
+      - SERVER_PORT=8081
+      - CHAT_KAFKA_GROUP_ID_CHAT=rescuehero-chat-3
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/rescuehero
+      - SPRING_DATA_MONGODB_URI=mongodb://hero:rescue@mongodb:27017/rescuehero
+      - SPRING_DATA_REDIS_HOST=redis
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka-1:29092,kafka-2:29092,kafka-3:29092
+
+  # =====================
+  # Infrastructure Services
+  # =====================
   nginx:
     image: nginx:1.25-alpine
     ports:
@@ -44,16 +123,16 @@ services:
   kafka-1:
     image: confluentinc/cp-kafka:7.6.0 # 建議用較新版本支援 KRaft 穩定版
     container_name: kafka-1
-    ports:
-      - '9092:9092'   # 對外連線用
+    # ports:  # 容器化後不需要對外暴露
+    #   - '9092:9092'
     environment:
       KAFKA_NODE_ID: 1
       # 角色設定：既是 Broker (存資料) 也是 Controller (管集群，取代 ZK)
       KAFKA_PROCESS_ROLES: 'broker,controller'
       # 定義監聽器：CONTROLLER 用於內部投票，PLAINTEXT 用於內部資料傳輸，EXTERNAL 用於宿主機連線
-      KAFKA_LISTENERS: 'PLAINTEXT://kafka-1:29092,CONTROLLER://kafka-1:29093,EXTERNAL://0.0.0.0:9092'
-      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka-1:29092,EXTERNAL://localhost:9092'
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT'
+      KAFKA_LISTENERS: 'PLAINTEXT://kafka-1:29092,CONTROLLER://kafka-1:29093'
+      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka-1:29092'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT'
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       # 投票節點設定 (重要！這裡定義了 3 台機器參與投票)
@@ -61,7 +140,6 @@ services:
       # 固定 Cluster ID (KRaft 必須)，防止節點重啟後識別錯誤
       KAFKA_CLUSTER_ID: 'MkU3OEVBNTcwNTJENDM2Qk'
       CLUSTER_ID: 'MkU3OEVBNTcwNTJENDM2Qk'
-
       # 副本設定：3 台機器建議設為 3，保證最高可靠性
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 3
@@ -74,50 +152,48 @@ services:
   kafka-2:
     image: confluentinc/cp-kafka:7.6.0
     container_name: kafka-2
-    ports:
-      - '9093:9092'   # 第二台 broker 對外 port 用 9093
+    # ports:
+    #   - '9093:9092'
     environment:
       KAFKA_NODE_ID: 2
       KAFKA_PROCESS_ROLES: 'broker,controller'
-      KAFKA_LISTENERS: 'PLAINTEXT://kafka-2:29092,CONTROLLER://kafka-2:29093,EXTERNAL://0.0.0.0:9092'
-      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka-2:29092,EXTERNAL://localhost:9093'
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT'
+      KAFKA_LISTENERS: 'PLAINTEXT://kafka-2:29092,CONTROLLER://kafka-2:29093'
+      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka-2:29092'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT'
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka-1:29093,2@kafka-2:29093,3@kafka-3:29093'
       KAFKA_CLUSTER_ID: 'MkU3OEVBNTcwNTJENDM2Qk'
       CLUSTER_ID: 'MkU3OEVBNTcwNTJENDM2Qk'
-
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 3
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 2
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'false'
-      KAFKA_LOG_RETENTION_HOURS: 168 # 保留 7 天
+      KAFKA_LOG_RETENTION_HOURS: 168
     volumes:
       - kafka-2-data:/var/lib/kafka/data
 
   kafka-3:
     image: confluentinc/cp-kafka:7.6.0
     container_name: kafka-3
-    ports:
-      - '9094:9092'
+    # ports:
+    #   - '9094:9092'
     environment:
       KAFKA_NODE_ID: 3
       KAFKA_PROCESS_ROLES: 'broker,controller'
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT'
-      KAFKA_LISTENERS: 'PLAINTEXT://kafka-3:29092,CONTROLLER://kafka-3:29093,EXTERNAL://0.0.0.0:9092'
-      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka-3:29092,EXTERNAL://localhost:9094'
+      KAFKA_LISTENERS: 'PLAINTEXT://kafka-3:29092,CONTROLLER://kafka-3:29093'
+      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka-3:29092'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT'
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka-1:29093,2@kafka-2:29093,3@kafka-3:29093'
       KAFKA_CLUSTER_ID: 'MkU3OEVBNTcwNTJENDM2Qk'
       CLUSTER_ID: 'MkU3OEVBNTcwNTJENDM2Qk'
-
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 3
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 2
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'false'
-      KAFKA_LOG_RETENTION_HOURS: 168 # 保留 7 天
+      KAFKA_LOG_RETENTION_HOURS: 168
     volumes:
       - kafka-3-data:/var/lib/kafka/data
 
