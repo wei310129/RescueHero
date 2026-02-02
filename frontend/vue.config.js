@@ -2,6 +2,7 @@
 // const { defineConfig } = require('@vue/cli-service')
 // vue.config.js
 module.exports = {
+  lintOnSave: false,
   devServer: {
     // HTTPS 憑證：
     // https: {

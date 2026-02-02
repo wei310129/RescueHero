@@ -77,12 +77,30 @@ services:
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka-1:29092,kafka-2:29092,kafka-3:29092
 
   # =====================
+  # Frontend
+  # =====================
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+      args:
+        - VERSION=${VERSION:-latest}
+    image: rescuehero-frontend:${VERSION:-latest}
+    container_name: rescuehero-frontend
+    ports:
+      - '8080:80'
+    restart: unless-stopped
+    depends_on:
+      - nginx
+
+  # =====================
   # Infrastructure Services
   # =====================
   nginx:
     image: nginx:1.25-alpine
     ports:
       - '443:443'
+      - '80:80'
     volumes:
       - ./nginx/conf.d:/etc/nginx/conf.d:ro
       - ./nginx/html:/usr/share/nginx/html:ro
