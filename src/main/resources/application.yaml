@@ -86,6 +86,13 @@ spring:
       concurrency: 3     # 併發數
       ack-mode: record   # commit 模式 (record會自動commit、manual要自己commit、預設auto自動commit回報offset)
 
+  ai:
+    openai:
+      api-key: ENC(L8+ysiRpqM0bhplh933IhYyiWenaF110Mz70xxERoOJVyHIUPFoT8+iqlr7cPeRX7od5bpu7dDskQUYv3SJxb6qcLL0HjuXcmOwEiK1h285JG+NvLNx1W987Ayw5EDCYlXaIwfFux88S9/Lzt8VRJk0vkLBROWSRwGya6E6WuyPujnIr3MoIkvnqHnl6NLsZz2JwekWTfFVwGDvywmhSgcuOWyRmtlxg9g41aRVksvS2uhLHo8+RpKo4SaaDdyxkmCGbDH6NMpFKE/MZtXM+Bg==)
+      chat:
+        options:
+          model: gpt-4o
+
 chat:
   kafka:
     group-id:
