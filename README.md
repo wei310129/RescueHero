@@ -1,6 +1,8 @@
-# 🚑 救援任務後勤平台
+# 🚑 救援任務派遣平台
 
-本專案為一套 **救援任務後勤管理平台**，提供任務調度、即時通訊、通知推播與資料管理等功能，採用 **前後端分離 + 分散式架構** 設計，以提升系統可擴展性與可維運性。
+因有感於2025年9月發生「花蓮馬太鞍溪堰塞湖事件」時，各類志工與政府沒有一個統一登記分派任務的平台，因此建構此專案，目的是讓組織單位與志工可以統一調度，並且在日後發生其他災害時，志工可以在第一時間取得救災指揮所派發的任務，避免調度混亂造成人力物力的損耗。
+
+本專案為一套「救援任務派遣平台」，提供任務調度、即時通訊、通知推播與資料管理等功能，採用 前後端分離 + 分散式架構 設計，以提升系統可擴展性與可維運性，並且全部使用容器化部署的專案，並且使用分散式架構避免producer或consumer 單點故障導致系統故障，使用Redis 統一管理登錄資訊及快取。
 
 ---
 
@@ -8,22 +10,26 @@
 
 ### 🔐 安全與認證
 - **Spring Security + JWT**
-  - 採用無狀態驗證機制
-  - 自訂 `JwtAuthFilter` 攔截請求並驗證 Token
-  - 避免 Session 依賴，利於水平擴展
+  - 採用無狀態驗證機制避免 Session 依賴，利於水平擴展
+  - 自訂 `JwtAuthFilter` 攔截請求驗證 Token，並搭配 Redis 快取達成登入狀態管理及 Refresh Token 機制
 
 ### 🗄️ 資料存取與查詢
-- **Spring Data JPA + QueryDSL**
-  - 型別安全的動態查詢能力
-  - 提升複雜條件查詢可維護性
 - **JpaAuditing**
   - 自動記錄資料建立/更新時間與操作者
   - 降低人工維護稽核欄位成本
+- **Spring Data JPA + QueryDSL**
+  - 型別安全的動態查詢能力
+  - 提升複雜條件查詢可維護性
+- **Projection Interface + Mapstruct + DTO**
+  - 確保僅取出必要欄位，降低資料傳輸負載及提升安全性
+  - 搭配關閉 OSIV 避免 JPA 物件非預期更新
+- **地址資料 linked 存儲**
+  - linked 模式統一管理利於統一更新
 
 ### 🧩 多資料庫架構
 - **PostgreSQL**：關聯式核心業務資料  
 - **MongoDB**：非結構化或文件型資料  
-- **Redis**：快取與 Session/暫存資料  
+- **Redis**：快取與暫存資料  
 - 透過 `DataSourceConfig` 統一管理多資料來源
 
 ### ⚡ 即時通訊
@@ -34,7 +40,7 @@
 ### 📡 事件驅動架構
 - **Apache Kafka**
   - 非同步事件處理
-  - 解耦核心業務與通知模組
+  - 解耦核心業務與 Websocket 通知模組
   - Kafka Cluster + Consumer Cluster 避免單點故障
 
 ### 🤖 AI Agent（開發中）
@@ -98,6 +104,7 @@
 - 即時通訊 + 事件驅動
 - 容器化與多環境部署能力
 - AI Agent 擴展潛力
+- 使用 DDD 領域驅動開發
 
 ---
 
@@ -113,7 +120,7 @@
 -Dmaven.test.skip=true
 3.Jasypt 加/解密
 -Djasypt.encryptor.password=AAALKJPO872349JJMjskkKLfs0ekvZZZ
-4.JWT 加/解密
+4.JWT 加/解密（規劃升級非對稱加密）
 -DJWT_SECRET=AAALKJPO872349JJMjskkKLfs0ekvZZZ
 5.多台部屬 prot 不可重複(ex: 8082、8083....)
 -Dserver.port=8081 
