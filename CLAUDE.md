@@ -2,6 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Claude Behavior Guidelines
+
+- Whenever an architectural decision is made, an important bug is resolved, or a technology choice is confirmed, proactively ask whether the conclusion should be updated in CLAUDE.md.
+
 ## Project Overview
 
 **RescueHero** (救援任務後勤管理平台) is a rescue mission logistics platform using a frontend-backend separation architecture with distributed, event-driven design. The backend runs 3 instances behind Nginx for high availability.
