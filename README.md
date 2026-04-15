@@ -108,6 +108,43 @@
 
 ---
 
+## 🧪 E2E 測試（Playwright）
+
+測試程式碼位於 `e2e/`，與主專案完全隔離，**不需要啟動後端**（所有 API 請求皆由 `page.route()` mock 攔截）。
+
+### 測試範圍
+
+| 測試檔案 | 涵蓋情境 |
+|---|---|
+| `tests/login.spec.ts` | 登入成功、Token 儲存、帳密錯誤、驗證碼錯誤/逾期 |
+| `tests/register.spec.ts` | 註冊成功、帳號重複、密碼不一致、必填欄位、角色未選、伺服器驗證錯誤 |
+
+### 執行方式
+
+```bash
+cd e2e
+
+# 安裝依賴（第一次）
+npm install
+npx playwright install --with-deps
+
+# 執行所有測試（headless，自動啟動前端 dev server）
+npm test
+
+# 有頭模式（可看到瀏覽器操作過程）
+npm run test:headed
+
+# Playwright 互動式 UI（開發 / debug 推薦）
+npm run test:ui
+
+# 查看 HTML 測試報告
+npm run report
+```
+
+> **前端 dev server** 若已在 `http://localhost:8080` 執行，Playwright 會直接複用；否則會自動執行 `npm run serve`。
+
+---
+
 
 # 專案使用說明
 
