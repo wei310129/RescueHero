@@ -1,5 +1,5 @@
-import {expect, test} from '../fixtures';
-import {mockRegisterDuplicateUsername, mockRegisterSuccess, mockRegisterValidationError,} from '../helpers/mock-api';
+import { expect, test } from '../fixtures';
+import { mockRegisterDuplicateUsername, mockRegisterSuccess, mockRegisterValidationError } from '../helpers/mock-api';
 
 const VALID_USER  = 'newuser01';
 const VALID_PASS  = 'Passw0rd!';
@@ -14,7 +14,6 @@ test.describe('Register page', () => {
     await mockRegisterSuccess(page);
     await registerHelper.navigate();
 
-    const alertPromise = page.waitForEvent('dialog');
     await registerHelper.fillForm({
       username: VALID_USER,
       password: VALID_PASS,
@@ -22,9 +21,7 @@ test.describe('Register page', () => {
       email: VALID_EMAIL,
       roleIndex: 0,
     });
-    await registerHelper.submit();
-
-    const dialog = await alertPromise;
+    const dialog = await registerHelper.submitAndWaitForDialog();
     expect(dialog.message()).toContain('註冊成功');
     await dialog.accept();
 
@@ -39,7 +36,6 @@ test.describe('Register page', () => {
     await mockRegisterDuplicateUsername(page);
     await registerHelper.navigate();
 
-    const alertPromise = page.waitForEvent('dialog');
     await registerHelper.fillForm({
       username: 'existinguser',
       password: VALID_PASS,
@@ -47,9 +43,7 @@ test.describe('Register page', () => {
       email: VALID_EMAIL,
       roleIndex: 0,
     });
-    await registerHelper.submit();
-
-    const dialog = await alertPromise;
+    const dialog = await registerHelper.submitAndWaitForDialog();
     expect(dialog.message()).toContain('帳號已存在');
     await dialog.dismiss();
 
@@ -66,11 +60,6 @@ test.describe('Register page', () => {
     let apiCalled = false;
     await page.route('/api/account/register', async (route) => { apiCalled = true; await route.abort(); });
 
-    // Client-side guard fires alert() synchronously inside the click handler.
-    // page.once('dialog') auto-dismisses so page.click() is not blocked.
-    let dialogMessage = '';
-    page.once('dialog', async (dialog) => { dialogMessage = dialog.message(); await dialog.dismiss(); });
-
     await registerHelper.fillForm({
       username: VALID_USER,
       password: VALID_PASS,
@@ -78,9 +67,10 @@ test.describe('Register page', () => {
       email: VALID_EMAIL,
       roleIndex: 0,
     });
-    await registerHelper.submit();
+    const dialog = await registerHelper.submitAndWaitForDialog();
+    expect(dialog.message()).toContain('密碼不一致');
+    await dialog.dismiss();
 
-    expect(dialogMessage).toContain('密碼不一致');
     expect(apiCalled).toBe(false);
     await expect(page).toHaveURL(/\/register/);
   });
@@ -114,14 +104,11 @@ test.describe('Register page', () => {
       let apiCalled = false;
       await page.route('/api/account/register', async (route) => { apiCalled = true; await route.abort(); });
 
-      // Synchronous alert — auto-dismiss via page.once so page.click() is not blocked.
-      let dialogMessage = '';
-      page.once('dialog', async (dialog) => { dialogMessage = dialog.message(); await dialog.dismiss(); });
-
       await registerHelper.fillForm({ ...fill, roleIndex: 0 });
-      await registerHelper.submit();
+      const dialog = await registerHelper.submitAndWaitForDialog();
+      expect(dialog.message()).toContain(expected);
+      await dialog.dismiss();
 
-      expect(dialogMessage).toContain(expected);
       expect(apiCalled).toBe(false);
     });
   }
@@ -136,20 +123,19 @@ test.describe('Register page', () => {
     let apiCalled = false;
     await page.route('/api/account/register', async (route) => { apiCalled = true; await route.abort(); });
 
-    // Synchronous alert — auto-dismiss via page.once so page.click() is not blocked.
-    let dialogMessage = '';
-    page.once('dialog', async (dialog) => { dialogMessage = dialog.message(); await dialog.dismiss(); });
-
     // Fill all fields but leave the role <select> at its disabled placeholder
     await page.fill('input[placeholder="Account"]', VALID_USER);
     await page.fill('input[placeholder="Password"]', VALID_PASS);
     await page.fill('input[placeholder="Confirm Password"]', VALID_PASS);
     await page.fill('input[placeholder="Email"]', VALID_EMAIL);
     await page.fill('input[placeholder="輸入驗證碼"]', 'XXXXX');
-    // Do NOT select a role — default value is '' (disabled placeholder)
-    await page.click('button[type="submit"]');
 
-    expect(dialogMessage).toContain('請選擇角色');
+    const dialogPromise = page.waitForEvent('dialog');
+    void page.click('button[type="submit"]'); // intentionally fire-and-forget
+    const dialog = await dialogPromise;
+    expect(dialog.message()).toContain('請選擇角色');
+    await dialog.dismiss();
+
     expect(apiCalled).toBe(false);
   });
 
@@ -161,7 +147,6 @@ test.describe('Register page', () => {
     await mockRegisterValidationError(page);
     await registerHelper.navigate();
 
-    const alertPromise = page.waitForEvent('dialog');
     await registerHelper.fillForm({
       username: 'bad',
       password: 'weak',
@@ -169,9 +154,7 @@ test.describe('Register page', () => {
       email: VALID_EMAIL,
       roleIndex: 0,
     });
-    await registerHelper.submit();
-
-    const dialog = await alertPromise;
+    const dialog = await registerHelper.submitAndWaitForDialog();
     // Vue joins the error array with '\n'
     expect(dialog.message()).toContain('帳號格式不符');
     expect(dialog.message()).toContain('密碼強度不足');
@@ -192,7 +175,6 @@ test.describe('Register page', () => {
     );
     await registerHelper.navigate();
 
-    const alertPromise = page.waitForEvent('dialog');
     await registerHelper.fillForm({
       username: VALID_USER,
       password: VALID_PASS,
@@ -200,9 +182,7 @@ test.describe('Register page', () => {
       email: VALID_EMAIL,
       roleIndex: 0,
     });
-    await registerHelper.submit();
-
-    const dialog = await alertPromise;
+    const dialog = await registerHelper.submitAndWaitForDialog();
     expect(dialog.message()).toContain('逾期');
     await dialog.dismiss();
 

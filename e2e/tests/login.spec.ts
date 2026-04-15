@@ -40,10 +40,7 @@ test.describe('Login page', () => {
     await mockLoginWrongCredentials(page);
     await loginHelper.navigate();
 
-    const alertPromise = page.waitForEvent('dialog');
-    await loginHelper.fillAndSubmit('wronguser1', 'WrongPass1!');
-
-    const dialog = await alertPromise;
+    const dialog = await loginHelper.fillAndSubmitThenDialog('wronguser1', 'WrongPass1!');
     expect(dialog.message()).toContain('帳號不存在或密碼有誤');
     await dialog.dismiss();
 
@@ -58,11 +55,7 @@ test.describe('Login page', () => {
     await mockLoginWrongCredentials(page);
     await loginHelper.navigate();
 
-    const alertPromise = page.waitForEvent('dialog');
-    // submit without filling any fields
-    await page.click('button[type="submit"]');
-
-    const dialog = await alertPromise;
+    const dialog = await loginHelper.submitAndWaitForDialog();
     expect(dialog.message()).toBeTruthy();
     await dialog.dismiss();
 
@@ -77,17 +70,13 @@ test.describe('Login page', () => {
     await mockLoginExpiredCaptcha(page);
     await loginHelper.navigate();
 
-    // Count captcha reload requests after the initial page load
     let captchaReloadCount = 0;
     await page.route('/api/auth/captcha**', (route) => {
       captchaReloadCount++;
       route.fulfill({ status: 200, contentType: 'image/png', body: Buffer.alloc(0) });
     });
 
-    const alertPromise = page.waitForEvent('dialog');
-    await loginHelper.fillAndSubmit(VALID_USER, VALID_PASS, 'WRONG');
-
-    const dialog = await alertPromise;
+    const dialog = await loginHelper.fillAndSubmitThenDialog(VALID_USER, VALID_PASS, 'WRONG');
     expect(dialog.message()).toContain('逾期');
     await dialog.dismiss();
 
@@ -101,10 +90,7 @@ test.describe('Login page', () => {
     await mockLoginInvalidCaptcha(page);
     await loginHelper.navigate();
 
-    const alertPromise = page.waitForEvent('dialog');
-    await loginHelper.fillAndSubmit(VALID_USER, VALID_PASS, 'BADCAP');
-
-    const dialog = await alertPromise;
+    const dialog = await loginHelper.fillAndSubmitThenDialog(VALID_USER, VALID_PASS, 'BADCAP');
     expect(dialog.message()).toContain('驗證碼');
     await dialog.dismiss();
 

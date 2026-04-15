@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "test":        "playwright test",
-    "test:headed": "playwright test --headed",
+    "test:headed": "playwright test --headed --project=chromium",
     "test:ui":     "playwright test --ui",
     "test:debug":  "playwright test --debug",
     "report":      "playwright show-report"

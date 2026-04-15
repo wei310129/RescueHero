@@ -1,4 +1,4 @@
-import { test as base, expect, type Page } from '@playwright/test';
+import { test as base, expect, type Page, type Dialog } from '@playwright/test';
 import { mockCaptchaEndpoint, mockRolesEndpoint } from '../helpers/mock-api';
 import { LOGIN, REGISTER } from '../helpers/selectors';
 
@@ -23,9 +23,30 @@ export class LoginPageHelper {
     await this.page.click(LOGIN.submitButton);
   }
 
+  /**
+   * Click submit and wait for the resulting alert/confirm dialog.
+   *
+   * Works for both sync alerts (fired during the click handler, e.g. client-side
+   * guards) and async alerts (fired after an API call completes):
+   *  - The click is dispatched but NOT awaited, so Playwright's event loop can
+   *    process the dialog event even when the browser is blocked by a sync alert.
+   *  - waitForEvent('dialog') resolves as soon as the dialog appears, whether
+   *    that is immediately (sync) or after an API round-trip (async).
+   */
+  async submitAndWaitForDialog(): Promise<Dialog> {
+    const dialogPromise = this.page.waitForEvent('dialog');
+    void this.page.click(LOGIN.submitButton); // intentionally fire-and-forget
+    return dialogPromise;
+  }
+
   async fillAndSubmit(username: string, password: string, captchaValue = 'XXXXX') {
     await this.fillForm(username, password, captchaValue);
     await this.submit();
+  }
+
+  async fillAndSubmitThenDialog(username: string, password: string, captchaValue = 'XXXXX'): Promise<Dialog> {
+    await this.fillForm(username, password, captchaValue);
+    return this.submitAndWaitForDialog();
   }
 }
 
@@ -64,6 +85,13 @@ export class RegisterPageHelper {
 
   async submit() {
     await this.page.click(REGISTER.submitButton);
+  }
+
+  /** Same fire-and-forget pattern as LoginPageHelper.submitAndWaitForDialog */
+  async submitAndWaitForDialog(): Promise<Dialog> {
+    const dialogPromise = this.page.waitForEvent('dialog');
+    void this.page.click(REGISTER.submitButton); // intentionally fire-and-forget
+    return dialogPromise;
   }
 }
 
