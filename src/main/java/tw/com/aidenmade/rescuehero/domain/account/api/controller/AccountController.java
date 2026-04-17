@@ -10,10 +10,14 @@ import jakarta.annotation.security.PermitAll;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import tw.com.aidenmade.rescuehero.domain.account.api.request.*;
+import tw.com.aidenmade.rescuehero.domain.account.application.dto.AccountDto;
 import tw.com.aidenmade.rescuehero.domain.account.application.service.AccountService;
 import tw.com.aidenmade.rescuehero.domain.account.application.service.CaptchaService;
 import tw.com.aidenmade.rescuehero.domain.base.api.controller.AbstractBaseController;
@@ -42,6 +46,39 @@ public class AccountController extends AbstractBaseController {
     @GetMapping
     public ResponseEntity<Object> listAll(Pageable pageable) {
         return okResponse(accountService.listAll(pageable));
+    }
+
+    // 僅供練習用
+    // 適用時機：已知帳號 ID，只需取得單一帳號資訊時使用。
+    // 結果為單一物件或空（404），不需串流處理。
+    @Operation(summary = "非阻塞取得單一帳號（Mono）", description = "以 WebFlux Mono 非阻塞查詢指定 ID 帳號，查無時回傳 404（需登入）")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "查詢成功"),
+            @ApiResponse(responseCode = "404", description = "帳號不存在"),
+            @ApiResponse(responseCode = "401", description = "未授權")
+    })
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/reactive/mono/{id}")
+    public Mono<ResponseEntity<AccountDto>> getByIdMono(
+            @Parameter(description = "帳號 ID") @PathVariable Long id) {
+        return accountService.getByIdMono(id)
+                .map(ResponseEntity::ok)
+                .defaultIfEmpty(ResponseEntity.notFound().build());
+    }
+
+    // 僅供練習用
+    // 適用時機：資料量大或需要即時逐筆推送時使用（如即時監控、大量資料下載）。
+    // 回應格式為 NDJSON（每筆帳號獨立一行），呼叫端需支援串流讀取。
+    // 首筆資料可更快送達，伺服器記憶體壓力低於 Mono 版本。
+    @Operation(summary = "非阻塞取得所有帳號（Flux）", description = "以 WebFlux Flux 串流回傳所有帳號，每筆帳號作為獨立事件推送（僅限管理員）")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "查詢成功"),
+            @ApiResponse(responseCode = "403", description = "權限不足")
+    })
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping(value = "/reactive/flux/accounts", produces = MediaType.APPLICATION_NDJSON_VALUE)
+    public Flux<AccountDto> listAllFlux() {
+        return accountService.listAllFlux();
     }
 
     @Operation(summary = "取得帳號資訊", description = "根據帳號名稱查詢帳號資訊")

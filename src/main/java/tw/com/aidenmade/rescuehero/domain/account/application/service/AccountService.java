@@ -6,6 +6,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 import tw.com.aidenmade.rescuehero.configuration.context.AuditScopesContext;
 import tw.com.aidenmade.rescuehero.domain.account.api.request.*;
 import tw.com.aidenmade.rescuehero.domain.account.application.dto.AccountDto;
@@ -20,6 +23,8 @@ import tw.com.aidenmade.rescuehero.utils.ExceptionUtils;
 import tw.com.aidenmade.rescuehero.utils.PasswordUtils;
 
 import java.time.Instant;
+import java.util.List;
+import tw.com.aidenmade.rescuehero.domain.account.projection.AccountProjection;
 
 @Slf4j
 @Service
@@ -41,6 +46,39 @@ public class AccountService extends AbstractAccountBaseService {
     public Page<AccountDto> listAll(Pageable pageable) {
         return accountRepository.findAllBy(pageable)
                 .map(accountProjectionMapper::toDto);
+    }
+
+    /**
+     * 非阻塞查詢單一帳號 — 回傳 Mono<AccountDto>
+     * 將阻塞的 JPA 查詢卸載至 boundedElastic 執行緒池，避免阻塞事件迴圈；
+     * 查無帳號時回傳 Mono.empty()
+     */
+    public Mono<AccountDto> getByIdMono(Long id) {
+        return Mono.fromCallable(() ->
+                accountRepository.findProjectedById(id)
+                        .map(accountProjectionMapper::toDto)
+                        .orElse(null)
+        ).subscribeOn(Schedulers.boundedElastic());
+    }
+
+    /**
+     * 非阻塞查詢所有帳號 — 回傳 Flux<AccountDto>（逐筆串流，Keyset 分批）
+     * 在 boundedElastic 執行緒池上執行迴圈，每批最多 100 筆；
+     * 以 id > lastId ORDER BY id 取代 OFFSET，避免深頁效能退化。
+     */
+    public Flux<AccountDto> listAllFlux() {
+        return Flux.<AccountDto>create(sink -> {
+            long lastId = 0L;
+            while (!sink.isCancelled()) {
+                List<AccountProjection> batch =
+                        accountRepository.findTop100ByIdGreaterThanOrderByIdAsc(lastId);
+                if (batch.isEmpty()) break;
+                batch.forEach(p -> sink.next(accountProjectionMapper.toDto(p)));
+                lastId = batch.getLast().getId();
+                if (batch.size() < 100) break; // 最後一批
+            }
+            sink.complete();
+        }).subscribeOn(Schedulers.boundedElastic());
     }
 
     @Transactional
